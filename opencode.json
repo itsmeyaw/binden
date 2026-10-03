@@ -5,6 +5,10 @@
       "type": "local",
       "command": ["npx", "shadcn@latest", "mcp"],
       "enabled": true
+    },
+    "better-auth": {
+      "type": "remote",
+      "url": "https://mcp.better-auth.com/mcp"
     }
   }
 }
