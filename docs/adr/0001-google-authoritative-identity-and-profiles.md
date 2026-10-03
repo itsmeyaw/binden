@@ -1,0 +1,9 @@
+# Google is authoritative for Workspace users and administrative authority
+
+This application serves one nonprofit's Google Workspace organization. Use Google-backed sign-in for existing Workspace users, Google Workspace administrative privileges for management authorization, and Google Workspace as the source of truth for existing user profiles and group membership, rather than maintaining parallel application-owned profiles or administrator roles.
+
+The application stores signup requests separately because applicants do not yet have managed accounts. Signup uses verified contact email without requiring a personal Google account or an applicant dashboard. Workspace users may edit only their own permitted contact information; Workspace email, organizational assignments, group membership, account status, and security settings remain administrator-controlled. Administrators manage direct Workspace-user group membership, including member, manager, and owner roles; group roles alone do not grant application administration.
+
+Suspension is the normal offboarding action. Deletion is a distinct, explicitly confirmed action after an administrator has resolved data disposition in Google's Admin console. Account handover uses the Admin console's existing-user password reset and email flow, with a required password change, rather than emailing a plaintext password.
+
+Unreviewed signup requests expire after 30 days. Rejected applicant profiles are deleted after outcome notification; successful applicant form data is removed after provisioning and handover. Retain only a minimal operational record identifying the resulting Google account and approving administrator. Email verification evidence and pending workflow data may live in the application without becoming a second source of truth for the current Workspace profile.
