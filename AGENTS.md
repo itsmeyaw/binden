@@ -8,11 +8,13 @@
   1. Create a git worktree inside .worktrees
   2. Create a new github stack on the worktree
   3. Implement the changes, lint and format.
-  4. Review the changes (ponytail + correctness)
-  5. Add the stack to github
-  6. After all changes are implemented, submit the stack to github
-  7. Update the issue in the issue tracker by adding summary of implementation and related PR.
-- Database use drizzle ORM
+  4. Commit the changes.
+  5. Review the changes (ponytail + correctness), repair and add additional commit as necessary.
+  6. Add the stack to github.
+  7. After all changes are implemented, submit the stack to github.
+  8. Update the issue in the issue tracker by adding summary of. implementation and related PR.
+- Database use drizzle ORM.
+- Commit in small functional changes.
 
 <!-- BEGIN:nextjs-agent-rules -->
 
