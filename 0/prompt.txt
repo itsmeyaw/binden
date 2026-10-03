@@ -1,0 +1,17 @@
+Implement issue 2 from the issue tracker. Use better-auth with social sign on for authentication.
+
+---
+
+continue
+
+---
+
+lgtm, implement
+
+---
+
+Use shadcn components for the UI (e.g., Card for the login form).
+
+---
+
+How can I test it myself?
