@@ -6,6 +6,12 @@
       "sourceType": "github",
       "skillPath": "skills/gh-stack/SKILL.md",
       "computedHash": "6a5289601eedbeedc2d79c2d8627277afb9b9a3fbd78b4da3399a46dd788ae0a"
+    },
+    "retrieving-developer-knowledge": {
+      "source": "google/skills",
+      "sourceType": "github",
+      "skillPath": "skills/developers/retrieving-developer-knowledge/SKILL.md",
+      "computedHash": "3461d043788e8057432a8c92e783d3dab9199d5f78f980c35831b8b2afeb69c4"
     }
   }
 }
