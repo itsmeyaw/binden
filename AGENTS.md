@@ -11,6 +11,7 @@
   4. Review the changes (ponytail + correctness)
   5. Add the stack to github
   6. After all changes are implemented, submit the stack to github
+  7. Update the issue in the issue tracker by adding summary of implementation and related PR.
 - Database use drizzle ORM
 
 <!-- BEGIN:nextjs-agent-rules -->
