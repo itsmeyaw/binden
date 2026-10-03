@@ -7,10 +7,11 @@
 - Use git worktree and github stacked PR for implementation:
   1. Create a git worktree inside .worktrees
   2. Create a new github stack
-  3. Implement the changes
+  3. Implement the changes, lint and format.
   4. Review the changes (ponytail + correctness)
   5. Add the stack
   6. After all changes are implemented, submit the stack
+- Database use drizzle ORM
 
 <!-- BEGIN:nextjs-agent-rules -->
 
