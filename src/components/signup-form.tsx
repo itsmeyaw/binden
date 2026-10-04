@@ -74,6 +74,7 @@ export function SignupForm() {
       widgetId.current = window.turnstile.render(challenge.current, {
         sitekey: siteKey,
         action: "signup",
+        theme: "light",
         callback: (token: string) => setTurnstileToken(token),
         "expired-callback": () => setTurnstileToken(""),
         "error-callback": () => setTurnstileToken(""),
@@ -252,7 +253,7 @@ export function SignupForm() {
                 <FieldError id="turnstile-error">{errors.turnstileToken}</FieldError>
               </Field>
             </FieldGroup>
-            <CardFooter className="-mx-(--card-spacing) -mb-(--card-spacing) justify-end">
+            <CardFooter className="-mx-(--card-spacing) -mb-(--card-spacing) justify-end pb-6">
               <Button disabled={pending || !siteKey} type="submit">
                 {pending && <Spinner data-icon="inline-start" />}
                 {pending ? "Submitting request" : "Submit request"}
