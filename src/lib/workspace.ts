@@ -121,7 +121,6 @@ export async function hasReviewerRole(accessToken: string, directoryId: string, 
     "https://admin.googleapis.com/admin/directory/v1/customer/my_customer/roleassignments",
   );
   url.searchParams.set("userKey", directoryId);
-  url.searchParams.set("roleId", roleId);
   url.searchParams.set("includeIndirectRoleAssignments", "true");
   let pageToken: string | undefined;
   do {

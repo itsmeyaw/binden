@@ -43,6 +43,37 @@ async function testWorkspaceFailures() {
   }
 }
 
-testWorkspaceFailures().catch((error: unknown) => {
-  throw error;
-});
+async function testReviewerRoleLookup() {
+  const originalFetch = globalThis.fetch;
+  const roleId = "9007199254740993";
+  const pages = [
+    { nextPageToken: "second" },
+    { items: [{ roleId: "9007199254740992" }], nextPageToken: "third" },
+    { items: [{ roleId }] },
+  ];
+  const pageTokens: Array<string | null> = [];
+  try {
+    globalThis.fetch = async (input, init) => {
+      const url = new URL(String(input));
+      assert.equal(url.searchParams.has("roleId"), false);
+      assert.equal(url.searchParams.get("userKey"), "directory-id");
+      assert.equal(url.searchParams.get("includeIndirectRoleAssignments"), "true");
+      assert.equal(new Headers(init?.headers).get("Authorization"), "Bearer test-token");
+      pageTokens.push(url.searchParams.get("pageToken"));
+      return Response.json(pages[pageTokens.length - 1]);
+    };
+    assert.equal(await hasReviewerRole("test-token", "directory-id", roleId), true);
+    assert.deepEqual(pageTokens, [null, "second", "third"]);
+
+    globalThis.fetch = async () => Response.json({ items: [{ roleId: "9007199254740992" }] });
+    assert.equal(await hasReviewerRole("test-token", "directory-id", roleId), false);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+}
+
+testWorkspaceFailures()
+  .then(testReviewerRoleLookup)
+  .catch((error: unknown) => {
+    throw error;
+  });
