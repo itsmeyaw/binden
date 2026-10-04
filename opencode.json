@@ -3,7 +3,7 @@
   "mcp": {
     "shadcn": {
       "type": "local",
-      "command": ["npx", "shadcn@latest", "mcp"],
+      "command": ["pnpm", "dlx", "shadcn@latest", "mcp"],
       "enabled": true
     },
     "better-auth": {
