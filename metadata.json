@@ -3,7 +3,7 @@
   "checkpoint_id": "01M432P2XKXXS0K61J1TPBADPQ",
   "strategy": "manual-commit",
   "branch": "main",
-  "checkpoints_count": 1,
+  "checkpoints_count": 2,
   "files_touched": [
     ".gitignore",
     ".playwright-mcp/console-2026-10-03T22-26-23-038Z.log",
@@ -16,13 +16,20 @@
       "compact_transcript": "/0/transcript.jsonl",
       "content_hash": "/0/content_hash.txt",
       "prompt": ""
+    },
+    {
+      "metadata": "/1/metadata.json",
+      "transcript": "/1/full.jsonl",
+      "compact_transcript": "/1/transcript.jsonl",
+      "content_hash": "/1/content_hash.txt",
+      "prompt": ""
     }
   ],
   "token_usage": {
-    "input_tokens": 6,
-    "cache_creation_tokens": 11858,
-    "cache_read_tokens": 14594,
-    "output_tokens": 721,
-    "api_call_count": 4
+    "input_tokens": 10,
+    "cache_creation_tokens": 46340,
+    "cache_read_tokens": 48577,
+    "output_tokens": 758,
+    "api_call_count": 7
   }
 }
