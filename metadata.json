@@ -1,0 +1,28 @@
+{
+  "cli_version": "0.10.6",
+  "checkpoint_id": "01M432P2XKXXS0K61J1TPBADPQ",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".gitignore",
+    ".playwright-mcp/console-2026-10-03T22-26-23-038Z.log",
+    ".playwright-mcp/page-2026-10-03T22-26-25-725Z.yml"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 6,
+    "cache_creation_tokens": 11858,
+    "cache_read_tokens": 14594,
+    "output_tokens": 721,
+    "api_call_count": 4
+  }
+}
