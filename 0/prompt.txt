@@ -1,0 +1,1 @@
+I am weighting my decision to move the hosting from vercel to google firebase out of consideration of easier workspace management without using workspace delegation (using cloud function with role, maybe?) Does it bring that many benefit to move to google firebase? How is the cost effective plan?
