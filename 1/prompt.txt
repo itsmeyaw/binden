@@ -1,0 +1,1 @@
+Final review only. Inspect `git diff main...HEAD` in /Users/itsmeyaw/projects/binden/.worktrees/issue-2-signup. Enforce AGENTS.md: shadcn + Tailwind, no manual CSS, Drizzle ORM, minimal code. Include code-smell judgment only when actionable. Report findings with severity/file/line; otherwise say no findings. Do not modify. Under 250 words.
