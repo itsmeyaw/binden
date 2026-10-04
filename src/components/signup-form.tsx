@@ -134,7 +134,7 @@ export function SignupForm() {
       if (!response.ok) {
         setErrors(result.errors ?? {});
         setNotice(result.error);
-        if (response.status === 403) resetChallenge();
+        if (response.status !== 422) resetChallenge();
         return;
       }
       setNotice(result.message);
