@@ -1,0 +1,26 @@
+{
+  "cli_version": "0.10.6",
+  "checkpoint_id": "01M442CAG3FBZJ6YZG24S0YG5J",
+  "strategy": "manual-commit",
+  "branch": "review-requests/auth",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/lib/workspace.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 30,
+    "cache_creation_tokens": 106460,
+    "cache_read_tokens": 876045,
+    "output_tokens": 2799,
+    "api_call_count": 15
+  }
+}
