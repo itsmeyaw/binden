@@ -1,5 +1,7 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+Workspace profile reads use each user’s read-only OAuth grant and the public Directory view; Directory sharing is administrator-managed and assumed enabled.
+
 ## Getting Started
 
 First, run the development server:

@@ -1,0 +1,7 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - heading "Binden" [level=1] [ref=e3]
+    - paragraph [ref=e4]: Sign in with your managed Google Workspace account to view your current shared profile.
+    - button "Sign in with Google" [ref=e6]
+  - button "Open Next.js Dev Tools" [ref=e12] [cursor=pointer]
+  - alert [ref=e16]

@@ -3,6 +3,7 @@
 ## Development
 
 - Use shadcn and tailwind for UI implementation. Do not write css manually. Use shadcn MCP for more information.
+- Always check if shadcn has component for implementation, if not yet added, then add the component from shadcn using its mcp and cli.
 - ponytail mode full
 - Use git worktree and github stacked PR for implementation:
   1. Create a git worktree inside .worktrees

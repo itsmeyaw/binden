@@ -9,7 +9,7 @@ A person requesting a Workspace account who has not yet received one through onb
 _Avoid_: User, pending user
 
 **Signup request**:
-An applicant's submitted information awaiting an administrator's acceptance or rejection.
+An applicant's request for a Workspace account, containing submitted information that an administrator may correct before acceptance or rejection.
 _Avoid_: Account, pending user
 
 **Workspace user**:
@@ -22,6 +22,12 @@ _Avoid_: App administrator
 
 **Contact email**:
 An email address used to contact a person, distinct from their managed Workspace email address.
+
+**Applicant-verified contact email**:
+A contact email whose ownership the applicant has demonstrated during signup.
+
+**Administrator-confirmed contact email**:
+A corrected signup-request contact email confirmed by an authorized administrator without requiring the applicant to verify the replacement address.
 
 **Workspace email**:
 The primary email address of a person's managed Google Workspace account.
