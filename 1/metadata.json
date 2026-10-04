@@ -1,0 +1,46 @@
+{
+  "cli_version": "0.10.6",
+  "checkpoint_id": "01M436CVYDF6SBNMJCQ4MHHAGA",
+  "session_id": "ses_ef9d66858ffeMhOZ7B78iNmElD",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-04T10:12:28.514084Z",
+  "branch": "signup-request/schema",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".env.example",
+    ".gitignore",
+    "drizzle.config.ts",
+    "drizzle/20261004101111_gray_cyclops/migration.sql",
+    "drizzle/20261004101111_gray_cyclops/snapshot.json",
+    "src/lib/db.ts",
+    "src/lib/schema.ts"
+  ],
+  "agent": "OpenCode",
+  "model": "openai.gpt-6.1-sol",
+  "turn_id": "6f8e2466cfff",
+  "checkpoint_transcript_start": 5,
+  "transcript_lines_at_start": 5,
+  "compact_transcript_start": 5,
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "session_metrics": {
+    "turn_count": 1
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-10-04T10:12:28.502695Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 373,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 373,
+    "total_lines_changed": 373,
+    "agent_percentage": 0,
+    "metric_version": 2
+  }
+}
