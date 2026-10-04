@@ -22,7 +22,7 @@ export async function POST(request: Request) {
   const { turnstileToken, ...requestData } = parsed.data;
   if (!(await verifyTurnstile(turnstileToken, request)))
     return json({ errors: { turnstileToken: "Verification failed. Please try again." } }, 403);
-  if (process.env.NODE_ENV === "production" || process.env.MAIL_CAPTURE !== "true")
+  if (process.env.MAIL_CAPTURE !== "true")
     return json({ error: "Signup is temporarily unavailable." }, 503);
 
   const appUrl = process.env.APP_URL;
