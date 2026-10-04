@@ -3,7 +3,7 @@
   "checkpoint_id": "01M43G5M3PRN8V4N1E82EVZ670",
   "strategy": "manual-commit",
   "branch": "signup-request/ui",
-  "checkpoints_count": 8,
+  "checkpoints_count": 10,
   "files_touched": null,
   "sessions": [
     {
@@ -61,13 +61,20 @@
       "compact_transcript": "/7/transcript.jsonl",
       "content_hash": "/7/content_hash.txt",
       "prompt": "/7/prompt.txt"
+    },
+    {
+      "metadata": "/8/metadata.json",
+      "transcript": "/8/full.jsonl",
+      "compact_transcript": "/8/transcript.jsonl",
+      "content_hash": "/8/content_hash.txt",
+      "prompt": "/8/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 0,
-    "cache_creation_tokens": 0,
-    "cache_read_tokens": 0,
-    "output_tokens": 0,
-    "api_call_count": 0
+    "input_tokens": 6,
+    "cache_creation_tokens": 14433,
+    "cache_read_tokens": 158953,
+    "output_tokens": 897,
+    "api_call_count": 3
   }
 }
