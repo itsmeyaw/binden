@@ -1,0 +1,28 @@
+Call the Skill tool twice, for "grilling" and "domain-modeling".
+
+
+Base directory for this skill: /Users/itsmeyaw/.claude/skills/grill-with-docs
+Relative paths in this skill (e.g., scripts/, references/) are relative to this base directory.
+
+This is a project for self-service management for google workspace. The goal is to allow simpler user management. This involves user onboarding, self-service and management, and offboarding. The application should use the google workspace or google-backed authentication and authorization system optimally, so there is no disprepacies between two. Be cost optimal: if there is a free or cheaper solution, use it. This is a small scale project for a non-profit organization. Design should use the current preconfigured shadcn UI system.
+
+Scenario for onboarding:
+1. User sign ups and filling all necessary data
+2. User submit 
+3. An admin review the sign up request
+4. If accepted: user created in the google workspace
+5. If declined: request deleted
+
+For self-service:
+1. User login
+2. Manage their data inside the application
+
+Google workspace should be source of truth for user data and information.
+
+Admin should be also able to 
+1. List users
+2. Edit any users
+3. Deactivate or delete users
+4. Manage Groups (create, edit, and manage its members)
+
+Users only able to see and manage their own information.

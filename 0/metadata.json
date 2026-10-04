@@ -1,0 +1,104 @@
+{
+  "cli_version": "0.10.6",
+  "checkpoint_id": "01M44DGW0MBDKKSHXNSE80AQ5P",
+  "session_id": "ses_efcc326d3ffeiu32wzRcaWf0t2",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-04T21:36:05.216008Z",
+  "branch": "main",
+  "checkpoints_count": 14,
+  "save_step_count": 5,
+  "files_touched": [
+    ".worktrees/workspace-design/CONTEXT.md",
+    ".worktrees/workspace-design/docs/adr/0001-google-authoritative-identity-and-profiles.md",
+    ".worktrees/workspace-design/docs/adr/0002-admin-oauth-and-approved-profile-changes.md",
+    ".worktrees/workspace-design/docs/adr/0003-vercel-and-neon-hosting.md"
+  ],
+  "agent": "OpenCode",
+  "model": "openai.gpt-6.1-sol",
+  "turn_id": "799f0d5b9bd3",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 112,
+    "cache_creation_tokens": 252720,
+    "cache_read_tokens": 3159429,
+    "output_tokens": 35554,
+    "api_call_count": 56
+  },
+  "session_metrics": {
+    "turn_count": 14
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-10-04T21:36:05.15305Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 4646,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 4646,
+    "total_lines_changed": 4722,
+    "agent_percentage": 0,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 269,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".opencode/plugins/entire.ts": 269
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 269,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".opencode/plugins/entire.ts": 269
+      }
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 269,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".opencode/plugins/entire.ts": 269
+      }
+    },
+    {
+      "checkpoint_number": 4,
+      "user_lines_added": 269,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".opencode/plugins/entire.ts": 269
+      }
+    },
+    {
+      "checkpoint_number": 5,
+      "user_lines_added": 269,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".opencode/plugins/entire.ts": 269
+      }
+    },
+    {
+      "checkpoint_number": 6,
+      "user_lines_added": 269,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".opencode/plugins/entire.ts": 269
+      }
+    }
+  ]
+}
