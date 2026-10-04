@@ -5,14 +5,7 @@ import { CheckCircle2Icon, ShieldCheckIcon } from "lucide-react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Field,
   FieldDescription,
@@ -149,9 +142,9 @@ export function SignupForm() {
   }
 
   return (
-    <Card className="w-full max-w-xl">
+    <Card className="w-full">
       <CardHeader>
-        <CardTitle className="text-2xl">Request a Workspace account</CardTitle>
+        <CardTitle className="">Request a Workspace account</CardTitle>
         <CardDescription>
           Tell us how to contact you. We will send a verification link before your request is
           reviewed.
@@ -253,12 +246,14 @@ export function SignupForm() {
                 <FieldError id="turnstile-error">{errors.turnstileToken}</FieldError>
               </Field>
             </FieldGroup>
-            <CardFooter className="-mx-(--card-spacing) -mb-(--card-spacing) justify-end pb-6">
-              <Button disabled={pending || !siteKey} type="submit">
-                {pending && <Spinner data-icon="inline-start" />}
-                {pending ? "Submitting request" : "Submit request"}
-              </Button>
-            </CardFooter>
+            <FieldGroup>
+              <Field>
+                <Button className="w-full" disabled={pending || !siteKey} type="submit">
+                  {pending && <Spinner data-icon="inline-start" />}
+                  {pending ? "Submitting request" : "Submit request"}
+                </Button>
+              </Field>
+            </FieldGroup>
           </FieldSet>
         </form>
       </CardContent>
