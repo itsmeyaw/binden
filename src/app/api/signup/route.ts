@@ -22,7 +22,7 @@ export async function POST(request: Request) {
   const { turnstileToken, ...requestData } = parsed.data;
   if (!(await verifyTurnstile(turnstileToken, request)))
     return json({ errors: { turnstileToken: "Verification failed. Please try again." } }, 403);
-  if (process.env.MAIL_CAPTURE !== "true")
+  if (process.env.NODE_ENV === "production" || process.env.MAIL_CAPTURE !== "true")
     return json({ error: "Signup is temporarily unavailable." }, 503);
 
   const appUrl = process.env.APP_URL;
@@ -54,12 +54,12 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     if (typeof error === "object" && error && "code" in error && error.code === "23505")
-      return json(
-        { error: "An active signup request already uses this contact email." },
-        409,
-      );
+      return json({ error: "An active signup request already uses this contact email." }, 409);
     return json({ error: "Signup is temporarily unavailable. Please try again." }, 503);
   }
 
-  return json({ message: "Your signup request was received. Check your contact email to verify it." }, 201);
+  return json(
+    { message: "Your signup request was received. Check your contact email to verify it." },
+    201,
+  );
 }

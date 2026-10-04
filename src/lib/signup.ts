@@ -1,57 +1,53 @@
-export type SignupInput = {
-  givenName: string;
-  familyName: string;
-  contactEmail: string;
-  phone: string | null;
-  connection: string | null;
-  turnstileToken: string;
-};
+import { z } from "zod";
 
+const optionalText = (maxLength: number, message: string) =>
+  z
+    .string()
+    .trim()
+    .max(maxLength, message)
+    .optional()
+    .transform((value) => value || null);
+
+const signupSchema = z.object({
+  givenName: z.string().trim().min(1, "Enter your given name.").max(100, "Enter your given name."),
+  familyName: z
+    .string()
+    .trim()
+    .min(1, "Enter your family name.")
+    .max(100, "Enter your family name."),
+  contactEmail: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .max(254, "Enter a valid contact email.")
+    .email("Enter a valid contact email."),
+  phone: optionalText(50, "Enter a phone number of 50 characters or fewer."),
+  connection: optionalText(1000, "Keep your connection explanation to 1,000 characters or fewer."),
+  turnstileToken: z
+    .string()
+    .min(1, "Complete the verification challenge.")
+    .max(2048, "Complete the verification challenge."),
+});
+
+export type SignupInput = z.output<typeof signupSchema>;
 export type SignupErrors = Partial<Record<keyof SignupInput, string>>;
 
-function optionalText(value: unknown, maxLength: number) {
-  if (value === undefined || value === null || value === "") return null;
-  if (typeof value !== "string") return undefined;
-  const trimmed = value.trim();
-  return trimmed.length <= maxLength ? trimmed || null : undefined;
-}
+export function parseSignupInput(
+  value: unknown,
+): { data: SignupInput; errors: undefined } | { data: undefined; errors: SignupErrors } {
+  const result = signupSchema.safeParse(value);
+  if (result.success) return { data: result.data, errors: undefined };
 
-export function parseSignupInput(value: unknown):
-  | { data: SignupInput; errors: undefined }
-  | { data: undefined; errors: SignupErrors } {
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return { data: undefined, errors: { givenName: "Enter your given name." } };
-  }
-
-  const input = value as Record<string, unknown>;
-  const givenName = typeof input.givenName === "string" ? input.givenName.trim() : "";
-  const familyName = typeof input.familyName === "string" ? input.familyName.trim() : "";
-  const contactEmail = typeof input.contactEmail === "string" ? input.contactEmail.trim().toLowerCase() : "";
-  const phone = optionalText(input.phone, 50);
-  const connection = optionalText(input.connection, 1000);
-  const turnstileToken = typeof input.turnstileToken === "string" ? input.turnstileToken : "";
   const errors: SignupErrors = {};
-
-  if (!givenName || givenName.length > 100) errors.givenName = "Enter your given name.";
-  if (!familyName || familyName.length > 100) errors.familyName = "Enter your family name.";
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail) || contactEmail.length > 254)
-    errors.contactEmail = "Enter a valid contact email.";
-  if (phone === undefined) errors.phone = "Enter a phone number of 50 characters or fewer.";
-  if (connection === undefined)
-    errors.connection = "Keep your connection explanation to 1,000 characters or fewer.";
-  if (!turnstileToken || turnstileToken.length > 2048)
-    errors.turnstileToken = "Complete the verification challenge.";
-
-  if (Object.keys(errors).length) return { data: undefined, errors };
-  return {
-    data: {
-      givenName,
-      familyName,
-      contactEmail,
-      phone: phone ?? null,
-      connection: connection ?? null,
-      turnstileToken,
-    },
-    errors: undefined,
-  };
+  for (const issue of result.error.issues) {
+    const field = issue.path[0];
+    if (
+      typeof field === "string" &&
+      field in signupSchema.shape &&
+      !errors[field as keyof SignupInput]
+    ) {
+      errors[field as keyof SignupInput] = issue.message;
+    }
+  }
+  return { data: undefined, errors };
 }
