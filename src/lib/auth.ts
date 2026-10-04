@@ -83,9 +83,11 @@ export const auth = betterAuth({
 });
 
 export async function getReviewAccess(headers: Headers) {
+  let stage = "session";
   try {
     const session = await auth.api.getSession({ headers });
     if (!session) return { status: "signed-out" } as const;
+    stage = "account";
     const [account] = await db
       .select()
       .from(schema.account)
@@ -93,20 +95,25 @@ export async function getReviewAccess(headers: Headers) {
         and(eq(schema.account.userId, session.user.id), eq(schema.account.providerId, "google")),
       );
     if (!account) throw new WorkspaceUnavailable(true);
+    stage = "access-token";
     const token = await auth.api.getAccessToken({ headers, body: { accountId: account.id } });
     if (
       !token.accessToken ||
       (token.accessTokenExpiresAt && new Date(token.accessTokenExpiresAt).getTime() <= Date.now())
     )
       throw new WorkspaceUnavailable(true);
+    stage = "workspace-profile";
     const profile = await readWorkspaceProfile(token.accessToken, account.accountId, true);
+    stage = "reviewer-role";
     if (!(await hasReviewerRole(token.accessToken, profile.id, config.GOOGLE_REVIEWER_ROLE_ID)))
       return { status: "denied" } as const;
     return { status: "available", profile } as const;
   } catch (error) {
+    const status =
+      error instanceof WorkspaceUnavailable && error.reconnect ? "reconnect" : "unavailable";
+    console.error("[review-access] Access check failed", { stage, status });
     return {
-      status:
-        error instanceof WorkspaceUnavailable && error.reconnect ? "reconnect" : "unavailable",
+      status,
     } as const;
   }
 }

@@ -43,9 +43,35 @@ async function googleGet(url: string, accessToken: string) {
     cache: "no-store",
     signal: AbortSignal.timeout(10_000),
   });
-  if (!response.ok)
-    throw new WorkspaceUnavailable(response.status === 401 || response.status === 403);
+  if (!response.ok) {
+    await logGoogleFailure(url, response);
+    throw new WorkspaceUnavailable(response.status === 401);
+  }
   return response.json();
+}
+
+async function logGoogleFailure(url: string | URL, response: Response) {
+  const parsed = z
+    .object({
+      error: z.object({
+        errors: z
+          .array(
+            z.object({
+              reason: z
+                .string()
+                .regex(/^[\w.]+$/)
+                .max(100),
+            }),
+          )
+          .optional(),
+      }),
+    })
+    .safeParse(await response.json().catch(() => null));
+  console.error("[workspace] Google API rejected request", {
+    endpoint: new URL(url).pathname.replace(/\/users\/[^/]+/, "/users/{userKey}"),
+    status: response.status,
+    reasons: parsed.success ? parsed.data.error.errors?.map(({ reason }) => reason) : undefined,
+  });
 }
 
 export async function readWorkspaceProfile(
@@ -104,8 +130,11 @@ export async function hasReviewerRole(accessToken: string, directoryId: string, 
       cache: "no-store",
       signal: AbortSignal.timeout(10_000),
     });
-    if (response.status === 403) return false;
-    if (!response.ok) throw new WorkspaceUnavailable(response.status === 401);
+    if (!response.ok) {
+      await logGoogleFailure(url, response);
+      if (response.status === 403) return false;
+      throw new WorkspaceUnavailable(response.status === 401);
+    }
     const assignments = roleAssignmentsSchema.parse(await response.json());
     if (assignments.items?.some((item) => item.roleId === roleId)) return true;
     pageToken = assignments.nextPageToken;
