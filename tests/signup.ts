@@ -78,6 +78,7 @@ async function testVerificationEndpoint() {
 
   for (const [outcome, existing] of [
     ["used", [{ status: "verified", verificationExpiresAt: new Date(Date.now() + 1_000) }]],
+    ["used", [{ status: "under_review", verificationExpiresAt: new Date(Date.now() + 1_000) }]],
     ["expired", [{ status: "pending_verification", verificationExpiresAt: new Date(0) }]],
     ["invalid", []],
   ] as const) {
@@ -166,14 +167,24 @@ function request(body = validInput) {
 
 function testDatabase(batchError?: unknown) {
   const writes: Array<Array<{ value: Record<string, unknown> }>> = [];
+  let deletions = 0;
   const database = {
     insert: () => ({ values: (value: Record<string, unknown>) => ({ value }) }),
+    delete: () => ({
+      where: async () => {
+        deletions += 1;
+      },
+    }),
     batch: async (queries: Array<{ value: Record<string, unknown> }>) => {
       if (batchError) throw batchError;
       writes.push(queries);
     },
   };
-  return { database: database as unknown as ReturnType<typeof getDb>, writes };
+  return {
+    database: database as unknown as ReturnType<typeof getDb>,
+    deletions: () => deletions,
+    writes,
+  };
 }
 
 async function testSignupEndpoint() {
@@ -195,6 +206,7 @@ async function testSignupEndpoint() {
   });
   assert.equal((await acceptedHandler(request())).status, 201);
   assert.equal(accepted.writes.length, 1);
+  assert.equal(accepted.deletions(), 1);
   assert.equal(accepted.writes[0][0].value.contactEmail, "ada@example.com");
   assert.equal(accepted.writes[0][1].value.to, "ada@example.com");
   assert.match(

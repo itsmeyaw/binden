@@ -1,5 +1,7 @@
 import { randomUUID } from "node:crypto";
 
+import { and, eq, lte } from "drizzle-orm";
+
 import { getDb } from "@/lib/db";
 import { mailMessage, signupRequest } from "@/lib/schema";
 import { parseSignupInput } from "@/lib/signup";
@@ -52,6 +54,15 @@ export function createSignupHandler(overrides: Partial<SignupDependencies> = {})
 
     try {
       const db = database();
+      await db
+        .delete(signupRequest)
+        .where(
+          and(
+            eq(signupRequest.contactEmail, requestData.contactEmail),
+            eq(signupRequest.status, "pending_verification"),
+            lte(signupRequest.verificationExpiresAt, new Date()),
+          ),
+        );
       await db.batch([
         db.insert(signupRequest).values({
           id: requestId,

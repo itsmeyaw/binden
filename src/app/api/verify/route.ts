@@ -42,7 +42,7 @@ export function createVerificationHandler(overrides: Partial<VerificationDepende
         .where(eq(signupRequest.verificationTokenHash, tokenHash))
         .limit(1);
       if (!existing) return json({ outcome: "invalid" });
-      if (existing.status === "verified") return json({ outcome: "used" });
+      if (existing.status !== "pending_verification") return json({ outcome: "used" });
       if (
         existing.status === "pending_verification" &&
         existing.verificationExpiresAt <= new Date()
