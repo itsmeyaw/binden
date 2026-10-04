@@ -1,9 +1,14 @@
-import { createHash, randomBytes, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 
 import { getDb } from "@/lib/db";
 import { mailMessage, signupRequest } from "@/lib/schema";
 import { parseSignupInput } from "@/lib/signup";
 import { verifyTurnstile } from "@/lib/turnstile";
+import {
+  createVerificationToken,
+  hashVerificationToken,
+  verificationMessage,
+} from "@/lib/verification";
 
 function json(body: unknown, status = 200) {
   return Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
@@ -41,10 +46,9 @@ export function createSignupHandler(overrides: Partial<SignupDependencies> = {})
 
     const requestId = randomUUID();
     const messageId = randomUUID();
-    const verificationToken = randomBytes(32).toString("base64url");
-    const verificationTokenHash = createHash("sha256").update(verificationToken).digest("hex");
+    const verificationToken = createVerificationToken();
+    const verificationTokenHash = hashVerificationToken(verificationToken);
     const verificationExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
-    const verificationUrl = new URL(`/verify?token=${verificationToken}`, appUrl).toString();
 
     try {
       const db = database();
@@ -60,7 +64,7 @@ export function createSignupHandler(overrides: Partial<SignupDependencies> = {})
           signupRequestId: requestId,
           to: parsed.data.contactEmail,
           subject: "Verify your Workspace signup request",
-          text: `Verify your contact email within 24 hours: ${verificationUrl}`,
+          text: verificationMessage(appUrl, verificationToken),
         }),
       ]);
     } catch (error) {
