@@ -144,7 +144,7 @@ export function SignupForm() {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle className="">Request a Workspace account</CardTitle>
+        <CardTitle>Request a Workspace account</CardTitle>
         <CardDescription>
           Tell us how to contact you. We will send a verification link before your request is
           reviewed.
