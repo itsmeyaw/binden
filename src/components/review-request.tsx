@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 
 import { ReviewAccess, type ReviewOutcome } from "@/components/review-access";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 
 type SignupRequest = {
@@ -62,58 +61,52 @@ export function ReviewRequest({ id }: { id?: string }) {
   }
 
   return (
-    <Card className="min-h-0">
-      <CardHeader>
-        <CardTitle className="text-2xl">Signup request</CardTitle>
-        <CardDescription>Applicant information submitted for review.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        {state.status === "loading" && (
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Spinner /> Loading request
+    <section className="min-h-0 p-4 lg:overflow-y-auto">
+      {state.status === "loading" && (
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <Spinner /> Loading request
+        </div>
+      )}
+      {state.status === "unselected" && (
+        <p className="text-muted-foreground">Select a signup request to review its details.</p>
+      )}
+      {state.status === "missing" && (
+        <p className="text-muted-foreground">
+          This verified signup request is no longer available.
+        </p>
+      )}
+      {state.status === "ready" && (
+        <dl className="grid gap-5 sm:grid-cols-2">
+          <div>
+            <dt className="font-medium">Name</dt>
+            <dd>
+              {state.request.givenName} {state.request.familyName}
+            </dd>
           </div>
+          <div>
+            <dt className="font-medium">Contact email</dt>
+            <dd className="break-all">{state.request.contactEmail}</dd>
+          </div>
+          <div>
+            <dt className="font-medium">Phone</dt>
+            <dd>{state.request.phone ?? "Not provided"}</dd>
+          </div>
+          <div>
+            <dt className="font-medium">Submitted</dt>
+            <dd>{new Date(state.request.createdAt).toLocaleDateString()}</dd>
+          </div>
+          <div className="sm:col-span-2">
+            <dt className="font-medium">Connection to the nonprofit</dt>
+            <dd className="whitespace-pre-wrap">{state.request.connection ?? "Not provided"}</dd>
+          </div>
+        </dl>
+      )}
+      {state.status !== "loading" &&
+        state.status !== "ready" &&
+        state.status !== "missing" &&
+        state.status !== "unselected" && (
+          <ReviewAccess outcome={state.status} retry={() => void retry()} />
         )}
-        {state.status === "unselected" && (
-          <p className="text-muted-foreground">Select a signup request to review its details.</p>
-        )}
-        {state.status === "missing" && (
-          <p className="text-muted-foreground">
-            This verified signup request is no longer available.
-          </p>
-        )}
-        {state.status === "ready" && (
-          <dl className="grid gap-5 sm:grid-cols-2">
-            <div>
-              <dt className="font-medium">Name</dt>
-              <dd>
-                {state.request.givenName} {state.request.familyName}
-              </dd>
-            </div>
-            <div>
-              <dt className="font-medium">Contact email</dt>
-              <dd className="break-all">{state.request.contactEmail}</dd>
-            </div>
-            <div>
-              <dt className="font-medium">Phone</dt>
-              <dd>{state.request.phone ?? "Not provided"}</dd>
-            </div>
-            <div>
-              <dt className="font-medium">Submitted</dt>
-              <dd>{new Date(state.request.createdAt).toLocaleDateString()}</dd>
-            </div>
-            <div className="sm:col-span-2">
-              <dt className="font-medium">Connection to the nonprofit</dt>
-              <dd className="whitespace-pre-wrap">{state.request.connection ?? "Not provided"}</dd>
-            </div>
-          </dl>
-        )}
-        {state.status !== "loading" &&
-          state.status !== "ready" &&
-          state.status !== "missing" &&
-          state.status !== "unselected" && (
-            <ReviewAccess outcome={state.status} retry={() => void retry()} />
-          )}
-      </CardContent>
-    </Card>
+    </section>
   );
 }

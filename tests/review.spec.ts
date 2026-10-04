@@ -39,7 +39,7 @@ test.describe("verified signup request review", () => {
     );
 
     await page.goto("/review");
-    await expect(page.getByRole("heading", { name: "Verified signup requests" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Sign up requests" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Verified Applicant" })).toBeVisible();
     await expect(page.getByText("Hidden Applicant")).toHaveCount(0);
 
