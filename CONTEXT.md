@@ -12,6 +12,15 @@ _Avoid_: User, pending user
 An applicant's request for a Workspace account, containing submitted information that an administrator may correct before acceptance or rejection.
 _Avoid_: Account, pending user
 
+**Acceptance**:
+An administrator's approval of a signup request, including its chosen Workspace email and initial group memberships. Acceptance authorizes provisioning but does not mean provisioning or account handover is complete.
+
+**Rejection**:
+An administrator's decision to decline a signup request, accompanied by an applicant-facing reason. Rejection does not prevent a fresh signup request.
+
+**Provisioning**:
+Creation of a Workspace account and establishment of all initial group memberships selected by the reviewing administrator for an accepted signup request.
+
 **Workspace user**:
 A person with a managed Google account in the nonprofit's Workspace organization.
 _Avoid_: Applicant
@@ -40,7 +49,7 @@ A Workspace user's proposed contact email or phone changes awaiting approval tog
 _Avoid_: Profile update
 
 **Account handover**:
-Delivery of first-login access to an approved applicant after their Workspace account has been created.
+Sending first-login instructions to an approved applicant after provisioning is complete, explicitly confirmed by an administrator. Confirmation means the instructions were sent, not that the applicant has signed in.
 
 **Suspension**:
 Reversible deactivation of a Workspace account that retains the account and its data.
