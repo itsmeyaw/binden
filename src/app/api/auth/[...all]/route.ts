@@ -12,7 +12,7 @@ async function handle(request: Request) {
   const path = new URL(request.url).pathname;
   const allowed =
     request.method === "GET"
-      ? path === "/api/auth/callback/google"
+      ? ["/api/auth/callback/google", "/api/auth/get-session"].includes(path)
       : request.method === "POST" &&
         ["/api/auth/sign-in/social", "/api/auth/sign-out"].includes(path);
   if (!allowed) return new Response(null, { status: 404 });
