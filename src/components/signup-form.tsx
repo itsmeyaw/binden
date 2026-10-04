@@ -24,6 +24,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
+import { parseSignupInput, type SignupErrors } from "@/lib/signup";
 
 type Turnstile = {
   render: (container: HTMLElement, options: Record<string, unknown>) => string;
@@ -44,7 +45,7 @@ type Fields = {
   connection: string;
 };
 
-type Errors = Partial<Record<keyof Fields | "turnstileToken", string>>;
+type Errors = SignupErrors;
 
 const initialFields: Fields = {
   givenName: "",
@@ -101,14 +102,7 @@ export function SignupForm() {
   }
 
   function validate() {
-    const nextErrors: Errors = {};
-    if (!fields.givenName.trim()) nextErrors.givenName = "Enter your given name.";
-    if (!fields.familyName.trim()) nextErrors.familyName = "Enter your family name.";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.contactEmail.trim())) {
-      nextErrors.contactEmail = "Enter a valid contact email.";
-    }
-    if (!turnstileToken) nextErrors.turnstileToken = "Complete the verification challenge.";
-    return nextErrors;
+    return parseSignupInput({ ...fields, turnstileToken }).errors ?? {};
   }
 
   function resetChallenge() {
@@ -178,30 +172,33 @@ export function SignupForm() {
                 <FieldLabel htmlFor="given-name">Given name</FieldLabel>
                 <Input
                   aria-invalid={Boolean(errors.givenName)}
+                  aria-describedby={errors.givenName ? "given-name-error" : undefined}
                   autoComplete="given-name"
                   id="given-name"
                   onChange={(event) => updateField("givenName", event.target.value)}
                   required
                   value={fields.givenName}
                 />
-                <FieldError>{errors.givenName}</FieldError>
+                <FieldError id="given-name-error">{errors.givenName}</FieldError>
               </Field>
               <Field data-invalid={Boolean(errors.familyName)}>
                 <FieldLabel htmlFor="family-name">Family name</FieldLabel>
                 <Input
                   aria-invalid={Boolean(errors.familyName)}
+                  aria-describedby={errors.familyName ? "family-name-error" : undefined}
                   autoComplete="family-name"
                   id="family-name"
                   onChange={(event) => updateField("familyName", event.target.value)}
                   required
                   value={fields.familyName}
                 />
-                <FieldError>{errors.familyName}</FieldError>
+                <FieldError id="family-name-error">{errors.familyName}</FieldError>
               </Field>
               <Field data-invalid={Boolean(errors.contactEmail)}>
                 <FieldLabel htmlFor="contact-email">Contact email</FieldLabel>
                 <Input
                   aria-invalid={Boolean(errors.contactEmail)}
+                  aria-describedby={errors.contactEmail ? "contact-email-error" : undefined}
                   autoComplete="email"
                   id="contact-email"
                   inputMode="email"
@@ -213,7 +210,7 @@ export function SignupForm() {
                 <FieldDescription>
                   We use this address only to verify and contact you about this request.
                 </FieldDescription>
-                <FieldError>{errors.contactEmail}</FieldError>
+                <FieldError id="contact-email-error">{errors.contactEmail}</FieldError>
               </Field>
               <Field data-invalid={Boolean(errors.phone)}>
                 <FieldLabel htmlFor="phone">
@@ -221,13 +218,14 @@ export function SignupForm() {
                 </FieldLabel>
                 <Input
                   aria-invalid={Boolean(errors.phone)}
+                  aria-describedby={errors.phone ? "phone-error" : undefined}
                   autoComplete="tel"
                   id="phone"
                   onChange={(event) => updateField("phone", event.target.value)}
                   type="tel"
                   value={fields.phone}
                 />
-                <FieldError>{errors.phone}</FieldError>
+                <FieldError id="phone-error">{errors.phone}</FieldError>
               </Field>
               <Field data-invalid={Boolean(errors.connection)}>
                 <FieldLabel htmlFor="connection">
@@ -236,11 +234,12 @@ export function SignupForm() {
                 </FieldLabel>
                 <Textarea
                   aria-invalid={Boolean(errors.connection)}
+                  aria-describedby={errors.connection ? "connection-error" : undefined}
                   id="connection"
                   onChange={(event) => updateField("connection", event.target.value)}
                   value={fields.connection}
                 />
-                <FieldError>{errors.connection}</FieldError>
+                <FieldError id="connection-error">{errors.connection}</FieldError>
               </Field>
               <Field data-invalid={Boolean(errors.turnstileToken)}>
                 <FieldLabel>Verification</FieldLabel>
@@ -249,7 +248,7 @@ export function SignupForm() {
                 ) : (
                   <FieldDescription>Verification is not configured yet.</FieldDescription>
                 )}
-                <FieldError>{errors.turnstileToken}</FieldError>
+                <FieldError id="turnstile-error">{errors.turnstileToken}</FieldError>
               </Field>
             </FieldGroup>
             <CardFooter className="-mx-(--card-spacing) -mb-(--card-spacing) justify-end">
