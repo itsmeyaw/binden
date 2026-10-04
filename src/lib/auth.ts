@@ -57,9 +57,8 @@ export const auth = betterAuth({
             maxTokenAge: "1h",
           });
           const identity = validateIdentity(payload);
-          await readWorkspaceProfile(tokens.accessToken, identity.sub, true);
           return {
-            user: { name: "", email: `${identity.sub}@google.invalid`, emailVerified: true },
+            user: { name: "", email: identity.email, emailVerified: true },
             data: { ...payload, ...identity } as GoogleProfile,
           };
         } catch {
@@ -100,7 +99,7 @@ export async function getReviewAccess(headers: Headers) {
       (token.accessTokenExpiresAt && new Date(token.accessTokenExpiresAt).getTime() <= Date.now())
     )
       throw new WorkspaceUnavailable(true);
-    const profile = await readWorkspaceProfile(token.accessToken, account.accountId);
+    const profile = await readWorkspaceProfile(token.accessToken, account.accountId, true);
     if (!(await hasReviewerRole(token.accessToken, profile.id, config.GOOGLE_REVIEWER_ROLE_ID)))
       return { status: "denied" } as const;
     return { status: "available", profile } as const;
