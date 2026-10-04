@@ -202,9 +202,6 @@ export function SignupForm() {
                   type="email"
                   value={fields.contactEmail}
                 />
-                <FieldDescription>
-                  We use this address only to verify and contact you about this request.
-                </FieldDescription>
                 <FieldError id="contact-email-error">{errors.contactEmail}</FieldError>
               </Field>
               <Field data-invalid={Boolean(errors.phone)}>
