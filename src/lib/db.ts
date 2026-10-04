@@ -1,5 +1,3 @@
-import "server-only";
-
 import { drizzle } from "drizzle-orm/neon-http";
 
 export function getDb() {
