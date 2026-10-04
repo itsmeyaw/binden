@@ -1078,23 +1078,63 @@
         },
         "cost": 0,
         "tokens": {
+          "total": 0,
           "input": 0,
           "output": 0,
           "reasoning": 0,
           "cache": {
-            "read": 0,
-            "write": 0
+            "write": 0,
+            "read": 0
           }
         },
         "modelID": "openai.gpt-6.1-sol",
         "providerID": "amazon-bedrock",
         "time": {
-          "created": 1791104772606
+          "created": 1791104772606,
+          "completed": 1791104988198
         },
+        "finish": "stop",
         "id": "msg_10629e9fe001cK9yXQc0WKvA5D",
         "sessionID": "ses_ef9d66858ffeMhOZ7B78iNmElD"
       },
-      "parts": []
+      "parts": [
+        {
+          "snapshot": "b1c36e7ecc69da2e3c13195fa3d41dec85d68274",
+          "type": "step-start",
+          "id": "prt_1062d3364001Ou2tZc9mT4Qg8s",
+          "sessionID": "ses_ef9d66858ffeMhOZ7B78iNmElD",
+          "messageID": "msg_10629e9fe001cK9yXQc0WKvA5D"
+        },
+        {
+          "reason": "stop",
+          "snapshot": "ef832e84c8ce1cb41576827d5de0a7e038c84102",
+          "type": "step-finish",
+          "tokens": {
+            "total": 0,
+            "input": 0,
+            "output": 0,
+            "reasoning": 0,
+            "cache": {
+              "write": 0,
+              "read": 0
+            }
+          },
+          "cost": 0,
+          "id": "prt_1062d33e5001PK03kpgSCvqz07",
+          "sessionID": "ses_ef9d66858ffeMhOZ7B78iNmElD",
+          "messageID": "msg_10629e9fe001cK9yXQc0WKvA5D"
+        },
+        {
+          "type": "patch",
+          "hash": "b1c36e7ecc69da2e3c13195fa3d41dec85d68274",
+          "files": [
+            "/Users/itsmeyaw/projects/binden/.gitignore"
+          ],
+          "id": "prt_1062d3423001c0N4TRxYHGD5Iq",
+          "sessionID": "ses_ef9d66858ffeMhOZ7B78iNmElD",
+          "messageID": "msg_10629e9fe001cK9yXQc0WKvA5D"
+        }
+      ]
     }
   ]
 }
