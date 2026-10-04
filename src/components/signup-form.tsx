@@ -21,6 +21,7 @@ import { parseSignupInput, type SignupErrors } from "@/lib/signup";
 
 type Turnstile = {
   render: (container: HTMLElement, options: Record<string, unknown>) => string;
+  remove: (widgetId: string) => void;
   reset: (widgetId: string) => void;
 };
 
@@ -75,10 +76,18 @@ export function SignupForm() {
     };
 
     const script = document.getElementById("turnstile-script") as HTMLScriptElement | null;
+    const removeWidget = () => {
+      if (!widgetId.current) return;
+      window.turnstile?.remove(widgetId.current);
+      widgetId.current = undefined;
+    };
     if (script) {
       script.addEventListener("load", render);
       render();
-      return () => script.removeEventListener("load", render);
+      return () => {
+        script.removeEventListener("load", render);
+        removeWidget();
+      };
     }
 
     const nextScript = document.createElement("script");
@@ -87,7 +96,10 @@ export function SignupForm() {
     nextScript.async = true;
     nextScript.addEventListener("load", render);
     document.head.append(nextScript);
-    return () => nextScript.removeEventListener("load", render);
+    return () => {
+      nextScript.removeEventListener("load", render);
+      removeWidget();
+    };
   }, []);
 
   function updateField(name: keyof Fields, value: string) {
