@@ -1,9 +1,8 @@
-import Link from "next/link";
 import { CircleAlertIcon, RefreshCwIcon } from "lucide-react";
 
 import { AuthButton } from "@/components/auth-button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 
 export type ReviewOutcome = "signed-out" | "denied" | "reconnect" | "unavailable";
 
@@ -34,11 +33,7 @@ export function ReviewAccess({ outcome, retry }: { outcome: ReviewOutcome; retry
       <AlertTitle>{detail.title}</AlertTitle>
       <AlertDescription>{detail.message}</AlertDescription>
       <div className="mt-4 flex flex-wrap gap-2">
-        {outcome === "signed-out" && (
-          <Link className={buttonVariants({ size: "sm" })} href="/login">
-            Sign in
-          </Link>
-        )}
+        {outcome === "signed-out" && <AuthButton label="Sign in" />}
         {outcome === "reconnect" && <AuthButton action="reconnect" />}
         {outcome === "unavailable" && retry && (
           <Button onClick={retry} size="sm" type="button" variant="outline">

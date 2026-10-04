@@ -3,16 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { AuthButton } from "@/components/auth-button";
 import { ReviewAccess, type ReviewOutcome } from "@/components/review-access";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 
 type SignupRequest = {
@@ -61,7 +53,7 @@ export function ReviewQueue() {
   }
 
   return (
-    <Card className="w-full max-w-3xl">
+    <Card className="min-h-0">
       <CardHeader>
         <CardTitle className="text-2xl">Verified signup requests</CardTitle>
         <CardDescription>Requests ready for an administrator&apos;s review.</CardDescription>
@@ -96,9 +88,6 @@ export function ReviewQueue() {
           <ReviewAccess outcome={state.status} retry={() => void retry()} />
         )}
       </CardContent>
-      <CardFooter>
-        <AuthButton action="sign-out" />
-      </CardFooter>
     </Card>
   );
 }

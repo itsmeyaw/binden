@@ -1,18 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { ReviewAccess, type ReviewOutcome } from "@/components/review-access";
-import { buttonVariants } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 
 type SignupRequest = {
@@ -27,6 +18,7 @@ type SignupRequest = {
 
 type State =
   | { status: "loading" }
+  | { status: "unselected" }
   | { status: "ready"; request: SignupRequest }
   | { status: "missing" }
   | { status: ReviewOutcome };
@@ -48,12 +40,14 @@ async function fetchRequest(id: string): Promise<State> {
   }
 }
 
-export function ReviewRequest({ id }: { id: string }) {
-  const [state, setState] = useState<State>({ status: "loading" });
+export function ReviewRequest({ id }: { id?: string }) {
+  const [state, setState] = useState<State>({ status: id ? "loading" : "unselected" });
 
   useEffect(() => {
+    if (!id) return;
+    const requestId = id;
     let active = true;
-    void fetchRequest(id).then((next) => {
+    void fetchRequest(requestId).then((next) => {
       if (active) setState(next);
     });
     return () => {
@@ -62,12 +56,13 @@ export function ReviewRequest({ id }: { id: string }) {
   }, [id]);
 
   async function retry() {
+    if (!id) return;
     setState({ status: "loading" });
     setState(await fetchRequest(id));
   }
 
   return (
-    <Card className="w-full max-w-3xl">
+    <Card className="min-h-0">
       <CardHeader>
         <CardTitle className="text-2xl">Signup request</CardTitle>
         <CardDescription>Applicant information submitted for review.</CardDescription>
@@ -77,6 +72,9 @@ export function ReviewRequest({ id }: { id: string }) {
           <div className="flex items-center gap-2 text-muted-foreground">
             <Spinner /> Loading request
           </div>
+        )}
+        {state.status === "unselected" && (
+          <p className="text-muted-foreground">Select a signup request to review its details.</p>
         )}
         {state.status === "missing" && (
           <p className="text-muted-foreground">
@@ -109,15 +107,13 @@ export function ReviewRequest({ id }: { id: string }) {
             </div>
           </dl>
         )}
-        {state.status !== "loading" && state.status !== "ready" && state.status !== "missing" && (
-          <ReviewAccess outcome={state.status} retry={() => void retry()} />
-        )}
+        {state.status !== "loading" &&
+          state.status !== "ready" &&
+          state.status !== "missing" &&
+          state.status !== "unselected" && (
+            <ReviewAccess outcome={state.status} retry={() => void retry()} />
+          )}
       </CardContent>
-      <CardFooter>
-        <Link className={buttonVariants({ variant: "outline" })} href="/review">
-          Back to requests
-        </Link>
-      </CardFooter>
     </Card>
   );
 }
