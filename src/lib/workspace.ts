@@ -21,6 +21,7 @@ const profileSchema = z.object({
 
 const roleAssignmentsSchema = z.object({
   items: z.array(z.object({ roleId: z.string() })).optional(),
+  nextPageToken: z.string().optional(),
 });
 
 export class WorkspaceUnavailable extends Error {
@@ -94,17 +95,21 @@ export async function hasReviewerRole(accessToken: string, directoryId: string, 
     "https://admin.googleapis.com/admin/directory/v1/customer/my_customer/roleassignments",
   );
   url.searchParams.set("userKey", directoryId);
+  url.searchParams.set("roleId", roleId);
   url.searchParams.set("includeIndirectRoleAssignments", "true");
-  const response = await fetch(url, {
-    headers: { Authorization: `Bearer ${accessToken}` },
-    cache: "no-store",
-    signal: AbortSignal.timeout(10_000),
-  });
-  if (response.status === 403) return false;
-  if (!response.ok) throw new WorkspaceUnavailable(response.status === 401);
-  return (
-    roleAssignmentsSchema
-      .parse(await response.json())
-      .items?.some((item) => item.roleId === roleId) ?? false
-  );
+  let pageToken: string | undefined;
+  do {
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+      cache: "no-store",
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (response.status === 403) return false;
+    if (!response.ok) throw new WorkspaceUnavailable(response.status === 401);
+    const assignments = roleAssignmentsSchema.parse(await response.json());
+    if (assignments.items?.some((item) => item.roleId === roleId)) return true;
+    pageToken = assignments.nextPageToken;
+    if (pageToken) url.searchParams.set("pageToken", pageToken);
+  } while (pageToken);
+  return false;
 }
