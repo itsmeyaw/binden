@@ -1,0 +1,1 @@
+Review the uncommitted changes in /Users/itsmeyaw/projects/binden/.worktrees/issue-2-signup for correctness, regressions, accessibility, and adherence to the user's request: sign-up page should follow shadcn signup-01 block while retaining existing signup behavior. Do not edit. Return findings only, ordered by severity with exact file/line references; state explicitly if none.
