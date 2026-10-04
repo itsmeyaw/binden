@@ -11,8 +11,12 @@ const subscribe = () => () => {};
 
 export function AuthButton({
   action = "sign-in",
+  className,
+  label,
 }: {
   action?: "sign-in" | "sign-out" | "reconnect";
+  className?: string;
+  label?: string;
 }) {
   const [pending, setPending] = useState(false);
   const ready = useSyncExternalStore(
@@ -35,7 +39,7 @@ export function AuthButton({
       const result = await client.signIn.social({
         provider: "google",
         callbackURL: "/review",
-        errorCallbackURL: "/login?error=sign-in",
+        errorCallbackURL: "/?error=sign-in",
       });
       if (result.error) throw new Error();
     } catch {
@@ -44,7 +48,7 @@ export function AuthButton({
   }
 
   return (
-    <Button disabled={!ready || pending} onClick={run} type="button">
+    <Button className={className} disabled={!ready || pending} onClick={run} type="button">
       {pending && <Spinner data-icon="inline-start" />}
       {pending
         ? "Please wait..."
@@ -52,7 +56,7 @@ export function AuthButton({
           ? "Sign out"
           : action === "reconnect"
             ? "Reconnect Google"
-            : "Sign in with Google"}
+            : (label ?? "Sign in with Google")}
     </Button>
   );
 }

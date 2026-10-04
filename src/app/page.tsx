@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { buttonVariants } from "@/components/ui/button";
+import { AuthButton } from "@/components/auth-button";
 import { FieldDescription } from "@/components/ui/field";
 
 export default function Home() {
@@ -13,9 +13,7 @@ export default function Home() {
             Don&apos;t have an account? <Link href="/sign-up">Request one</Link>
           </FieldDescription>
         </div>
-        <Link className={buttonVariants({ className: "w-full" })} href="/login">
-          Login with Google Workspace
-        </Link>
+        <AuthButton className="w-full" label="Login with Google Workspace" />
       </section>
     </main>
   );

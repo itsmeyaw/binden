@@ -79,7 +79,7 @@ export const auth = betterAuth({
       update: { before: async (account) => ({ data: { ...account, idToken: null } }) },
     },
   },
-  onAPIError: { errorURL: "/login?error=sign-in" },
+  onAPIError: { errorURL: "/?error=sign-in" },
 });
 
 export async function getReviewAccess(headers: Headers) {
