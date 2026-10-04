@@ -3,7 +3,7 @@
   "checkpoint_id": "01M44DZ00DPDMAXVYCCQRHQ7V6",
   "strategy": "manual-commit",
   "branch": "review-requests/integration",
-  "checkpoints_count": 5,
+  "checkpoints_count": 6,
   "files_touched": [
     "src/app/api/auth/[...all]/route.ts"
   ],
@@ -42,13 +42,20 @@
       "compact_transcript": "/4/transcript.jsonl",
       "content_hash": "/4/content_hash.txt",
       "prompt": ""
+    },
+    {
+      "metadata": "/5/metadata.json",
+      "transcript": "/5/full.jsonl",
+      "compact_transcript": "/5/transcript.jsonl",
+      "content_hash": "/5/content_hash.txt",
+      "prompt": "/5/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 16,
-    "cache_creation_tokens": 42457,
-    "cache_read_tokens": 270334,
-    "output_tokens": 846,
-    "api_call_count": 8
+    "input_tokens": 7864,
+    "cache_creation_tokens": 146210,
+    "cache_read_tokens": 1625561,
+    "output_tokens": 4666,
+    "api_call_count": 26
   }
 }
