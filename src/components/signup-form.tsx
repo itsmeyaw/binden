@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { CheckCircle2Icon, ShieldCheckIcon } from "lucide-react";
+import { CheckCircle2Icon, TriangleAlertIcon } from "lucide-react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -153,7 +153,7 @@ export function SignupForm() {
       <CardContent>
         {notice && (
           <Alert className="mb-6" variant={notice.startsWith("Your") ? "default" : "destructive"}>
-            {notice.startsWith("Your") ? <CheckCircle2Icon /> : <ShieldCheckIcon />}
+            {notice.startsWith("Your") ? <CheckCircle2Icon /> : <TriangleAlertIcon />}
             <AlertTitle>
               {notice.startsWith("Your") ? "Request received" : "Unable to submit"}
             </AlertTitle>
