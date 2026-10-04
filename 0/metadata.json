@@ -1,0 +1,48 @@
+{
+  "cli_version": "0.10.6",
+  "checkpoint_id": "01M447A6FVS15GYYDD78BNVCM5",
+  "session_id": "ses_ef7943b13ffehLhzP1YteOtoGr",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-04T19:47:36.21094Z",
+  "branch": "review-requests/integration",
+  "checkpoints_count": 4,
+  "save_step_count": 2,
+  "files_touched": [],
+  "agent": "OpenCode",
+  "model": "openai.gpt-5.6-terra",
+  "turn_id": "312221832751",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 212,
+    "cache_creation_tokens": 464370,
+    "cache_read_tokens": 10277326,
+    "output_tokens": 28656,
+    "api_call_count": 107
+  },
+  "session_metrics": {
+    "turn_count": 4
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    }
+  ]
+}
