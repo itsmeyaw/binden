@@ -37,21 +37,21 @@ export async function POST(request: Request) {
 
   try {
     const db = getDb();
-    await db.transaction(async (tx) => {
-      await tx.insert(signupRequest).values({
+    await db.batch([
+      db.insert(signupRequest).values({
         id: requestId,
         ...requestData,
         verificationTokenHash,
         verificationExpiresAt,
-      });
-      await tx.insert(mailMessage).values({
+      }),
+      db.insert(mailMessage).values({
         id: messageId,
         signupRequestId: requestId,
         to: parsed.data.contactEmail,
         subject: "Verify your Workspace signup request",
         text: `Verify your contact email within 24 hours: ${verificationUrl}`,
-      });
-    });
+      }),
+    ]);
   } catch (error) {
     if (typeof error === "object" && error && "code" in error && error.code === "23505")
       return json({ error: "An active signup request already uses this contact email." }, 409);
