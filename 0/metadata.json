@@ -1,0 +1,58 @@
+{
+  "cli_version": "0.10.6",
+  "checkpoint_id": "01M441VT1QW7X28FR52VV6MDA2",
+  "session_id": "ses_ef8b70e61ffeN07sBdynCETpId",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-04T18:12:27.231204Z",
+  "branch": "review-requests/auth",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".env.example",
+    "drizzle/20261004181111_solid_susan_delgado/migration.sql",
+    "drizzle/20261004181111_solid_susan_delgado/snapshot.json",
+    "package.json",
+    "pnpm-lock.yaml",
+    "src/app/api/auth/[...all]/route.ts",
+    "src/app/api/signup/route.ts",
+    "src/lib/auth.ts",
+    "src/lib/db.ts",
+    "src/lib/schema.ts",
+    "src/lib/workspace.ts",
+    "tests/signup.ts"
+  ],
+  "agent": "OpenCode",
+  "model": "openai.gpt-5.6-terra",
+  "turn_id": "36b478880dc2",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 34,
+    "cache_creation_tokens": 159204,
+    "cache_read_tokens": 934799,
+    "output_tokens": 4227,
+    "api_call_count": 17
+  },
+  "session_metrics": {
+    "turn_count": 1
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-10-04T18:12:27.197336Z",
+    "agent_lines": 1819,
+    "agent_removed": 17,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 1819,
+    "total_lines_changed": 1836,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    }
+  ]
+}
