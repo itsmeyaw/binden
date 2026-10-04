@@ -141,6 +141,7 @@ export function SignupForm() {
       setErrors({});
     } catch {
       setNotice("We could not submit your request. Please try again.");
+      resetChallenge();
     } finally {
       setPending(false);
     }
