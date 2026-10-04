@@ -9,6 +9,10 @@
     "better-auth": {
       "type": "remote",
       "url": "https://mcp.better-auth.com/mcp"
+    },
+    "cloudflare-docs": {
+      "type": "remote",
+      "url": "https://docs.mcp.cloudflare.com/mcp"
     }
   },
   "permission": {
