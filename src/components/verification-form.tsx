@@ -2,9 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { CheckCircle2Icon, TriangleAlertIcon } from "lucide-react";
+import Link from "next/link";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Field,
@@ -157,7 +158,7 @@ export function VerificationForm({ token }: { token?: string }) {
     },
   };
   const detail = outcome === "loading" ? undefined : details[outcome];
-  const canResend = outcome === "expired" || outcome === "invalid";
+  const canResend = outcome === "invalid";
 
   return (
     <Card className="w-full">
@@ -186,6 +187,12 @@ export function VerificationForm({ token }: { token?: string }) {
           <Button className="mt-6 w-full" onClick={() => setShowResend(true)} type="button">
             Send a replacement link
           </Button>
+        )}
+
+        {outcome === "expired" && (
+          <Link className={buttonVariants({ className: "mt-6 w-full" })} href="/sign-up">
+            Start a new signup request
+          </Link>
         )}
 
         {showResend && (
