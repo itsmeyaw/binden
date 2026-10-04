@@ -1,0 +1,40 @@
+{
+  "cli_version": "0.10.6",
+  "checkpoint_id": "01M44AM5G760283VG3CZ6J5S77",
+  "strategy": "manual-commit",
+  "branch": "review-requests/integration",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/app/layout.tsx",
+    "src/app/review/[id]/page.tsx",
+    "src/app/review/layout.tsx",
+    "src/app/review/loading.tsx",
+    "src/app/review/page.tsx",
+    "src/components/review-access.tsx",
+    "src/components/review-queue.tsx",
+    "src/components/review-request.tsx",
+    "src/components/review-sidebar.tsx",
+    "src/components/review-workspace.tsx",
+    "src/components/ui/sheet.tsx",
+    "src/components/ui/sidebar.tsx",
+    "src/components/ui/skeleton.tsx",
+    "src/components/ui/tooltip.tsx",
+    "src/hooks/use-mobile.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 18,
+    "cache_creation_tokens": 65436,
+    "cache_read_tokens": 370045,
+    "output_tokens": 1426,
+    "api_call_count": 9
+  }
+}
