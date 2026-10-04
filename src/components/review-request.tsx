@@ -67,7 +67,7 @@ export function ReviewRequest({ id }: { id: string }) {
   }
 
   return (
-    <Card className="w-full max-w-2xl">
+    <Card className="w-full max-w-3xl">
       <CardHeader>
         <CardTitle className="text-2xl">Signup request</CardTitle>
         <CardDescription>Applicant information submitted for review.</CardDescription>
