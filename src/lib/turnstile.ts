@@ -4,7 +4,7 @@ type SiteverifyResponse = {
   action?: string;
 };
 
-export async function verifyTurnstile(token: string, request: Request) {
+export async function verifyTurnstile(token: string, request: Request, action = "signup") {
   const secret = process.env.TURNSTILE_SECRET_KEY;
   const hostname = process.env.TURNSTILE_HOSTNAME;
   if (!secret || !hostname) return false;
@@ -24,7 +24,7 @@ export async function verifyTurnstile(token: string, request: Request) {
     });
     const result = (await response.json()) as SiteverifyResponse;
     return (
-      response.ok && result.success && result.hostname === hostname && result.action === "signup"
+      response.ok && result.success && result.hostname === hostname && result.action === action
     );
   } catch {
     return false;
