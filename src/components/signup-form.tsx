@@ -142,7 +142,7 @@ export function SignupForm() {
   }
 
   return (
-    <Card className="w-full">
+    <Card className="w-full [--card-spacing:--spacing(6)]">
       <CardHeader>
         <CardTitle>Request a Workspace account</CardTitle>
         <CardDescription>
