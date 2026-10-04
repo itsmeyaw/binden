@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ClipboardCheckIcon } from "lucide-react";
 
-import { AuthButton } from "@/components/auth-button";
+import { NavUser } from "@/components/nav-user";
 import {
   Sidebar,
   SidebarContent,
@@ -49,7 +49,7 @@ export function ReviewSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <AuthButton action="sign-out" className="w-full" />
+        <NavUser />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

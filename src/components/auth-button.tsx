@@ -1,12 +1,10 @@
 "use client";
 
-import { createAuthClient } from "better-auth/react";
 import { useState, useSyncExternalStore } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-
-const client = createAuthClient();
+import { authClient } from "@/lib/auth-client";
 const subscribe = () => () => {};
 
 export function AuthButton({
@@ -29,14 +27,14 @@ export function AuthButton({
     setPending(true);
     try {
       if (action === "sign-out" || action === "reconnect") {
-        const result = await client.signOut();
+        const result = await authClient.signOut();
         if (result.error) throw new Error();
         if (action === "sign-out") {
           window.location.replace("/");
           return;
         }
       }
-      const result = await client.signIn.social({
+      const result = await authClient.signIn.social({
         provider: "google",
         callbackURL: "/review",
         errorCallbackURL: "/?error=sign-in",
