@@ -1,0 +1,47 @@
+{
+  "cli_version": "0.10.6",
+  "checkpoint_id": "01M43KJF4ERYMA1GFG9HV8FSJV",
+  "session_id": "ses_ef8ca7e3fffe1JUTVhvHJPzxdE",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-04T14:02:37.449575Z",
+  "branch": "verify-request/ui",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/components/verification-form.tsx"
+  ],
+  "agent": "OpenCode",
+  "model": "openai.gpt-5.6-luna",
+  "turn_id": "1145550708bd",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 20,
+    "cache_creation_tokens": 45802,
+    "cache_read_tokens": 331772,
+    "output_tokens": 1327,
+    "api_call_count": 10
+  },
+  "session_metrics": {
+    "turn_count": 1
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-10-04T14:02:37.435615Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 255,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 255,
+    "total_lines_changed": 255,
+    "agent_percentage": 0,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    }
+  ]
+}
