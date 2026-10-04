@@ -3,7 +3,7 @@
   "checkpoint_id": "01M447QNT43588C6FRQGTGRYE8",
   "strategy": "manual-commit",
   "branch": "review-requests/auth",
-  "checkpoints_count": 4,
+  "checkpoints_count": 5,
   "files_touched": [
     "package.json",
     "src/lib/auth.ts",
@@ -31,6 +31,13 @@
       "compact_transcript": "/2/transcript.jsonl",
       "content_hash": "/2/content_hash.txt",
       "prompt": "/2/prompt.txt"
+    },
+    {
+      "metadata": "/3/metadata.json",
+      "transcript": "/3/full.jsonl",
+      "compact_transcript": "/3/transcript.jsonl",
+      "content_hash": "/3/content_hash.txt",
+      "prompt": ""
     }
   ],
   "token_usage": {

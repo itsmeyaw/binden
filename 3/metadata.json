@@ -1,0 +1,49 @@
+{
+  "cli_version": "0.10.6",
+  "checkpoint_id": "01M447QNT43588C6FRQGTGRYE8",
+  "session_id": "ses_ef7dd332bffeKLIeiu2pqAvyo9",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-04T19:55:02.636032Z",
+  "branch": "review-requests/auth",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "package.json",
+    "src/lib/auth.ts",
+    "src/lib/workspace.ts",
+    "tests/workspace.ts"
+  ],
+  "agent": "OpenCode",
+  "model": "",
+  "turn_id": "9c57ffc3fd26",
+  "checkpoint_transcript_start": 16,
+  "transcript_lines_at_start": 16,
+  "compact_transcript_start": 16,
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-10-04T19:55:02.594946Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 316,
+    "human_modified": 1,
+    "human_removed": 0,
+    "total_committed": 316,
+    "total_lines_changed": 317,
+    "agent_percentage": 0,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    }
+  ]
+}
