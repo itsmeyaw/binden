@@ -7,33 +7,17 @@ import Link from "next/link";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-  FieldSet,
-} from "@/components/ui/field";
+import { Field, FieldError, FieldGroup, FieldLabel, FieldSet } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
+import {
+  TurnstileChallenge,
+  type TurnstileChallengeHandle,
+  turnstileConfigured,
+} from "@/components/turnstile-challenge";
 import { parseResendInput, type ResendErrors } from "@/lib/verification";
 
-type Turnstile = {
-  render: (container: HTMLElement, options: Record<string, unknown>) => string;
-  remove: (widgetId: string) => void;
-  reset: (widgetId: string) => void;
-};
-
-declare global {
-  interface Window {
-    turnstile?: Turnstile;
-  }
-}
-
 type Outcome = "loading" | "verified" | "used" | "expired" | "invalid" | "error";
-
-const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
 export function VerificationForm({ token }: { token?: string }) {
   const [outcome, setOutcome] = useState<Outcome>(token ? "loading" : "invalid");
@@ -43,8 +27,7 @@ export function VerificationForm({ token }: { token?: string }) {
   const [errors, setErrors] = useState<ResendErrors>({});
   const [notice, setNotice] = useState<string>();
   const [pending, setPending] = useState(false);
-  const challenge = useRef<HTMLDivElement>(null);
-  const widgetId = useRef<string | undefined>(undefined);
+  const challenge = useRef<TurnstileChallengeHandle>(null);
 
   useEffect(() => {
     if (!token) return;
@@ -57,51 +40,8 @@ export function VerificationForm({ token }: { token?: string }) {
       .catch(() => setOutcome("error"));
   }, [token]);
 
-  useEffect(() => {
-    if (!showResend || !siteKey || !challenge.current) return;
-
-    const render = () => {
-      if (!challenge.current || !window.turnstile || widgetId.current) return;
-      widgetId.current = window.turnstile.render(challenge.current, {
-        sitekey: siteKey,
-        action: "resend",
-        theme: "light",
-        callback: (value: string) => setTurnstileToken(value),
-        "expired-callback": () => setTurnstileToken(""),
-        "error-callback": () => setTurnstileToken(""),
-      });
-    };
-
-    const script = document.getElementById("turnstile-script") as HTMLScriptElement | null;
-    const removeWidget = () => {
-      if (!widgetId.current) return;
-      window.turnstile?.remove(widgetId.current);
-      widgetId.current = undefined;
-    };
-    if (script) {
-      script.addEventListener("load", render);
-      render();
-      return () => {
-        script.removeEventListener("load", render);
-        removeWidget();
-      };
-    }
-
-    const nextScript = document.createElement("script");
-    nextScript.id = "turnstile-script";
-    nextScript.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
-    nextScript.async = true;
-    nextScript.addEventListener("load", render);
-    document.head.append(nextScript);
-    return () => {
-      nextScript.removeEventListener("load", render);
-      removeWidget();
-    };
-  }, [showResend]);
-
   function resetChallenge() {
-    if (widgetId.current) window.turnstile?.reset(widgetId.current);
-    setTurnstileToken("");
+    challenge.current?.reset();
   }
 
   async function resend(event: React.FormEvent<HTMLFormElement>) {
@@ -244,15 +184,15 @@ export function VerificationForm({ token }: { token?: string }) {
                 </Field>
                 <Field data-invalid={Boolean(errors.turnstileToken)}>
                   <FieldLabel>Verification</FieldLabel>
-                  {siteKey ? (
-                    <div ref={challenge} />
-                  ) : (
-                    <FieldDescription>Verification is not configured yet.</FieldDescription>
-                  )}
+                  <TurnstileChallenge action="resend" onToken={setTurnstileToken} ref={challenge} />
                   <FieldError id="resend-turnstile-error">{errors.turnstileToken}</FieldError>
                 </Field>
                 <Field>
-                  <Button className="w-full" disabled={pending || !siteKey} type="submit">
+                  <Button
+                    className="w-full"
+                    disabled={pending || !turnstileConfigured}
+                    type="submit"
+                  >
                     {pending && <Spinner data-icon="inline-start" />}
                     {pending ? "Sending verification email" : "Send verification email"}
                   </Button>

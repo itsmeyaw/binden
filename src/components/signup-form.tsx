@@ -1,35 +1,21 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { CheckCircle2Icon, TriangleAlertIcon } from "lucide-react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-  FieldSet,
-} from "@/components/ui/field";
+import { Field, FieldError, FieldGroup, FieldLabel, FieldSet } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  TurnstileChallenge,
+  type TurnstileChallengeHandle,
+  turnstileConfigured,
+} from "@/components/turnstile-challenge";
 import { parseSignupInput, type SignupErrors } from "@/lib/signup";
-
-type Turnstile = {
-  render: (container: HTMLElement, options: Record<string, unknown>) => string;
-  remove: (widgetId: string) => void;
-  reset: (widgetId: string) => void;
-};
-
-declare global {
-  interface Window {
-    turnstile?: Turnstile;
-  }
-}
 
 type Fields = {
   givenName: string;
@@ -49,58 +35,13 @@ const initialFields: Fields = {
   connection: "",
 };
 
-const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
-
 export function SignupForm() {
   const [fields, setFields] = useState(initialFields);
   const [errors, setErrors] = useState<Errors>({});
   const [turnstileToken, setTurnstileToken] = useState("");
   const [pending, setPending] = useState(false);
   const [notice, setNotice] = useState<string>();
-  const challenge = useRef<HTMLDivElement>(null);
-  const widgetId = useRef<string | undefined>(undefined);
-
-  useEffect(() => {
-    if (!siteKey || !challenge.current) return;
-
-    const render = () => {
-      if (!challenge.current || !window.turnstile || widgetId.current) return;
-      widgetId.current = window.turnstile.render(challenge.current, {
-        sitekey: siteKey,
-        action: "signup",
-        theme: "light",
-        callback: (token: string) => setTurnstileToken(token),
-        "expired-callback": () => setTurnstileToken(""),
-        "error-callback": () => setTurnstileToken(""),
-      });
-    };
-
-    const script = document.getElementById("turnstile-script") as HTMLScriptElement | null;
-    const removeWidget = () => {
-      if (!widgetId.current) return;
-      window.turnstile?.remove(widgetId.current);
-      widgetId.current = undefined;
-    };
-    if (script) {
-      script.addEventListener("load", render);
-      render();
-      return () => {
-        script.removeEventListener("load", render);
-        removeWidget();
-      };
-    }
-
-    const nextScript = document.createElement("script");
-    nextScript.id = "turnstile-script";
-    nextScript.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
-    nextScript.async = true;
-    nextScript.addEventListener("load", render);
-    document.head.append(nextScript);
-    return () => {
-      nextScript.removeEventListener("load", render);
-      removeWidget();
-    };
-  }, []);
+  const challenge = useRef<TurnstileChallengeHandle>(null);
 
   function updateField(name: keyof Fields, value: string) {
     setFields((current) => ({ ...current, [name]: value }));
@@ -112,8 +53,7 @@ export function SignupForm() {
   }
 
   function resetChallenge() {
-    if (widgetId.current) window.turnstile?.reset(widgetId.current);
-    setTurnstileToken("");
+    challenge.current?.reset();
   }
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
@@ -247,17 +187,13 @@ export function SignupForm() {
               </Field>
               <Field data-invalid={Boolean(errors.turnstileToken)}>
                 <FieldLabel>Verification</FieldLabel>
-                {siteKey ? (
-                  <div ref={challenge} />
-                ) : (
-                  <FieldDescription>Verification is not configured yet.</FieldDescription>
-                )}
+                <TurnstileChallenge action="signup" onToken={setTurnstileToken} ref={challenge} />
                 <FieldError id="turnstile-error">{errors.turnstileToken}</FieldError>
               </Field>
             </FieldGroup>
             <FieldGroup>
               <Field>
-                <Button className="w-full" disabled={pending || !siteKey} type="submit">
+                <Button className="w-full" disabled={pending || !turnstileConfigured} type="submit">
                   {pending && <Spinner data-icon="inline-start" />}
                   {pending ? "Submitting request" : "Submit request"}
                 </Button>
