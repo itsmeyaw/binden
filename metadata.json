@@ -3,7 +3,7 @@
   "checkpoint_id": "01M44955GTWBJSK46J622G1GWK",
   "strategy": "manual-commit",
   "branch": "review-requests/auth",
-  "checkpoints_count": 4,
+  "checkpoints_count": 12,
   "files_touched": [
     "src/lib/workspace.ts",
     "tests/workspace.ts"
@@ -36,13 +36,20 @@
       "compact_transcript": "/3/transcript.jsonl",
       "content_hash": "/3/content_hash.txt",
       "prompt": ""
+    },
+    {
+      "metadata": "/4/metadata.json",
+      "transcript": "/4/full.jsonl",
+      "compact_transcript": "/4/transcript.jsonl",
+      "content_hash": "/4/content_hash.txt",
+      "prompt": "/4/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 20,
-    "cache_creation_tokens": 64146,
-    "cache_read_tokens": 213398,
-    "output_tokens": 1257,
-    "api_call_count": 10
+    "input_tokens": 98,
+    "cache_creation_tokens": 170312,
+    "cache_read_tokens": 3007518,
+    "output_tokens": 8781,
+    "api_call_count": 49
   }
 }
