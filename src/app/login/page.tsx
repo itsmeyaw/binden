@@ -1,4 +1,4 @@
-import { buttonVariants } from "@/components/ui/button";
+import { AuthButton } from "@/components/auth-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function LoginPage() {
@@ -8,17 +8,13 @@ export default function LoginPage() {
         <CardHeader>
           <CardTitle className="text-2xl">Administrator sign in</CardTitle>
           <CardDescription>
-            Administrator authentication will use Better Auth and your managed Google Workspace
-            account.
+            Use your managed Google Workspace account to access signup requests.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Link className={buttonVariants({ variant: "outline" })} href="/">
-            Return home
-          </Link>
+          <AuthButton />
         </CardContent>
       </Card>
     </main>
   );
 }
-import Link from "next/link";
