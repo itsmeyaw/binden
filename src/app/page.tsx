@@ -1,28 +1,21 @@
 import Link from "next/link";
 
 import { buttonVariants } from "@/components/ui/button";
+import { FieldDescription } from "@/components/ui/field";
 
 export default function Home() {
   return (
-    <main className="flex flex-1 items-center justify-center bg-muted/40 px-4 py-12 sm:px-6">
-      <section className="flex w-full max-w-xl flex-col gap-8">
-        <div className="flex flex-col gap-3">
-          <p className="text-sm font-medium text-primary">Nonprofit Workspace</p>
-          <h1 className="font-heading text-4xl font-semibold tracking-tight">
-            Get started with your account.
-          </h1>
-          <p className="text-lg text-muted-foreground">
-            Request a Workspace account, or sign in to continue managing an existing request.
-          </p>
+    <main className="flex min-h-svh flex-col items-center justify-center gap-6 bg-background p-6 md:p-10">
+      <section className="flex w-full max-w-sm flex-col gap-6">
+        <div className="flex flex-col items-center gap-2 text-center">
+          <h1 className="text-xl font-bold">Welcome to PM3 Muenchen e.V.</h1>
+          <FieldDescription>
+            Don&apos;t have an account? <Link href="/sign-up">Request one</Link>
+          </FieldDescription>
         </div>
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <Link className={buttonVariants({ size: "lg" })} href="/login">
-            Sign in
-          </Link>
-          <Link className={buttonVariants({ variant: "outline", size: "lg" })} href="/sign-up">
-            Request an account
-          </Link>
-        </div>
+        <Link className={buttonVariants({ className: "w-full" })} href="/login">
+          Login with Google Workspace
+        </Link>
       </section>
     </main>
   );
