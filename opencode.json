@@ -10,5 +10,12 @@
       "type": "remote",
       "url": "https://mcp.better-auth.com/mcp"
     }
+  },
+  "permission": {
+    "skill": {
+      "shadcn": "allow",
+      "gh-stack": "allow",
+      "retrieving-developer-knowledge": "allow"
+    }
   }
 }
