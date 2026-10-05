@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { getReviewAccess } from "@/lib/auth";
-import { deniedResponse, json } from "@/lib/review-http";
+import { deniedResponse, isUniqueViolation, json } from "@/lib/review-http";
 import { correctVerifiedSignupRequest, getReviewableSignupRequest } from "@/lib/review";
 import { parseReviewCorrectionInput } from "@/lib/review-input";
 
@@ -53,7 +53,7 @@ export async function PATCH(request: Request, context: RouteContext<"/api/review
     if (!signup) return json({ error: "This signup request is no longer available." }, 409);
     return json({ request: signup });
   } catch (error) {
-    if (typeof error === "object" && error && "code" in error && error.code === "23505") {
+    if (isUniqueViolation(error)) {
       return json(
         { errors: { contactEmail: "An active signup request already uses this contact email." } },
         409,

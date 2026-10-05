@@ -12,7 +12,7 @@ import {
   saveSignupPlan,
   suggestWorkspaceEmail,
 } from "@/lib/review";
-import { deniedResponse, json } from "@/lib/review-http";
+import { deniedResponse, isUniqueViolation, json } from "@/lib/review-http";
 import { parsePlanInput } from "@/lib/review-input";
 import { WorkspaceUnavailable } from "@/lib/workspace";
 
@@ -115,8 +115,7 @@ export async function PUT(
         })),
       });
     } catch (error) {
-      if (typeof error === "object" && error && "code" in error && error.code === "23505")
-        return json({ errors: { workspaceEmail: collision } }, 409);
+      if (isUniqueViolation(error)) return json({ errors: { workspaceEmail: collision } }, 409);
       throw error;
     }
     if (!saved) return json({ error: "This signup request is no longer available." }, 409);
