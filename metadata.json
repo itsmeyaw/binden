@@ -3,7 +3,7 @@
   "checkpoint_id": "01M46PPPY51P711JQ3ZW4CH8DA",
   "strategy": "manual-commit",
   "branch": "issue-6/api",
-  "checkpoints_count": 2,
+  "checkpoints_count": 3,
   "files_touched": [
     "src/app/api/review/requests/[id]/rejection/route.ts",
     "src/app/api/review/requests/[id]/route.ts",
@@ -23,6 +23,13 @@
       "transcript": "/1/full.jsonl",
       "compact_transcript": "/1/transcript.jsonl",
       "content_hash": "/1/content_hash.txt",
+      "prompt": ""
+    },
+    {
+      "metadata": "/2/metadata.json",
+      "transcript": "/2/full.jsonl",
+      "compact_transcript": "/2/transcript.jsonl",
+      "content_hash": "/2/content_hash.txt",
       "prompt": ""
     }
   ],
