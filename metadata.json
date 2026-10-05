@@ -3,7 +3,7 @@
   "checkpoint_id": "01M46T25PXJSDJG12NW67PBNFN",
   "strategy": "manual-commit",
   "branch": "issue-6/api",
-  "checkpoints_count": 2,
+  "checkpoints_count": 3,
   "files_touched": [
     "src/lib/review.ts",
     "tests/plan.ts"
@@ -21,6 +21,13 @@
       "transcript": "/1/full.jsonl",
       "compact_transcript": "/1/transcript.jsonl",
       "content_hash": "/1/content_hash.txt",
+      "prompt": ""
+    },
+    {
+      "metadata": "/2/metadata.json",
+      "transcript": "/2/full.jsonl",
+      "compact_transcript": "/2/transcript.jsonl",
+      "content_hash": "/2/content_hash.txt",
       "prompt": ""
     }
   ],
