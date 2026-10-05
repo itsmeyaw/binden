@@ -38,6 +38,7 @@ test.describe("verified signup request review", () => {
       [verifiedId, `verified-${suffix}@example.test`, hiddenId, `hidden-${suffix}@example.test`],
     );
 
+    await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/review");
     await expect(page.getByRole("heading", { name: "Sign up requests" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Verified Applicant" })).toBeVisible();
@@ -46,5 +47,8 @@ test.describe("verified signup request review", () => {
     await page.getByRole("link", { name: "Verified Applicant" }).click();
     await expect(page.getByText("Community volunteer")).toBeVisible();
     await expect(page.getByText("+49 89 123")).toBeVisible();
+    await page.getByRole("link", { name: "Back to requests" }).click();
+    await expect(page).toHaveURL(/\/review$/);
+    await expect(page.getByRole("link", { name: "Verified Applicant" })).toBeVisible();
   });
 });

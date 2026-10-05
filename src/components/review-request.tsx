@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
+import { ArrowLeftIcon } from "lucide-react";
 
 import { ReviewAccess, type ReviewOutcome } from "@/components/review-access";
 import { Button } from "@/components/ui/button";
@@ -64,6 +66,16 @@ export function ReviewRequest({ id }: { id?: string }) {
 
   return (
     <section className="min-h-0 p-4 lg:overflow-y-auto">
+      {id && (
+        <Button
+          className="mb-4 lg:hidden"
+          type="button"
+          variant="ghost"
+          render={<Link href="/review" />}
+        >
+          <ArrowLeftIcon /> Back to requests
+        </Button>
+      )}
       {state.status === "loading" && (
         <div className="flex items-center gap-2 text-muted-foreground">
           <Spinner /> Loading request
