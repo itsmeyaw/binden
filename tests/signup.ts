@@ -168,16 +168,21 @@ function request(body = validInput) {
 function testDatabase(batchError?: unknown) {
   const writes: Array<Array<{ value: Record<string, unknown> }>> = [];
   let deletions = 0;
+  const transactionDb = {
+    insert: () => ({
+      values: async (value: Record<string, unknown>) => writes.at(-1)!.push({ value }),
+    }),
+  };
   const database = {
-    insert: () => ({ values: (value: Record<string, unknown>) => ({ value }) }),
     delete: () => ({
       where: async () => {
         deletions += 1;
       },
     }),
-    batch: async (queries: Array<{ value: Record<string, unknown> }>) => {
+    transaction: async (callback: (tx: typeof transactionDb) => Promise<void>) => {
       if (batchError) throw batchError;
-      writes.push(queries);
+      writes.push([]);
+      await callback(transactionDb);
     },
   };
   return {

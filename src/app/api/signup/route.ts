@@ -63,21 +63,21 @@ export function createSignupHandler(overrides: Partial<SignupDependencies> = {})
             lte(signupRequest.verificationExpiresAt, new Date()),
           ),
         );
-      await db.batch([
-        db.insert(signupRequest).values({
+      await db.transaction(async (tx) => {
+        await tx.insert(signupRequest).values({
           id: requestId,
           ...requestData,
           verificationTokenHash,
           verificationExpiresAt,
-        }),
-        db.insert(mailMessage).values({
+        });
+        await tx.insert(mailMessage).values({
           id: messageId,
           signupRequestId: requestId,
           to: parsed.data.contactEmail,
           subject: "Verify your Workspace signup request",
           text: verificationMessage(appUrl, verificationToken),
-        }),
-      ]);
+        });
+      });
     } catch (error) {
       if (typeof error === "object" && error && "code" in error && error.code === "23505") {
         return json({ error: "An active signup request already uses this contact email." }, 409);

@@ -22,6 +22,20 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Workspace reviewer access
+
+Set `BETTER_AUTH_URL`, `BETTER_AUTH_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`,
+`GOOGLE_WORKSPACE_DOMAIN`, and `GOOGLE_REVIEWER_ROLE_ID`. Configure an internal Google OAuth web
+client with `<BETTER_AUTH_URL>/api/auth/callback/google`, enable Admin SDK, and grant the reviewer
+role to the administrators who may access `/review`. The app requests only the Directory profile
+and role-management read scopes and stores OAuth credentials server-side.
+
+Run `pnpm exec drizzle-kit migrate` after setting `DATABASE_URL`.
+
+`pnpm test:e2e` is opt-in: it requires a running application at `E2E_BASE_URL`, its disposable
+database as `TEST_DATABASE_URL`, and an uncommitted authenticated storage-state file at
+`E2E_GOOGLE_STORAGE_STATE`. See `docs/live-workspace-smoke-check.md` for live-tenant verification.
+
 ## Code Quality
 
 ```bash
