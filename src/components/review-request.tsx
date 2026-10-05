@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ArrowLeftIcon, CircleAlertIcon, PencilIcon } from "lucide-react";
+import { ArrowLeftIcon, CircleAlertIcon, InfoIcon, PencilIcon } from "lucide-react";
 
 import { ReviewAccess, type ReviewOutcome } from "@/components/review-access";
 import { ReviewPlan } from "@/components/review-plan";
@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 type SignupRequest = {
   id: string;
@@ -289,7 +290,29 @@ export function ReviewRequest({ id }: { id?: string }) {
                         (state.request.workspaceEmailTaken && !emailEdited),
                       )}
                     >
-                      <FieldLabel htmlFor="workspace-email">Workspace email</FieldLabel>
+                      <FieldLabel htmlFor="workspace-email">
+                        Workspace email
+                        {!state.request.workspaceEmailSaved && (
+                          <Tooltip>
+                            <TooltipTrigger
+                              render={
+                                <span
+                                  aria-label="About the proposed address"
+                                  // A real button would be disabled along with the fieldset.
+                                  // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
+                                  role="button"
+                                  tabIndex={0}
+                                />
+                              }
+                            >
+                              <InfoIcon className="size-3.5 text-muted-foreground" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              Proposed from the applicant&apos;s name. Correct details to change it.
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
+                      </FieldLabel>
                       <Input
                         aria-invalid={Boolean(
                           errors.workspaceEmail ||
@@ -302,11 +325,9 @@ export function ReviewRequest({ id }: { id?: string }) {
                         onChange={() => setEmailEdited(true)}
                         type="email"
                       />
-                      <FieldDescription>
-                        {state.request.workspaceEmailSaved
-                          ? "Planned account address."
-                          : "Proposed from the applicant's name. Correct details to change it."}
-                      </FieldDescription>
+                      {state.request.workspaceEmailSaved && (
+                        <FieldDescription>Planned account address.</FieldDescription>
+                      )}
                       <FieldError>
                         {errors.workspaceEmail ??
                           (state.request.workspaceEmailTaken && !emailEdited
