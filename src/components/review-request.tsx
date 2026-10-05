@@ -291,17 +291,21 @@ export function ReviewRequest({ id }: { id?: string }) {
                   </FieldGroup>
                 </FieldSet>
                 <div className="mt-5 flex flex-wrap gap-2">
-                  <Button
-                    disabled={pending}
-                    onClick={() => {
-                      if (!editing) setEditing(true);
-                    }}
-                    type={editing ? "submit" : "button"}
-                    variant="outline"
-                  >
-                    {pending && <Spinner data-icon="inline-start" />}
-                    <PencilIcon data-icon="inline-start" /> {editing ? "Done" : "Correct details"}
-                  </Button>
+                  {editing ? (
+                    <Button disabled={pending} type="submit" variant="outline">
+                      {pending && <Spinner data-icon="inline-start" />}
+                      <PencilIcon data-icon="inline-start" /> Done
+                    </Button>
+                  ) : (
+                    <Button
+                      disabled={pending}
+                      onClick={() => setEditing(true)}
+                      type="button"
+                      variant="outline"
+                    >
+                      <PencilIcon data-icon="inline-start" /> Correct details
+                    </Button>
+                  )}
                   {!editing && !rejecting && (
                     <Button onClick={() => setRejecting(true)} type="button" variant="destructive">
                       Reject request
