@@ -70,13 +70,31 @@ test.describe("verified signup request review", () => {
     await expect(email).toHaveValue(`ada.lovelace@${domain}`);
     await expect(page.getByText("Choose a different address.")).toBeVisible();
 
+    const clash = page.getByText("Choose a different address.");
+
+    // Saving the plan with the clashing proposal is refused.
     await page.getByRole("button", { name: "Save plan" }).click();
-    await expect(page.getByText("Choose a different address.")).toBeVisible();
-    await expect(page.getByText("Save the plan to review")).toBeVisible();
+    await expect(clash).toBeVisible();
+
+    // Editing to another taken address is refused and nothing is saved.
+    await page.getByRole("button", { name: "Correct details" }).click();
+    await email.fill(`taken.user@${domain}`);
+    await expect(clash).toBeHidden();
+    await page.getByRole("button", { name: "Done" }).click();
+    await expect(clash).toBeVisible();
+    const [{ workspace_email: refused }] = (
+      await pool.query("select workspace_email from signup_request where id = $1", [id])
+    ).rows;
+    expect(refused).toBeNull();
 
     await email.fill(`ada.l@${domain}`);
-    await page.getByRole("button", { name: "Save plan" }).click();
-    await expect(page.getByText("No initial groups selected.")).toBeVisible();
+    await page.getByRole("button", { name: "Done" }).click();
+    await expect(clash).toBeHidden();
+    const [{ workspace_email: saved }] = (
+      await pool.query("select workspace_email from signup_request where id = $1", [id])
+    ).rows;
+    expect(saved).toBe(`ada.l@${domain}`);
+    await expect(page.getByText("No initial groups saved.")).toBeVisible();
 
     await page.getByRole("checkbox", { name: /Events team/ }).click();
     await page.getByRole("checkbox", { name: /Board/ }).click();

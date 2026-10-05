@@ -17,7 +17,6 @@ import {
   FieldLegend,
   FieldSet,
 } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -43,8 +42,6 @@ type State = { status: "loading" } | { status: "ready"; plan: Plan } | { status:
 
 type Errors = Partial<Record<"workspaceEmail" | "groups" | "form", string>>;
 
-const collision = "That Workspace email is already in use. Choose a different address.";
-
 type Result = Plan & { outcome?: ReviewOutcome; errors?: Errors };
 
 async function call(id: string, init?: RequestInit) {
@@ -64,18 +61,24 @@ function rolesOf(plan: Plan) {
   return Object.fromEntries(plan.selected.map((group) => [group.groupId, group.role]));
 }
 
-export function ReviewPlan({ id }: { id: string }) {
+export function ReviewPlan({
+  id,
+  workspaceEmail,
+  emailSaved,
+}: {
+  id: string;
+  workspaceEmail: string;
+  emailSaved: boolean;
+}) {
   const [state, setState] = useState<State>({ status: "loading" });
-  const [email, setEmail] = useState("");
   const [roles, setRoles] = useState<Record<string, Role>>({});
   const [errors, setErrors] = useState<Errors>({});
   const [pending, setPending] = useState(false);
 
   function apply(plan: Plan) {
     setState({ status: "ready", plan });
-    setEmail(plan.workspaceEmail);
     setRoles(rolesOf(plan));
-    setErrors(plan.unavailable ? { workspaceEmail: collision } : {});
+    setErrors({});
   }
 
   async function load() {
@@ -106,7 +109,7 @@ export function ReviewPlan({ id }: { id: string }) {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        workspaceEmail: email,
+        workspaceEmail,
         groups: Object.entries(roles).map(([groupId, role]) => ({ id: groupId, role })),
       }),
     });
@@ -135,22 +138,6 @@ export function ReviewPlan({ id }: { id: string }) {
         <FieldSet disabled={pending}>
           <FieldLegend>Workspace account plan</FieldLegend>
           <FieldGroup>
-            <Field data-invalid={Boolean(errors.workspaceEmail)}>
-              <FieldLabel htmlFor="workspace-email">Workspace email</FieldLabel>
-              <Input
-                aria-invalid={Boolean(errors.workspaceEmail)}
-                id="workspace-email"
-                name="workspaceEmail"
-                onChange={(event) => setEmail(event.target.value)}
-                required
-                type="email"
-                value={email}
-              />
-              <FieldDescription>
-                Suggested from the applicant&apos;s name. Confirm or edit it before accepting.
-              </FieldDescription>
-              <FieldError>{errors.workspaceEmail}</FieldError>
-            </Field>
             <FieldSet data-invalid={Boolean(errors.groups)}>
               <FieldLegend variant="label">Initial groups</FieldLegend>
               <FieldDescription>
@@ -218,7 +205,7 @@ export function ReviewPlan({ id }: { id: string }) {
                 </AlertDescription>
               </Alert>
             )}
-            <FieldError>{errors.form}</FieldError>
+            <FieldError>{errors.workspaceEmail ?? errors.form}</FieldError>
             <div>
               <Button disabled={pending} type="submit">
                 {pending && <Spinner data-icon="inline-start" />}
@@ -233,30 +220,23 @@ export function ReviewPlan({ id }: { id: string }) {
         <h2 className="font-heading text-base font-medium" id="final-review">
           Final review
         </h2>
-        {plan.saved ? (
-          <>
-            <p className="text-sm">
-              Workspace email: <strong>{plan.workspaceEmail}</strong>
-            </p>
-            {plan.selected.length === 0 ? (
-              <p className="text-sm">No initial groups selected.</p>
-            ) : (
-              <ul className="flex flex-col gap-1 text-sm">
-                {plan.selected.map((group) => (
-                  <li className="flex items-center gap-2" key={group.groupId}>
-                    {group.groupEmail}
-                    <Badge variant={group.role === "member" ? "secondary" : "default"}>
-                      {roleLabels[group.role]}
-                    </Badge>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </>
+        <p className="flex items-center gap-2 text-sm">
+          Workspace email: <strong>{workspaceEmail || "Not set"}</strong>
+          {!(emailSaved || plan.saved) && <Badge variant="outline">Not saved</Badge>}
+        </p>
+        {plan.selected.length === 0 ? (
+          <p className="text-sm">No initial groups saved.</p>
         ) : (
-          <p className="text-sm text-muted-foreground">
-            Save the plan to review the account address and memberships.
-          </p>
+          <ul className="flex flex-col gap-1 text-sm">
+            {plan.selected.map((group) => (
+              <li className="flex items-center gap-2" key={group.groupId}>
+                {group.groupEmail}
+                <Badge variant={group.role === "member" ? "secondary" : "default"}>
+                  {roleLabels[group.role]}
+                </Badge>
+              </li>
+            ))}
+          </ul>
         )}
         <p className="text-sm text-muted-foreground">
           Group roles and notification-group delivery only control Google Group access. They do not
