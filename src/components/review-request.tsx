@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { ArrowLeftIcon, CircleAlertIcon, PencilIcon } from "lucide-react";
 
 import { ReviewAccess, type ReviewOutcome } from "@/components/review-access";
+import { ReviewPlan } from "@/components/review-plan";
 import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -312,6 +313,11 @@ export function ReviewRequest({ id }: { id?: string }) {
                   )}
                 </div>
               </form>
+              <Separator />
+              <ReviewPlan
+                id={state.request.id}
+                key={`${state.request.id}:${state.request.givenName}:${state.request.familyName}`}
+              />
               {rejecting && <Separator />}
               {rejecting && (
                 <form noValidate onSubmit={reject}>
