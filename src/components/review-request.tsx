@@ -226,7 +226,7 @@ export function ReviewRequest({ id }: { id?: string }) {
                         defaultValue={state.request.givenName}
                         id="given-name"
                         name="givenName"
-                        readOnly={!editing}
+                        disabled={!editing}
                         required
                       />
                       <FieldError>{errors.givenName}</FieldError>
@@ -238,7 +238,7 @@ export function ReviewRequest({ id }: { id?: string }) {
                         defaultValue={state.request.familyName}
                         id="family-name"
                         name="familyName"
-                        readOnly={!editing}
+                        disabled={!editing}
                         required
                       />
                       <FieldError>{errors.familyName}</FieldError>
@@ -250,7 +250,7 @@ export function ReviewRequest({ id }: { id?: string }) {
                         defaultValue={state.request.contactEmail}
                         id="contact-email"
                         name="contactEmail"
-                        readOnly={!editing}
+                        disabled={!editing}
                         required
                         type="email"
                       />
@@ -262,7 +262,7 @@ export function ReviewRequest({ id }: { id?: string }) {
                         defaultValue={state.request.phone ?? ""}
                         id="phone"
                         name="phone"
-                        readOnly={!editing}
+                        disabled={!editing}
                         type="tel"
                       />
                       <FieldError>{errors.phone}</FieldError>
@@ -273,7 +273,7 @@ export function ReviewRequest({ id }: { id?: string }) {
                         defaultValue={state.request.connection ?? ""}
                         id="connection"
                         name="connection"
-                        readOnly={!editing}
+                        disabled={!editing}
                       />
                       <FieldError>{errors.connection}</FieldError>
                     </Field>
@@ -292,6 +292,7 @@ export function ReviewRequest({ id }: { id?: string }) {
                 </FieldSet>
                 <div className="mt-5 flex flex-wrap gap-2">
                   <Button
+                    disabled={pending}
                     onClick={() => {
                       if (!editing) setEditing(true);
                     }}
