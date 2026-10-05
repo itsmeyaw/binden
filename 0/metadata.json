@@ -1,0 +1,49 @@
+{
+  "cli_version": "0.10.6",
+  "checkpoint_id": "01M46G3JAS8R0TW909GJ6DKPMC",
+  "session_id": "ses_ef351a6caffeUj3oV6pKlolmMP",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-05T16:59:49.200184Z",
+  "branch": "issue-5/review-lifecycle",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "drizzle/20261005165925_yellow_glorian/migration.sql",
+    "drizzle/20261005165925_yellow_glorian/snapshot.json",
+    "src/lib/schema.ts"
+  ],
+  "agent": "OpenCode",
+  "model": "openai.gpt-5.6-terra",
+  "turn_id": "201e4b17fc89",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 14,
+    "cache_creation_tokens": 90121,
+    "cache_read_tokens": 309930,
+    "output_tokens": 1848,
+    "api_call_count": 7
+  },
+  "session_metrics": {
+    "turn_count": 1
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-10-05T16:59:49.171349Z",
+    "agent_lines": 1040,
+    "agent_removed": 0,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 1040,
+    "total_lines_changed": 1040,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    }
+  ]
+}
