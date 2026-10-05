@@ -1,0 +1,20 @@
+Implement the issue #4 from the issue tracker.
+
+---
+
+Now I have access to Google workspace, we can use this for authentication directly instead of using simulation. Update the ticket first then present a full plan.
+
+---
+
+Lgtm, use role id as authorization policy.
+
+---
+
+How to get role id for the reviewer?
+
+---
+
+I got this error after successfully signing in to the application: 
+
+2026-10-04T19:36:55.256Z ERROR [Better Auth]: Unable to get user info
+ GET /api/auth/callback/google?REDACTED&iss=https://accounts.google.com&code=4/REDACTED&scope=email%20profile%20https://www.googleapis.com/auth/admin.directory.rolemanagement.readonly%20https://www.googleapis.com/auth/admin.directory.user.readonly%20https://www.googleapis.com/auth/userinfo.profile%20https://www.googleapis.com/auth/userinfo.email%20openid&authuser=3&hd=pm3muenchen.de&prompt=consent 302 in 1110ms (next.js: 9ms, application-code: 1101ms)
