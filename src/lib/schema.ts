@@ -81,7 +81,12 @@ export const signupRequest = pgTable(
     contactEmail: text("contact_email").notNull(),
     phone: text(),
     connection: text(),
+    contactEmailConfirmedByAdmin: boolean("contact_email_confirmed_by_admin")
+      .notNull()
+      .default(false),
     status: text().notNull().default("pending_verification"),
+    rejectionReason: text("rejection_reason"),
+    rejectedAt: timestamp("rejected_at", { withTimezone: true }),
     verificationTokenHash: text("verification_token_hash").notNull(),
     verificationExpiresAt: timestamp("verification_expires_at", { withTimezone: true }).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
