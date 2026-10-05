@@ -52,5 +52,6 @@ export async function withWorkspaceEmail<
     workspaceEmail: proposed,
     workspaceEmailSaved: signup.workspaceEmail !== null,
     workspaceEmailTaken: taken,
+    workspaceDomain: domain?.toLowerCase() ?? null,
   };
 }
