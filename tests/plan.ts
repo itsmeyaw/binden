@@ -10,6 +10,10 @@ assert.equal(
   suggestWorkspaceEmail(" José ", "O'Brien-Smith", "Example.ORG"),
   "jose.obrien-smith@example.org",
 );
+assert.equal(
+  suggestWorkspaceEmail("Yudhistira Arief", "Wibuwu", "example.org"),
+  "yudhistira.wibuwu@example.org",
+);
 assert.equal(suggestWorkspaceEmail("李", "Ada", "example.org"), "");
 
 const email = "ada.new@example.org";

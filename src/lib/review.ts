@@ -130,7 +130,7 @@ function nameToken(name: string) {
 }
 
 export function suggestWorkspaceEmail(givenName: string, familyName: string, domain: string) {
-  const given = nameToken(givenName);
+  const given = nameToken(givenName.trim().split(/\s+/)[0] ?? "");
   const family = nameToken(familyName);
   return given && family ? `${given}.${family}@${domain.toLowerCase()}` : "";
 }
