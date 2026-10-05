@@ -1,0 +1,43 @@
+{
+  "cli_version": "0.10.6",
+  "checkpoint_id": "01M46SQ4ECR6A8CED1H9481992",
+  "session_id": "ses_ef29fef9effe6d47loJjdQvt7e",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-05T19:47:43.322262Z",
+  "branch": "issue-6/ui",
+  "checkpoints_count": 2,
+  "save_step_count": 1,
+  "files_touched": [],
+  "agent": "OpenCode",
+  "model": "anthropic.claude-sonnet-5-5",
+  "turn_id": "3d6c4a711469",
+  "checkpoint_transcript_start": 67,
+  "transcript_lines_at_start": 67,
+  "compact_transcript_start": 67,
+  "token_usage": {
+    "input_tokens": 82,
+    "cache_creation_tokens": 196338,
+    "cache_read_tokens": 4399547,
+    "output_tokens": 31528,
+    "api_call_count": 38
+  },
+  "session_metrics": {
+    "turn_count": 7
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    }
+  ]
+}
