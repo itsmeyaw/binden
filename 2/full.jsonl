@@ -18,19 +18,19 @@
       "deletions": 0,
       "files": 0
     },
-    "cost": 4.77606851,
+    "cost": 4.905888910000001,
     "tokens": {
-      "input": 204,
-      "output": 27862,
+      "input": 214,
+      "output": 29221,
       "reasoning": 11719,
       "cache": {
-        "read": 9239033,
-        "write": 718594
+        "read": 9793010,
+        "write": 720760
       }
     },
     "time": {
       "created": 1791214115127,
-      "updated": 1791225195771
+      "updated": 1791225470218
     }
   },
   "messages": [
@@ -20540,6 +20540,487 @@
           "id": "prt_10d5779e8001uP3N6uWPAl7IVE",
           "sessionID": "ses_ef351a6caffeUj3oV6pKlolmMP",
           "messageID": "msg_10d576cf9001CdfXSw0PIPb1B1"
+        }
+      ]
+    },
+    {
+      "info": {
+        "role": "user",
+        "time": {
+          "created": 1791225420177
+        },
+        "agent": "build",
+        "model": {
+          "providerID": "amazon-bedrock",
+          "modelID": "anthropic.claude-sonnet-5-5"
+        },
+        "summary": {
+          "diffs": []
+        },
+        "id": "msg_10d5ad990001v5JMSe4MXxKsJA",
+        "sessionID": "ses_ef351a6caffeUj3oV6pKlolmMP"
+      },
+      "parts": [
+        {
+          "type": "text",
+          "text": "Bug: checkbox is still editable in loading (transition from editable to uneditable)",
+          "id": "prt_10d5ad9910017kCUXHlKGVAQxi",
+          "sessionID": "ses_ef351a6caffeUj3oV6pKlolmMP",
+          "messageID": "msg_10d5ad990001v5JMSe4MXxKsJA"
+        }
+      ]
+    },
+    {
+      "info": {
+        "parentID": "msg_10d5ad990001v5JMSe4MXxKsJA",
+        "role": "assistant",
+        "mode": "build",
+        "agent": "build",
+        "path": {
+          "cwd": "/Users/itsmeyaw/projects/binden",
+          "root": "/Users/itsmeyaw/projects/binden"
+        },
+        "cost": 0.0314335,
+        "tokens": {
+          "total": 138469,
+          "input": 4,
+          "output": 306,
+          "reasoning": 0,
+          "cache": {
+            "write": 319,
+            "read": 137840
+          }
+        },
+        "modelID": "anthropic.claude-sonnet-5-5",
+        "providerID": "amazon-bedrock",
+        "time": {
+          "created": 1791225420557,
+          "completed": 1791225425103
+        },
+        "finish": "tool-calls",
+        "id": "msg_10d5adb0d001ZqEZZpbsWR1Ujx",
+        "sessionID": "ses_ef351a6caffeUj3oV6pKlolmMP"
+      },
+      "parts": [
+        {
+          "snapshot": "0b6c07d3e60f8fe451cdad9555a9523a589df543",
+          "type": "step-start",
+          "id": "prt_10d5ae1de001RkCneaSSQqqNYv",
+          "sessionID": "ses_ef351a6caffeUj3oV6pKlolmMP",
+          "messageID": "msg_10d5adb0d001ZqEZZpbsWR1Ujx"
+        },
+        {
+          "type": "reasoning",
+          "text": "",
+          "time": {
+            "start": 1791225423079,
+            "end": 1791225423081
+          },
+          "metadata": {
+            "bedrock": {
+              "signature": "CAQSiQcKEggSEAEYAjgBQgh0aGlua2luZxIM/E15ilaGon4P9y+bGgwRtMb1aj+g+InisH4iMJ8IcewZ6ltqbbU5FxCb52GYT76PNDEAMeqlznz6h/p/gqnbeJIcmil3L2iIQtEQfyqkBkp6CbjAqQIIKlEw7J1964XtAEPnwCxmfqWzTW5Kl493r6zixm+O8RKg7iMm5/QlezYqiGJ86Ei342lntTIF/XzXw5eut+QOz9b2UzknwCEAWOT4zYlkIrL9rPkcHB8mqBq2jAEBRgvxkDO/t9jiJ6QaQqFTmWVP66InW2ZYGxCbrR0YpR1teubEYkapSRQnrGrCM6/olGvckZSEwsExpdn/uOrYNr8Q0bomE/0Ukr0UXZysnor4gS2mOXdM4Rhtm6zQSUadiKrMyq8s2PKiQAQdq7rFpMmyi5qErbmOLJZ7040DzLkjvCickAsBSxlaKnZxkz8Tcw6Vas4SH6wzBmNGjRWKRolVhbjXUndHLaCiY8igEsMhUtEA+9dan5hZ5E3PIAb40r9DEiKhKGBjRaH3+tgQNkiUBM3kN08YEPXDvN8Wu1wkvqFK89uvfGT0+cvDTeL2gIE6jgdRd7gwF4vWvcKVLegIF3YYvVRdPLhPFTU1rl2OUhM8d2hilx6iDi44gbNrdxWr4j+iM8gS+4fQAqaLB7r+OrEOfrxUD15lZHQXBSagwxRKWDrFQxlJp76FcvKdWNngZZwzJZF13d0E4Nrq3ixl/zs5AQ3ibamoxHwKCDJf23cGuaSgO6B0LcCN5cXYNUoAoQwJoLLKPA/b3muAVi90Ssl3bamRJ6DIuNGyMVuMIE4tevOYczwmN6pU1y71fxAW+VFD1S0AhzyMXnU1sz4dt6Y61X7u2B5Pr+jNO93Nx7UDJwru7q37WGXwTN/XQ69QEDCQM0swEjEFfFxhvu9ku5Mw4M3oPFZ0NQqn8iJGCoOEendCuqnOXnpSnJ4kh/JqKT7mrn1i40l0K/rRpwJhd2ue4zWISrWNBG+JVegcA9amZccH9qS1OkZOGDTUQJsn/V4RRThWhtPnw17gbMcySbZVZzURY1qGgpoPb8t6Cp8lXNuk4AiUlmWaVmyyQhKAqE5wDnDo7QCqf/SgHDyEJAxLqcKVlDEQS2hmAkfHY8eXKU1XaltVgP9mkdEXXfLfLlK8S87p0x8YOrj1kSRF393wcLhSbHqD15/5HRgB"
+            }
+          },
+          "id": "prt_10d5ae4e7001oLzyzvwBg3MGW1",
+          "sessionID": "ses_ef351a6caffeUj3oV6pKlolmMP",
+          "messageID": "msg_10d5adb0d001ZqEZZpbsWR1Ujx"
+        },
+        {
+          "type": "text",
+          "text": "During the save, `editing` is still true, so the checkbox stays enabled. The fieldset's `pending` state doesn't reach it. I'll include `pending` in its `disabled`.",
+          "time": {
+            "start": 1791225423083,
+            "end": 1791225423335
+          },
+          "id": "prt_10d5ae4eb001vaeFnWHItwhXRJ",
+          "sessionID": "ses_ef351a6caffeUj3oV6pKlolmMP",
+          "messageID": "msg_10d5adb0d001ZqEZZpbsWR1Ujx"
+        },
+        {
+          "type": "tool",
+          "tool": "edit",
+          "callID": "tooluse_wUYRoaVxsE8Pvwe8QZhfr3",
+          "state": {
+            "status": "completed",
+            "input": {
+              "filePath": "/Users/itsmeyaw/projects/binden/.worktrees/issue-5-review-lifecycle/src/components/review-request.tsx",
+              "newString": "                        disabled={!editing || pending}",
+              "oldString": "                        disabled={!editing}"
+            },
+            "output": "Edit applied successfully.",
+            "metadata": {
+              "diagnostics": {
+                "/Users/itsmeyaw/projects/binden/.worktrees/issue-5-review-lifecycle/src/components/review-request.tsx": [
+                  {
+                    "range": {
+                      "start": {
+                        "line": 82,
+                        "character": 38
+                      },
+                      "end": {
+                        "line": 82,
+                        "character": 47
+                      }
+                    },
+                    "message": "'FormEvent' is deprecated.",
+                    "severity": 4,
+                    "code": 6385,
+                    "source": "typescript",
+                    "relatedInformation": [
+                      {
+                        "location": {
+                          "uri": "file:///Users/itsmeyaw/projects/binden/.worktrees/issue-5-review-lifecycle/node_modules/.pnpm/%40types%2Breact%4019.3.0/node_modules/%40types/react/index.d.ts",
+                          "range": {
+                            "start": {
+                              "line": 2172,
+                              "character": 7
+                            },
+                            "end": {
+                              "line": 2175,
+                              "character": 5
+                            }
+                          }
+                        },
+                        "message": "The declaration was marked as deprecated here."
+                      }
+                    ]
+                  },
+                  {
+                    "range": {
+                      "start": {
+                        "line": 115,
+                        "character": 37
+                      },
+                      "end": {
+                        "line": 115,
+                        "character": 46
+                      }
+                    },
+                    "message": "'FormEvent' is deprecated.",
+                    "severity": 4,
+                    "code": 6385,
+                    "source": "typescript",
+                    "relatedInformation": [
+                      {
+                        "location": {
+                          "uri": "file:///Users/itsmeyaw/projects/binden/.worktrees/issue-5-review-lifecycle/node_modules/.pnpm/%40types%2Breact%4019.3.0/node_modules/%40types/react/index.d.ts",
+                          "range": {
+                            "start": {
+                              "line": 2172,
+                              "character": 7
+                            },
+                            "end": {
+                              "line": 2175,
+                              "character": 5
+                            }
+                          }
+                        },
+                        "message": "The declaration was marked as deprecated here."
+                      }
+                    ]
+                  }
+                ]
+              },
+              "diff": "Index: /Users/itsmeyaw/projects/binden/.worktrees/issue-5-review-lifecycle/src/components/review-request.tsx\n===================================================================\n--- /Users/itsmeyaw/projects/binden/.worktrees/issue-5-review-lifecycle/src/components/review-request.tsx\n+++ /Users/itsmeyaw/projects/binden/.worktrees/issue-5-review-lifecycle/src/components/review-request.tsx\n@@ -274,9 +274,9 @@\n </Field>\n <Field className=\"sm:col-span-2\" orientation=\"horizontal\">\n   <Checkbox\n     defaultChecked={state.request.contactEmailConfirmedByAdmin}\n-    disabled={!editing}\n+    disabled={!editing || pending}\n     id=\"contact-email-confirmed\"\n     name=\"contactEmailConfirmedByAdmin\"\n   />\n   <FieldLabel htmlFor=\"contact-email-confirmed\">\n",
+              "filediff": {
+                "file": "/Users/itsmeyaw/projects/binden/.worktrees/issue-5-review-lifecycle/src/components/review-request.tsx",
+                "patch": "Index: /Users/itsmeyaw/projects/binden/.worktrees/issue-5-review-lifecycle/src/components/review-request.tsx\n===================================================================\n--- /Users/itsmeyaw/projects/binden/.worktrees/issue-5-review-lifecycle/src/components/review-request.tsx\n+++ /Users/itsmeyaw/projects/binden/.worktrees/issue-5-review-lifecycle/src/components/review-request.tsx\n@@ -274,9 +274,9 @@\n </Field>\n <Field className=\"sm:col-span-2\" orientation=\"horizontal\">\n   <Checkbox\n     defaultChecked={state.request.contactEmailConfirmedByAdmin}\n-    disabled={!editing}\n+    disabled={!editing || pending}\n     id=\"contact-email-confirmed\"\n     name=\"contactEmailConfirmedByAdmin\"\n   />\n   <FieldLabel htmlFor=\"contact-email-confirmed\">\n",
+                "additions": 1,
+                "deletions": 1
+              },
+              "truncated": false
+            },
+            "title": ".worktrees/issue-5-review-lifecycle/src/components/review-request.tsx",
+            "time": {
+              "start": 1791225424069,
+              "end": 1791225424972
+            }
+          },
+          "id": "prt_10d5ae5e90015st3VSdQateIAo",
+          "sessionID": "ses_ef351a6caffeUj3oV6pKlolmMP",
+          "messageID": "msg_10d5adb0d001ZqEZZpbsWR1Ujx"
+        },
+        {
+          "reason": "tool-calls",
+          "snapshot": "0b6c07d3e60f8fe451cdad9555a9523a589df543",
+          "type": "step-finish",
+          "tokens": {
+            "total": 138469,
+            "input": 4,
+            "output": 306,
+            "reasoning": 0,
+            "cache": {
+              "write": 319,
+              "read": 137840
+            }
+          },
+          "cost": 0.0314335,
+          "id": "prt_10d5aec92001bsCIN9SN9CAnPe",
+          "sessionID": "ses_ef351a6caffeUj3oV6pKlolmMP",
+          "messageID": "msg_10d5adb0d001ZqEZZpbsWR1Ujx"
+        }
+      ]
+    },
+    {
+      "info": {
+        "parentID": "msg_10d5ad990001v5JMSe4MXxKsJA",
+        "role": "assistant",
+        "mode": "build",
+        "agent": "build",
+        "path": {
+          "cwd": "/Users/itsmeyaw/projects/binden",
+          "root": "/Users/itsmeyaw/projects/binden"
+        },
+        "cost": 0.0333008,
+        "tokens": {
+          "total": 138969,
+          "input": 2,
+          "output": 486,
+          "reasoning": 0,
+          "cache": {
+            "write": 322,
+            "read": 138159
+          }
+        },
+        "modelID": "anthropic.claude-sonnet-5-5",
+        "providerID": "amazon-bedrock",
+        "time": {
+          "created": 1791225425114,
+          "completed": 1791225435977
+        },
+        "finish": "tool-calls",
+        "id": "msg_10d5aecda00106nkf4ILigpK27",
+        "sessionID": "ses_ef351a6caffeUj3oV6pKlolmMP"
+      },
+      "parts": [
+        {
+          "snapshot": "0b6c07d3e60f8fe451cdad9555a9523a589df543",
+          "type": "step-start",
+          "id": "prt_10d5af2d500108DhkRC90mWP6i",
+          "sessionID": "ses_ef351a6caffeUj3oV6pKlolmMP",
+          "messageID": "msg_10d5aecda00106nkf4ILigpK27"
+        },
+        {
+          "type": "text",
+          "text": "Verifying with a delayed PATCH so the loading state is observable:",
+          "time": {
+            "start": 1791225426651,
+            "end": 1791225426654
+          },
+          "id": "prt_10d5af2db0013lkc8BE7odwv7G",
+          "sessionID": "ses_ef351a6caffeUj3oV6pKlolmMP",
+          "messageID": "msg_10d5aecda00106nkf4ILigpK27"
+        },
+        {
+          "type": "tool",
+          "tool": "playwright_browser_run_code_unsafe",
+          "callID": "tooluse_d5vzN4UKlBZca7LLq6iWP2",
+          "state": {
+            "status": "completed",
+            "input": {
+              "code": "async (page) => {\n  await page.route('**/api/review/requests/*', async (route) => {\n    if (route.request().method() === 'PATCH') await new Promise((r) => setTimeout(r, 2000));\n    await route.continue();\n  });\n  await page.goto('http://localhost:3000/review/cdde469b-8ccb-4be8-af09-1dd62013c7eb');\n  const box = page.getByRole('checkbox', { name: /I confirm this contact email/ });\n  await box.waitFor();\n  await page.getByRole('button', { name: 'Correct details' }).click();\n  await page.getByRole('button', { name: 'Done' }).click();\n  await page.waitForTimeout(400);\n  const pendingDisabled = await box.getAttribute('aria-disabled');\n  const before = await box.getAttribute('aria-checked');\n  await box.click({ force: true });\n  const afterPendingClick = await box.getAttribute('aria-checked');\n  await page.waitForTimeout(2500);\n  return { pendingDisabled, before, afterPendingClick, finalDisabled: await box.getAttribute('aria-disabled'), finalChecked: await box.getAttribute('aria-checked') };\n}"
+            },
+            "output": "### Result\n{\"pendingDisabled\":\"true\",\"before\":\"true\",\"afterPendingClick\":\"true\",\"finalDisabled\":\"true\",\"finalChecked\":\"true\"}\n### Ran Playwright code\n```js\nawait (async (page) => {\n  await page.route('**/api/review/requests/*', async (route) => {\n    if (route.request().method() === 'PATCH') await new Promise((r) => setTimeout(r, 2000));\n    await route.continue();\n  });\n  await page.goto('http://localhost:3000/review/cdde469b-8ccb-4be8-af09-1dd62013c7eb');\n  const box = page.getByRole('checkbox', { name: /I confirm this contact email/ });\n  await box.waitFor();\n  await page.getByRole('button', { name: 'Correct details' }).click();\n  await page.getByRole('button', { name: 'Done' }).click();\n  await page.waitForTimeout(400);\n  const pendingDisabled = await box.getAttribute('aria-disabled');\n  const before = await box.getAttribute('aria-checked');\n  await box.click({ force: true });\n  const afterPendingClick = await box.getAttribute('aria-checked');\n  await page.waitForTimeout(2500);\n  return { pendingDisabled, before, afterPendingClick, finalDisabled: await box.getAttribute('aria-disabled'), finalChecked: await box.getAttribute('aria-checked') };\n})(page);\n```\n### Events\n- New console entries: .playwright-mcp/console-2026-10-05T18-32-38-189Z.log#L9-L19",
+            "metadata": {
+              "truncated": false
+            },
+            "title": "",
+            "time": {
+              "start": 1791225428731,
+              "end": 1791225435848
+            }
+          },
+          "id": "prt_10d5af2df001eVnhghu1H5UcnV",
+          "sessionID": "ses_ef351a6caffeUj3oV6pKlolmMP",
+          "messageID": "msg_10d5aecda00106nkf4ILigpK27"
+        },
+        {
+          "reason": "tool-calls",
+          "snapshot": "0b6c07d3e60f8fe451cdad9555a9523a589df543",
+          "type": "step-finish",
+          "tokens": {
+            "total": 138969,
+            "input": 2,
+            "output": 486,
+            "reasoning": 0,
+            "cache": {
+              "write": 322,
+              "read": 138159
+            }
+          },
+          "cost": 0.0333008,
+          "id": "prt_10d5b170c0011h26ojViQAFT8g",
+          "sessionID": "ses_ef351a6caffeUj3oV6pKlolmMP",
+          "messageID": "msg_10d5aecda00106nkf4ILigpK27"
+        }
+      ]
+    },
+    {
+      "info": {
+        "parentID": "msg_10d5ad990001v5JMSe4MXxKsJA",
+        "role": "assistant",
+        "mode": "build",
+        "agent": "build",
+        "path": {
+          "cwd": "/Users/itsmeyaw/projects/binden",
+          "root": "/Users/itsmeyaw/projects/binden"
+        },
+        "cost": 0.0329002,
+        "tokens": {
+          "total": 139765,
+          "input": 2,
+          "output": 266,
+          "reasoning": 0,
+          "cache": {
+            "write": 1016,
+            "read": 138481
+          }
+        },
+        "modelID": "anthropic.claude-sonnet-5-5",
+        "providerID": "amazon-bedrock",
+        "time": {
+          "created": 1791225435989,
+          "completed": 1791225470189
+        },
+        "finish": "tool-calls",
+        "id": "msg_10d5b1755001JmG5rruZ631Q3f",
+        "sessionID": "ses_ef351a6caffeUj3oV6pKlolmMP"
+      },
+      "parts": [
+        {
+          "snapshot": "0b6c07d3e60f8fe451cdad9555a9523a589df543",
+          "type": "step-start",
+          "id": "prt_10d5b1eaf001ZErhG0QAIAUESD",
+          "sessionID": "ses_ef351a6caffeUj3oV6pKlolmMP",
+          "messageID": "msg_10d5b1755001JmG5rruZ631Q3f"
+        },
+        {
+          "type": "text",
+          "text": "With the save delayed, the checkbox is disabled during loading and a forced click doesn't change it. Committing and pushing.",
+          "time": {
+            "start": 1791225437873,
+            "end": 1791225437875
+          },
+          "id": "prt_10d5b1eb1001PTUYIu1kXiRZpJ",
+          "sessionID": "ses_ef351a6caffeUj3oV6pKlolmMP",
+          "messageID": "msg_10d5b1755001JmG5rruZ631Q3f"
+        },
+        {
+          "type": "tool",
+          "tool": "bash",
+          "callID": "tooluse_OChNjFTzztljBED6kxiT4n",
+          "state": {
+            "status": "completed",
+            "input": {
+              "command": "pnpm exec oxfmt --check src/components/review-request.tsx && pnpm exec tsc --noEmit && pnpm lint && git add src/components/review-request.tsx && git commit -m \"Disable admin confirmation checkbox while saving\" && gh stack submit --auto --remote origin",
+              "timeout": 120000,
+              "workdir": "/Users/itsmeyaw/projects/binden/.worktrees/issue-5-review-lifecycle"
+            },
+            "output": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 11ms on 1 files using 10 threads.\n$ oxlint --deny-warnings .\n[issue-5/review-ui aa99d59] Disable admin confirmation checkbox while saving\n 1 file changed, 1 insertion(+), 1 deletion(-)\nChecking stack state...\nPushing to origin...\nPR #25 for issue-5/review-lifecycle is up to date\nPR #26 for issue-5/review-api is up to date\nPR #27 for issue-5/review-ui is up to date\n✓ Stack on GitHub is up to date with 3 PRs (stack #28)\n✓ Pushed and synced 3 branches\n",
+            "metadata": {
+              "output": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 11ms on 1 files using 10 threads.\n$ oxlint --deny-warnings .\n[issue-5/review-ui aa99d59] Disable admin confirmation checkbox while saving\n 1 file changed, 1 insertion(+), 1 deletion(-)\nChecking stack state...\nPushing to origin...\nPR #25 for issue-5/review-lifecycle is up to date\nPR #26 for issue-5/review-api is up to date\nPR #27 for issue-5/review-ui is up to date\n✓ Stack on GitHub is up to date with 3 PRs (stack #28)\n✓ Pushed and synced 3 branches\n",
+              "exit": 0,
+              "truncated": false
+            },
+            "title": "pnpm exec oxfmt --check src/components/review-request.tsx && pnpm exec tsc --noEmit && pnpm lint && git add src/components/review-request.tsx && git commit -m \"Disable admin confirmation checkbox while saving\" && gh stack submit --auto --remote origin",
+            "time": {
+              "start": 1791225438703,
+              "end": 1791225470055
+            }
+          },
+          "id": "prt_10d5b1eb4001jEZHWaBPbkNM6G",
+          "sessionID": "ses_ef351a6caffeUj3oV6pKlolmMP",
+          "messageID": "msg_10d5b1755001JmG5rruZ631Q3f"
+        },
+        {
+          "reason": "tool-calls",
+          "snapshot": "0b6c07d3e60f8fe451cdad9555a9523a589df543",
+          "type": "step-finish",
+          "tokens": {
+            "total": 139765,
+            "input": 2,
+            "output": 266,
+            "reasoning": 0,
+            "cache": {
+              "write": 1016,
+              "read": 138481
+            }
+          },
+          "cost": 0.0329002,
+          "id": "prt_10d5b9cab001m4OSo6gDDe93Jz",
+          "sessionID": "ses_ef351a6caffeUj3oV6pKlolmMP",
+          "messageID": "msg_10d5b1755001JmG5rruZ631Q3f"
+        }
+      ]
+    },
+    {
+      "info": {
+        "parentID": "msg_10d5ad990001v5JMSe4MXxKsJA",
+        "role": "assistant",
+        "mode": "build",
+        "agent": "build",
+        "path": {
+          "cwd": "/Users/itsmeyaw/projects/binden",
+          "root": "/Users/itsmeyaw/projects/binden"
+        },
+        "cost": 0.0321859,
+        "tokens": {
+          "total": 140309,
+          "input": 2,
+          "output": 301,
+          "reasoning": 0,
+          "cache": {
+            "write": 509,
+            "read": 139497
+          }
+        },
+        "modelID": "anthropic.claude-sonnet-5-5",
+        "providerID": "amazon-bedrock",
+        "time": {
+          "created": 1791225470216,
+          "completed": 1791225473683
+        },
+        "finish": "stop",
+        "id": "msg_10d5b9d08001rznmH55iTVNwF7",
+        "sessionID": "ses_ef351a6caffeUj3oV6pKlolmMP"
+      },
+      "parts": [
+        {
+          "snapshot": "0b6c07d3e60f8fe451cdad9555a9523a589df543",
+          "type": "step-start",
+          "id": "prt_10d5ba9dd001C709eWpV0ubH7S",
+          "sessionID": "ses_ef351a6caffeUj3oV6pKlolmMP",
+          "messageID": "msg_10d5b9d08001rznmH55iTVNwF7"
+        },
+        {
+          "type": "text",
+          "text": "Fixed and pushed to [#27](https://github.com/itsmeyaw/binden/pull/27) (commit `aa99d59`).\n\n**Cause:** while a save is in flight, `editing` is still `true`, so `disabled={!editing}` left the checkbox enabled. The `pending` state on the fieldset doesn't reach it, because the Base UI checkbox isn't a native input.\n\n**Fix:** the checkbox now uses `disabled={!editing || pending}` in `src/components/review-request.tsx`.\n\n**Checked in the browser:** I delayed the save by 2 seconds. During the save the checkbox showed `aria-disabled=\"true\"`, and a forced click didn't change it. Afterwards it stayed disabled and kept its saved value. Formatting, typecheck and lint pass.\n\nThe other fields are native inputs, so the fieldset already disables them during a save. I didn't test that separately.",
+          "time": {
+            "start": 1791225473515,
+            "end": 1791225473523
+          },
+          "id": "prt_10d5ba9eb001eWbJSB2a76pxO3",
+          "sessionID": "ses_ef351a6caffeUj3oV6pKlolmMP",
+          "messageID": "msg_10d5b9d08001rznmH55iTVNwF7"
+        },
+        {
+          "reason": "stop",
+          "snapshot": "0b6c07d3e60f8fe451cdad9555a9523a589df543",
+          "type": "step-finish",
+          "tokens": {
+            "total": 140309,
+            "input": 2,
+            "output": 301,
+            "reasoning": 0,
+            "cache": {
+              "write": 509,
+              "read": 139497
+            }
+          },
+          "cost": 0.0321859,
+          "id": "prt_10d5baa40001J5sUyBGl0GYKnc",
+          "sessionID": "ses_ef351a6caffeUj3oV6pKlolmMP",
+          "messageID": "msg_10d5b9d08001rznmH55iTVNwF7"
         }
       ]
     }
