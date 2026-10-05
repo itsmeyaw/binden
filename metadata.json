@@ -1,0 +1,27 @@
+{
+  "cli_version": "0.10.6",
+  "checkpoint_id": "01M45QTD3J2NR3F0V0QPXFTQ7Q",
+  "strategy": "manual-commit",
+  "branch": "review-requests/integration",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/components/review-queue.tsx",
+    "src/components/review-request.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 46,
+    "cache_creation_tokens": 32131,
+    "cache_read_tokens": 1149891,
+    "output_tokens": 3676,
+    "api_call_count": 23
+  }
+}
