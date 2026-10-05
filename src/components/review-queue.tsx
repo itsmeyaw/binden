@@ -68,7 +68,7 @@ export function ReviewQueue() {
           {state.requests.map((request) => (
             <li key={request.id}>
               <Link
-                className="flex flex-col gap-1 p-4 transition-colors hover:bg-muted @2xl/queue:flex-row @2xl/queue:items-center @2xl/queue:justify-between"
+                className="flex flex-col gap-1 px-4 py-3 transition-colors hover:bg-muted @2xl/queue:flex-row @2xl/queue:items-center @2xl/queue:justify-between"
                 href={`/review/${request.id}`}
               >
                 <span className="font-medium">
