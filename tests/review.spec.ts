@@ -67,7 +67,7 @@ test.describe("verified signup request review", () => {
     await page.goto(`/review/${id}`);
     const email = page.getByLabel("Workspace email");
     // The simulated Directory reports ada.lovelace as already taken.
-    await expect(email).toHaveValue(`ada.lovelace@${domain}`);
+    await expect(email).toHaveValue("ada.lovelace");
     await expect(page.getByText("Choose a different address.")).toBeVisible();
 
     const clash = page.getByText("Choose a different address.");
@@ -78,7 +78,7 @@ test.describe("verified signup request review", () => {
 
     // Editing to another taken address is refused and nothing is saved.
     await page.getByRole("button", { name: "Correct details" }).click();
-    await email.fill(`taken.user@${domain}`);
+    await email.fill("taken.user");
     await expect(clash).toBeHidden();
     await page.getByRole("button", { name: "Done" }).click();
     await expect(clash).toBeVisible();
@@ -87,7 +87,7 @@ test.describe("verified signup request review", () => {
     ).rows;
     expect(refused).toBeNull();
 
-    await email.fill(`ada.l@${domain}`);
+    await email.fill("ada.l");
     await page.getByRole("button", { name: "Done" }).click();
     await expect(clash).toBeHidden();
     const [{ workspace_email: saved }] = (

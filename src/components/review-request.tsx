@@ -18,6 +18,12 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+  InputGroupText,
+} from "@/components/ui/input-group";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
@@ -34,6 +40,7 @@ type SignupRequest = {
   workspaceEmail: string;
   workspaceEmailSaved: boolean;
   workspaceEmailTaken: boolean | null;
+  workspaceDomain: string | null;
   status: "verified" | "rejection_pending_notification";
   rejectionReason: string | null;
   createdAt: string;
@@ -111,6 +118,9 @@ export function ReviewRequest({ id }: { id?: string }) {
     setPending(true);
     setErrors({});
     const values = new FormData(event.currentTarget);
+    const { workspaceDomain } = state.request;
+    const local = String(values.get("workspaceEmail")).trim();
+    const workspaceEmail = local && workspaceDomain ? `${local}@${workspaceDomain}` : local;
     try {
       const response = await fetch(`/api/review/requests/${encodeURIComponent(id)}`, {
         method: "PATCH",
@@ -124,9 +134,7 @@ export function ReviewRequest({ id }: { id?: string }) {
           connection: values.get("connection"),
           // Unchanged proposals are not saved, so a corrected name can still refresh them.
           workspaceEmail:
-            values.get("workspaceEmail") === state.request.workspaceEmail
-              ? undefined
-              : values.get("workspaceEmail"),
+            workspaceEmail === state.request.workspaceEmail ? undefined : workspaceEmail,
         }),
       });
       const result = (await response.json()) as { errors?: Errors; request?: SignupRequest };
@@ -313,18 +321,24 @@ export function ReviewRequest({ id }: { id?: string }) {
                           </Tooltip>
                         )}
                       </FieldLabel>
-                      <Input
-                        aria-invalid={Boolean(
-                          errors.workspaceEmail ||
-                          (state.request.workspaceEmailTaken && !emailEdited),
+                      <InputGroup>
+                        <InputGroupInput
+                          aria-invalid={Boolean(
+                            errors.workspaceEmail ||
+                            (state.request.workspaceEmailTaken && !emailEdited),
+                          )}
+                          defaultValue={state.request.workspaceEmail.replace(/@.*$/, "")}
+                          id="workspace-email"
+                          key={state.request.workspaceEmail}
+                          name="workspaceEmail"
+                          onChange={() => setEmailEdited(true)}
+                        />
+                        {state.request.workspaceDomain && (
+                          <InputGroupAddon align="inline-end">
+                            <InputGroupText>@{state.request.workspaceDomain}</InputGroupText>
+                          </InputGroupAddon>
                         )}
-                        defaultValue={state.request.workspaceEmail}
-                        id="workspace-email"
-                        key={state.request.workspaceEmail}
-                        name="workspaceEmail"
-                        onChange={() => setEmailEdited(true)}
-                        type="email"
-                      />
+                      </InputGroup>
                       {state.request.workspaceEmailSaved && (
                         <FieldDescription>Planned account address.</FieldDescription>
                       )}
