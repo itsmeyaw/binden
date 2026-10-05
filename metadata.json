@@ -3,7 +3,7 @@
   "checkpoint_id": "01M45QTD3J2NR3F0V0QPXFTQ7Q",
   "strategy": "manual-commit",
   "branch": "review-requests/integration",
-  "checkpoints_count": 4,
+  "checkpoints_count": 5,
   "files_touched": [
     "src/components/review-queue.tsx",
     "src/components/review-request.tsx"
@@ -36,6 +36,13 @@
       "compact_transcript": "/3/transcript.jsonl",
       "content_hash": "/3/content_hash.txt",
       "prompt": "/3/prompt.txt"
+    },
+    {
+      "metadata": "/4/metadata.json",
+      "transcript": "/4/full.jsonl",
+      "compact_transcript": "/4/transcript.jsonl",
+      "content_hash": "/4/content_hash.txt",
+      "prompt": ""
     }
   ],
   "token_usage": {
