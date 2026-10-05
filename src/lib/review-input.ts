@@ -8,19 +8,40 @@ const optionalText = (maxLength: number, message: string) =>
     .optional()
     .transform((value) => value || null);
 
-const correctionSchema = z.object({
-  givenName: z.string().trim().min(1, "Enter the given name.").max(100, "Enter the given name."),
-  familyName: z.string().trim().min(1, "Enter the family name.").max(100, "Enter the family name."),
-  contactEmail: z
+const workspaceEmailSchema = (domain: string) =>
+  z
     .string()
     .trim()
     .toLowerCase()
-    .max(254, "Enter a valid contact email.")
-    .email("Enter a valid contact email."),
-  contactEmailConfirmedByAdmin: z.boolean(),
-  phone: optionalText(50, "Enter a phone number of 50 characters or fewer."),
-  connection: optionalText(1000, "Keep the connection explanation to 1,000 characters or fewer."),
-});
+    .max(254, "Enter a valid Workspace email.")
+    .email("Enter a valid Workspace email.")
+    .refine((email) => email.endsWith(`@${domain.toLowerCase()}`), `Use an address at ${domain}.`);
+
+const correctionSchema = (domain?: string) =>
+  z.object({
+    givenName: z.string().trim().min(1, "Enter the given name.").max(100, "Enter the given name."),
+    familyName: z
+      .string()
+      .trim()
+      .min(1, "Enter the family name.")
+      .max(100, "Enter the family name."),
+    contactEmail: z
+      .string()
+      .trim()
+      .toLowerCase()
+      .max(254, "Enter a valid contact email.")
+      .email("Enter a valid contact email."),
+    contactEmailConfirmedByAdmin: z.boolean(),
+    phone: optionalText(50, "Enter a phone number of 50 characters or fewer."),
+    connection: optionalText(1000, "Keep the connection explanation to 1,000 characters or fewer."),
+    // Omitted leaves the planned address alone; blank clears it.
+    workspaceEmail: z.preprocess(
+      (value) => (typeof value === "string" && !value.trim() ? null : value),
+      workspaceEmailSchema(domain ?? "")
+        .nullable()
+        .optional(),
+    ),
+  });
 
 const rejectionSchema = z.object({
   reason: z
@@ -34,16 +55,7 @@ export const groupRoles = ["member", "manager", "owner"] as const;
 
 const planSchema = (domain: string) =>
   z.object({
-    workspaceEmail: z
-      .string()
-      .trim()
-      .toLowerCase()
-      .max(254, "Enter a valid Workspace email.")
-      .email("Enter a valid Workspace email.")
-      .refine(
-        (email) => email.endsWith(`@${domain.toLowerCase()}`),
-        `Use an address at ${domain}.`,
-      ),
+    workspaceEmail: workspaceEmailSchema(domain),
     groups: z
       .array(
         z.object({
@@ -74,8 +86,8 @@ function parse<T extends z.ZodType>(
   return { data: undefined, errors };
 }
 
-export function parseReviewCorrectionInput(value: unknown) {
-  return parse(correctionSchema, value);
+export function parseReviewCorrectionInput(value: unknown, domain?: string) {
+  return parse(correctionSchema(domain), value);
 }
 
 export function parseRejectionInput(value: unknown) {

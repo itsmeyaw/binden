@@ -1,4 +1,9 @@
 import type { getReviewAccess } from "@/lib/auth";
+import { isWorkspaceEmailAvailable } from "@/lib/directory";
+import { suggestWorkspaceEmail } from "@/lib/review";
+
+export const workspaceEmailCollision =
+  "That Workspace email is already in use. Choose a different address.";
 
 export function json(body: unknown, status = 200) {
   return Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
@@ -23,4 +28,29 @@ export function isUniqueViolation(error: unknown): boolean {
   if (typeof error !== "object" || !error) return false;
   if ("code" in error && error.code === "23505") return true;
   return "cause" in error && isUniqueViolation(error.cause);
+}
+
+// Adds the address to show in the review fields (saved, else suggested) and whether it clashes.
+// `workspaceEmailTaken` is null when the Directory cannot answer.
+export async function withWorkspaceEmail<
+  T extends { givenName: string; familyName: string; workspaceEmail: string | null },
+>(signup: T) {
+  const domain = process.env.GOOGLE_WORKSPACE_DOMAIN;
+  const proposed =
+    signup.workspaceEmail ??
+    (domain ? suggestWorkspaceEmail(signup.givenName, signup.familyName, domain) : "");
+  let taken: boolean | null = null;
+  if (proposed) {
+    try {
+      taken = !(await isWorkspaceEmailAvailable(proposed));
+    } catch {
+      // Unknown clash state; saving still re-checks.
+    }
+  }
+  return {
+    ...signup,
+    workspaceEmail: proposed,
+    workspaceEmailSaved: signup.workspaceEmail !== null,
+    workspaceEmailTaken: taken,
+  };
 }

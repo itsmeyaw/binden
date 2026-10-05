@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 
 import { isWorkspaceEmailAvailable, listManageableGroups } from "../src/lib/directory";
 import { saveSignupPlan, suggestWorkspaceEmail } from "../src/lib/review";
-import { parsePlanInput } from "../src/lib/review-input";
+import { parsePlanInput, parseReviewCorrectionInput } from "../src/lib/review-input";
 import { getDb } from "../src/lib/db";
 import { WorkspaceUnavailable } from "../src/lib/workspace";
 
@@ -40,6 +40,19 @@ assert.ok(
   parsePlanInput({ workspaceEmail: email, groups: [{ id: "g", role: "admin" }] }, "example.org")
     .errors?.groups,
 );
+
+const details = {
+  givenName: "Ada",
+  familyName: "Lovelace",
+  contactEmail: "ada@example.com",
+  contactEmailConfirmedByAdmin: false,
+};
+const planned = (workspaceEmail?: string) =>
+  parseReviewCorrectionInput({ ...details, workspaceEmail }, "example.org");
+assert.equal(planned().data?.workspaceEmail, undefined);
+assert.equal(planned("  ").data?.workspaceEmail, null);
+assert.equal(planned(" ADA.New@Example.org ").data?.workspaceEmail, email);
+assert.equal(planned("ada@other.org").errors?.workspaceEmail, "Use an address at example.org.");
 
 async function testDirectory() {
   const env = process.env as Record<string, string | undefined>;

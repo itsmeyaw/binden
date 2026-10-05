@@ -11,6 +11,7 @@ export const reviewRequestFields = {
   contactEmailConfirmedByAdmin: signupRequest.contactEmailConfirmedByAdmin,
   phone: signupRequest.phone,
   connection: signupRequest.connection,
+  workspaceEmail: signupRequest.workspaceEmail,
   status: signupRequest.status,
   rejectionReason: signupRequest.rejectionReason,
   createdAt: signupRequest.createdAt,
@@ -56,7 +57,7 @@ export type SignupRequestCorrection = Pick<
   | "contactEmailConfirmedByAdmin"
   | "phone"
   | "connection"
->;
+> & { workspaceEmail?: string | null };
 
 export async function correctVerifiedSignupRequest(
   id: string,

@@ -12,11 +12,14 @@ import {
   saveSignupPlan,
   suggestWorkspaceEmail,
 } from "@/lib/review";
-import { deniedResponse, isUniqueViolation, json } from "@/lib/review-http";
+import {
+  deniedResponse,
+  isUniqueViolation,
+  json,
+  workspaceEmailCollision as collision,
+} from "@/lib/review-http";
 import { parsePlanInput } from "@/lib/review-input";
 import { WorkspaceUnavailable } from "@/lib/workspace";
-
-const collision = "That Workspace email is already in use. Choose a different address.";
 
 async function planResponse(
   signup: { givenName: string; familyName: string },
