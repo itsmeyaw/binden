@@ -216,120 +216,99 @@ export function ReviewRequest({ id }: { id?: string }) {
             </Alert>
           ) : (
             <>
-              <dl className="grid gap-5 sm:grid-cols-2">
-                <div>
-                  <dt className="font-medium">Name</dt>
-                  <dd>
-                    {state.request.givenName} {state.request.familyName}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="font-medium">Contact email</dt>
-                  <dd className="break-all">{state.request.contactEmail}</dd>
-                </div>
-                <div>
-                  <dt className="font-medium">Phone</dt>
-                  <dd>{state.request.phone ?? "Not provided"}</dd>
-                </div>
-                <div>
-                  <dt className="font-medium">Submitted</dt>
-                  <dd>{new Date(state.request.createdAt).toLocaleDateString()}</dd>
-                </div>
-                <div className="sm:col-span-2">
-                  <dt className="font-medium">Connection to the nonprofit</dt>
-                  <dd className="whitespace-pre-wrap">
-                    {state.request.connection ?? "Not provided"}
-                  </dd>
-                </div>
-              </dl>
-              <Separator />
-              {!editing && !rejecting && (
-                <div className="flex flex-wrap gap-2">
-                  <Button onClick={() => setEditing(true)} type="button" variant="outline">
-                    <PencilIcon data-icon="inline-start" /> Correct details
+              <form noValidate onSubmit={correct}>
+                <FieldSet disabled={pending}>
+                  <FieldGroup className="sm:grid sm:grid-cols-2">
+                    <Field data-invalid={Boolean(errors.givenName)}>
+                      <FieldLabel htmlFor="given-name">Given name</FieldLabel>
+                      <Input
+                        aria-invalid={Boolean(errors.givenName)}
+                        defaultValue={state.request.givenName}
+                        id="given-name"
+                        name="givenName"
+                        readOnly={!editing}
+                        required
+                      />
+                      <FieldError>{errors.givenName}</FieldError>
+                    </Field>
+                    <Field data-invalid={Boolean(errors.familyName)}>
+                      <FieldLabel htmlFor="family-name">Family name</FieldLabel>
+                      <Input
+                        aria-invalid={Boolean(errors.familyName)}
+                        defaultValue={state.request.familyName}
+                        id="family-name"
+                        name="familyName"
+                        readOnly={!editing}
+                        required
+                      />
+                      <FieldError>{errors.familyName}</FieldError>
+                    </Field>
+                    <Field data-invalid={Boolean(errors.contactEmail)}>
+                      <FieldLabel htmlFor="contact-email">Contact email</FieldLabel>
+                      <Input
+                        aria-invalid={Boolean(errors.contactEmail)}
+                        defaultValue={state.request.contactEmail}
+                        id="contact-email"
+                        name="contactEmail"
+                        readOnly={!editing}
+                        required
+                        type="email"
+                      />
+                      <FieldError>{errors.contactEmail}</FieldError>
+                    </Field>
+                    <Field>
+                      <FieldLabel htmlFor="phone">Phone number</FieldLabel>
+                      <Input
+                        defaultValue={state.request.phone ?? ""}
+                        id="phone"
+                        name="phone"
+                        readOnly={!editing}
+                        type="tel"
+                      />
+                      <FieldError>{errors.phone}</FieldError>
+                    </Field>
+                    <Field className="sm:col-span-2">
+                      <FieldLabel htmlFor="connection">Connection to the nonprofit</FieldLabel>
+                      <Textarea
+                        defaultValue={state.request.connection ?? ""}
+                        id="connection"
+                        name="connection"
+                        readOnly={!editing}
+                      />
+                      <FieldError>{errors.connection}</FieldError>
+                    </Field>
+                    <Field className="sm:col-span-2" orientation="horizontal">
+                      <Checkbox
+                        defaultChecked={state.request.contactEmailConfirmedByAdmin}
+                        disabled={!editing}
+                        id="contact-email-confirmed"
+                        name="contactEmailConfirmedByAdmin"
+                      />
+                      <FieldLabel htmlFor="contact-email-confirmed">
+                        I confirm this contact email as an administrator.
+                      </FieldLabel>
+                    </Field>
+                  </FieldGroup>
+                </FieldSet>
+                <div className="mt-5 flex flex-wrap gap-2">
+                  <Button
+                    onClick={() => {
+                      if (!editing) setEditing(true);
+                    }}
+                    type={editing ? "submit" : "button"}
+                    variant="outline"
+                  >
+                    {pending && <Spinner data-icon="inline-start" />}
+                    <PencilIcon data-icon="inline-start" /> {editing ? "Done" : "Correct details"}
                   </Button>
-                  <Button onClick={() => setRejecting(true)} type="button" variant="destructive">
-                    Reject request
-                  </Button>
+                  {!editing && !rejecting && (
+                    <Button onClick={() => setRejecting(true)} type="button" variant="destructive">
+                      Reject request
+                    </Button>
+                  )}
                 </div>
-              )}
-              {editing && (
-                <form noValidate onSubmit={correct}>
-                  <FieldSet disabled={pending}>
-                    <FieldGroup>
-                      <Field>
-                        <FieldLabel htmlFor="given-name">Given name</FieldLabel>
-                        <Input
-                          defaultValue={state.request.givenName}
-                          id="given-name"
-                          name="givenName"
-                          required
-                        />
-                        <FieldError>{errors.givenName}</FieldError>
-                      </Field>
-                      <Field>
-                        <FieldLabel htmlFor="family-name">Family name</FieldLabel>
-                        <Input
-                          defaultValue={state.request.familyName}
-                          id="family-name"
-                          name="familyName"
-                          required
-                        />
-                        <FieldError>{errors.familyName}</FieldError>
-                      </Field>
-                      <Field data-invalid={Boolean(errors.contactEmail)}>
-                        <FieldLabel htmlFor="contact-email">Contact email</FieldLabel>
-                        <Input
-                          aria-invalid={Boolean(errors.contactEmail)}
-                          defaultValue={state.request.contactEmail}
-                          id="contact-email"
-                          name="contactEmail"
-                          required
-                          type="email"
-                        />
-                        <FieldError>{errors.contactEmail}</FieldError>
-                      </Field>
-                      <Field orientation="horizontal">
-                        <Checkbox
-                          defaultChecked={state.request.contactEmailConfirmedByAdmin}
-                          id="contact-email-confirmed"
-                          name="contactEmailConfirmedByAdmin"
-                        />
-                        <FieldLabel htmlFor="contact-email-confirmed">
-                          I confirm this contact email as an administrator.
-                        </FieldLabel>
-                      </Field>
-                      <Field>
-                        <FieldLabel htmlFor="phone">Phone number</FieldLabel>
-                        <Input
-                          defaultValue={state.request.phone ?? ""}
-                          id="phone"
-                          name="phone"
-                          type="tel"
-                        />
-                        <FieldError>{errors.phone}</FieldError>
-                      </Field>
-                      <Field>
-                        <FieldLabel htmlFor="connection">Connection to the nonprofit</FieldLabel>
-                        <Textarea
-                          defaultValue={state.request.connection ?? ""}
-                          id="connection"
-                          name="connection"
-                        />
-                        <FieldError>{errors.connection}</FieldError>
-                      </Field>
-                      <div className="flex flex-wrap gap-2">
-                        <Button type="submit">
-                          {pending && <Spinner data-icon="inline-start" />}Save corrections
-                        </Button>
-                        <Button onClick={() => setEditing(false)} type="button" variant="outline">
-                          Cancel
-                        </Button>
-                      </div>
-                    </FieldGroup>
-                  </FieldSet>
-                </form>
-              )}
+              </form>
+              {rejecting && <Separator />}
               {rejecting && (
                 <form noValidate onSubmit={reject}>
                   <FieldSet disabled={pending}>
