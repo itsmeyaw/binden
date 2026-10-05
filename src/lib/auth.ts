@@ -46,6 +46,7 @@ export const auth = betterAuth({
       prompt: "select_account consent",
       includeGrantedScopes: false,
       disableIdTokenSignIn: true,
+      overrideUserInfoOnSignIn: true,
       getUserInfo: async (tokens) => {
         try {
           if (!tokens.idToken || !tokens.accessToken) return null;
@@ -57,8 +58,14 @@ export const auth = betterAuth({
             maxTokenAge: "1h",
           });
           const identity = validateIdentity(payload);
+          const profile = await readWorkspaceProfile(tokens.accessToken, identity.sub, true);
           return {
-            user: { name: "", email: identity.email, emailVerified: true },
+            user: {
+              name: profile.name?.fullName || identity.email,
+              email: profile.primaryEmail,
+              image: profile.thumbnailPhotoUrl,
+              emailVerified: true,
+            },
             data: { ...payload, ...identity } as GoogleProfile,
           };
         } catch {

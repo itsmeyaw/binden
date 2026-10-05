@@ -17,6 +17,7 @@ const profileSchema = z.object({
   id: z.string().min(1),
   primaryEmail: z.email(),
   name: z.object({ fullName: z.string() }).optional(),
+  thumbnailPhotoUrl: z.url().optional(),
 });
 
 const roleAssignmentsSchema = z.object({
@@ -94,7 +95,7 @@ export async function readWorkspaceProfile(
     `https://admin.googleapis.com/admin/directory/v1/users/${encodeURIComponent(binding?.directoryId ?? identity.email)}`,
   );
   url.searchParams.set("viewType", "domain_public");
-  url.searchParams.set("fields", "id,primaryEmail,name(fullName)");
+  url.searchParams.set("fields", "id,primaryEmail,name(fullName),thumbnailPhotoUrl");
   const profile = profileSchema.parse(await googleGet(url.toString(), accessToken));
   if (
     profile.primaryEmail.toLowerCase() !== identity.email.toLowerCase() ||
