@@ -217,7 +217,7 @@ export function ReviewRequest({ id }: { id?: string }) {
           ) : (
             <>
               <form noValidate onSubmit={correct}>
-                <FieldSet disabled={pending}>
+                <FieldSet disabled={pending || !editing}>
                   <FieldGroup className="sm:grid sm:grid-cols-2">
                     <Field data-invalid={Boolean(errors.givenName)}>
                       <FieldLabel htmlFor="given-name">Given name</FieldLabel>
@@ -226,7 +226,6 @@ export function ReviewRequest({ id }: { id?: string }) {
                         defaultValue={state.request.givenName}
                         id="given-name"
                         name="givenName"
-                        disabled={!editing}
                         required
                       />
                       <FieldError>{errors.givenName}</FieldError>
@@ -238,7 +237,6 @@ export function ReviewRequest({ id }: { id?: string }) {
                         defaultValue={state.request.familyName}
                         id="family-name"
                         name="familyName"
-                        disabled={!editing}
                         required
                       />
                       <FieldError>{errors.familyName}</FieldError>
@@ -250,7 +248,6 @@ export function ReviewRequest({ id }: { id?: string }) {
                         defaultValue={state.request.contactEmail}
                         id="contact-email"
                         name="contactEmail"
-                        disabled={!editing}
                         required
                         type="email"
                       />
@@ -262,7 +259,6 @@ export function ReviewRequest({ id }: { id?: string }) {
                         defaultValue={state.request.phone ?? ""}
                         id="phone"
                         name="phone"
-                        disabled={!editing}
                         type="tel"
                       />
                       <FieldError>{errors.phone}</FieldError>
@@ -273,14 +269,12 @@ export function ReviewRequest({ id }: { id?: string }) {
                         defaultValue={state.request.connection ?? ""}
                         id="connection"
                         name="connection"
-                        disabled={!editing}
                       />
                       <FieldError>{errors.connection}</FieldError>
                     </Field>
                     <Field className="sm:col-span-2" orientation="horizontal">
                       <Checkbox
                         defaultChecked={state.request.contactEmailConfirmedByAdmin}
-                        disabled={!editing}
                         id="contact-email-confirmed"
                         name="contactEmailConfirmedByAdmin"
                       />
