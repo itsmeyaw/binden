@@ -3,7 +3,7 @@
   "checkpoint_id": "01M46HRGMHEM65JS20PHP0E57K",
   "strategy": "manual-commit",
   "branch": "issue-5/review-ui",
-  "checkpoints_count": 1,
+  "checkpoints_count": 2,
   "files_touched": [
     "src/app/api/review/requests/[id]/rejection/route.ts",
     "src/app/api/review/requests/[id]/route.ts",
@@ -17,13 +17,20 @@
       "compact_transcript": "/0/transcript.jsonl",
       "content_hash": "/0/content_hash.txt",
       "prompt": ""
+    },
+    {
+      "metadata": "/1/metadata.json",
+      "transcript": "/1/full.jsonl",
+      "compact_transcript": "/1/transcript.jsonl",
+      "content_hash": "/1/content_hash.txt",
+      "prompt": ""
     }
   ],
   "token_usage": {
-    "input_tokens": 20,
-    "cache_creation_tokens": 58464,
-    "cache_read_tokens": 414668,
-    "output_tokens": 1533,
-    "api_call_count": 10
+    "input_tokens": 34,
+    "cache_creation_tokens": 120679,
+    "cache_read_tokens": 668143,
+    "output_tokens": 3036,
+    "api_call_count": 17
   }
 }
