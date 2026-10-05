@@ -30,7 +30,35 @@ const rejectionSchema = z.object({
     .max(1000, "Keep the rejection reason to 1,000 characters or fewer."),
 });
 
-type Errors = Partial<Record<keyof z.output<typeof correctionSchema> | "reason", string>>;
+export const groupRoles = ["member", "manager", "owner"] as const;
+
+const planSchema = (domain: string) =>
+  z.object({
+    workspaceEmail: z
+      .string()
+      .trim()
+      .toLowerCase()
+      .max(254, "Enter a valid Workspace email.")
+      .email("Enter a valid Workspace email.")
+      .refine(
+        (email) => email.endsWith(`@${domain.toLowerCase()}`),
+        `Use an address at ${domain}.`,
+      ),
+    groups: z
+      .array(
+        z.object({
+          id: z.string().min(1).max(255),
+          role: z.enum(groupRoles).default("member"),
+        }),
+      )
+      .max(100, "Select 100 groups or fewer.")
+      .refine((groups) => new Set(groups.map((group) => group.id)).size === groups.length, {
+        message: "Select each group only once.",
+      })
+      .default([]),
+  });
+
+type Errors = Partial<Record<string, string>>;
 
 function parse<T extends z.ZodType>(
   schema: T,
@@ -41,8 +69,7 @@ function parse<T extends z.ZodType>(
   const errors: Errors = {};
   for (const issue of result.error.issues) {
     const field = issue.path[0];
-    if (typeof field === "string" && !errors[field as keyof Errors])
-      errors[field as keyof Errors] = issue.message;
+    if (typeof field === "string" && !errors[field]) errors[field] = issue.message;
   }
   return { data: undefined, errors };
 }
@@ -53,4 +80,8 @@ export function parseReviewCorrectionInput(value: unknown) {
 
 export function parseRejectionInput(value: unknown) {
   return parse(rejectionSchema, value);
+}
+
+export function parsePlanInput(value: unknown, domain: string) {
+  return parse(planSchema(domain), value);
 }
