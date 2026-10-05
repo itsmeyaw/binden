@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 
 import { ReviewAccess, type ReviewOutcome } from "@/components/review-access";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 
 type SignupRequest = {
@@ -76,30 +78,40 @@ export function ReviewRequest({ id }: { id?: string }) {
         </p>
       )}
       {state.status === "ready" && (
-        <dl className="grid gap-5 sm:grid-cols-2">
-          <div>
-            <dt className="font-medium">Name</dt>
-            <dd>
-              {state.request.givenName} {state.request.familyName}
-            </dd>
+        <div className="flex flex-col gap-5">
+          <dl className="grid gap-5 sm:grid-cols-2">
+            <div>
+              <dt className="font-medium">Name</dt>
+              <dd>
+                {state.request.givenName} {state.request.familyName}
+              </dd>
+            </div>
+            <div>
+              <dt className="font-medium">Contact email</dt>
+              <dd className="break-all">{state.request.contactEmail}</dd>
+            </div>
+            <div>
+              <dt className="font-medium">Phone</dt>
+              <dd>{state.request.phone ?? "Not provided"}</dd>
+            </div>
+            <div>
+              <dt className="font-medium">Submitted</dt>
+              <dd>{new Date(state.request.createdAt).toLocaleDateString()}</dd>
+            </div>
+            <div className="sm:col-span-2">
+              <dt className="font-medium">Connection to the nonprofit</dt>
+              <dd className="whitespace-pre-wrap">{state.request.connection ?? "Not provided"}</dd>
+            </div>
+          </dl>
+          <Separator />
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="font-medium">Action:</span>
+            <Button type="button">Accept</Button>
+            <Button type="button" variant="destructive">
+              Reject
+            </Button>
           </div>
-          <div>
-            <dt className="font-medium">Contact email</dt>
-            <dd className="break-all">{state.request.contactEmail}</dd>
-          </div>
-          <div>
-            <dt className="font-medium">Phone</dt>
-            <dd>{state.request.phone ?? "Not provided"}</dd>
-          </div>
-          <div>
-            <dt className="font-medium">Submitted</dt>
-            <dd>{new Date(state.request.createdAt).toLocaleDateString()}</dd>
-          </div>
-          <div className="sm:col-span-2">
-            <dt className="font-medium">Connection to the nonprofit</dt>
-            <dd className="whitespace-pre-wrap">{state.request.connection ?? "Not provided"}</dd>
-          </div>
-        </dl>
+        </div>
       )}
       {state.status !== "loading" &&
         state.status !== "ready" &&

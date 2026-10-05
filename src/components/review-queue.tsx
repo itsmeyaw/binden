@@ -52,7 +52,7 @@ export function ReviewQueue() {
   }
 
   return (
-    <section className="min-h-0 lg:overflow-y-auto">
+    <section className="@container/queue min-h-0 lg:overflow-y-auto">
       {state.status === "loading" && (
         <div className="flex items-center gap-2 p-4 text-muted-foreground">
           <Spinner /> Loading requests
@@ -68,7 +68,7 @@ export function ReviewQueue() {
           {state.requests.map((request) => (
             <li key={request.id}>
               <Link
-                className="flex flex-col gap-1 p-4 transition-colors hover:bg-muted sm:flex-row sm:items-center sm:justify-between"
+                className="flex flex-col gap-1 p-4 transition-colors hover:bg-muted @2xl/queue:flex-row @2xl/queue:items-center @2xl/queue:justify-between"
                 href={`/review/${request.id}`}
               >
                 <span className="font-medium">
