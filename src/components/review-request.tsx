@@ -293,7 +293,11 @@ export function ReviewRequest({ id }: { id?: string }) {
                   ) : (
                     <Button
                       disabled={pending}
-                      onClick={() => setEditing(true)}
+                      onClick={(event) => {
+                        // The same DOM button becomes type="submit" before this click's default action runs.
+                        event.preventDefault();
+                        setEditing(true);
+                      }}
                       type="button"
                       variant="outline"
                     >
