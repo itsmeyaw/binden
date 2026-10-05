@@ -3,7 +3,7 @@
   "checkpoint_id": "01M46PX7NFFYYPJCGHR32CBA62",
   "strategy": "manual-commit",
   "branch": "issue-6/ui",
-  "checkpoints_count": 1,
+  "checkpoints_count": 2,
   "files_touched": [
     ".env.example",
     "src/components/review-plan.tsx",
@@ -15,6 +15,13 @@
       "transcript": "/0/full.jsonl",
       "compact_transcript": "/0/transcript.jsonl",
       "content_hash": "/0/content_hash.txt",
+      "prompt": ""
+    },
+    {
+      "metadata": "/1/metadata.json",
+      "transcript": "/1/full.jsonl",
+      "compact_transcript": "/1/transcript.jsonl",
+      "content_hash": "/1/content_hash.txt",
       "prompt": ""
     }
   ],
