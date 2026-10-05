@@ -1,5 +1,5 @@
 import { getReviewAccess } from "@/lib/auth";
-import { listVerifiedSignupRequests } from "@/lib/review";
+import { listReviewableSignupRequests } from "@/lib/review";
 
 function json(body: unknown, status = 200) {
   return Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
@@ -25,7 +25,7 @@ export async function GET(request: Request) {
   const denied = deniedResponse(access.status);
   if (denied) return denied;
   try {
-    return json({ requests: await listVerifiedSignupRequests() });
+    return json({ requests: await listReviewableSignupRequests() });
   } catch {
     return json({ outcome: "unavailable" }, 503);
   }

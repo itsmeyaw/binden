@@ -18,7 +18,7 @@ export const reviewRequestFields = {
 
 const reviewableStatuses = ["verified", "rejection_pending_notification"] as const;
 
-export async function listVerifiedSignupRequests(database = getDb) {
+export async function listReviewableSignupRequests(database = getDb) {
   return database()
     .select(reviewRequestFields)
     .from(signupRequest)
@@ -31,7 +31,7 @@ export async function listVerifiedSignupRequests(database = getDb) {
     .orderBy(signupRequest.createdAt);
 }
 
-export async function getVerifiedSignupRequest(id: string, database = getDb) {
+export async function getReviewableSignupRequest(id: string, database = getDb) {
   const [request] = await database()
     .select(reviewRequestFields)
     .from(signupRequest)

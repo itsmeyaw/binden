@@ -52,6 +52,10 @@ export async function POST(
     }
   }
 
+  if (process.env.MAIL_CAPTURE !== "true") {
+    return json({ outcome: "rejection-notification-pending" }, 503);
+  }
+
   try {
     if (!(await captureRejectionNotification(id)))
       return json({ error: "This rejection notification is no longer pending." }, 409);

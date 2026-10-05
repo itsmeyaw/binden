@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { getReviewAccess } from "@/lib/auth";
-import { correctVerifiedSignupRequest, getVerifiedSignupRequest } from "@/lib/review";
+import { correctVerifiedSignupRequest, getReviewableSignupRequest } from "@/lib/review";
 import { parseReviewCorrectionInput } from "@/lib/review-input";
 
 function json(body: unknown, status = 200) {
@@ -29,7 +29,7 @@ export async function GET(request: Request, context: RouteContext<"/api/review/r
   const { id } = await context.params;
   if (!z.uuid().safeParse(id).success) return json({ error: "Request not found." }, 404);
   try {
-    const signup = await getVerifiedSignupRequest(id);
+    const signup = await getReviewableSignupRequest(id);
     if (!signup) return json({ error: "Request not found." }, 404);
     return json({ request: signup });
   } catch {
@@ -54,7 +54,7 @@ export async function PATCH(request: Request, context: RouteContext<"/api/review
   if (!parsed.data) return json({ errors: parsed.errors }, 422);
 
   try {
-    const current = await getVerifiedSignupRequest(id);
+    const current = await getReviewableSignupRequest(id);
     if (!current || current.status !== "verified")
       return json({ error: "This signup request is no longer available." }, 409);
     if (
