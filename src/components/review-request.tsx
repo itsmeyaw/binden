@@ -275,7 +275,7 @@ export function ReviewRequest({ id }: { id?: string }) {
                     <Field className="sm:col-span-2" orientation="horizontal">
                       <Checkbox
                         defaultChecked={state.request.contactEmailConfirmedByAdmin}
-                        disabled={!editing}
+                        disabled={!editing || pending}
                         id="contact-email-confirmed"
                         name="contactEmailConfirmedByAdmin"
                       />
