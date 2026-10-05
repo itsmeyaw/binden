@@ -11,6 +11,7 @@ type SignupRequest = {
   givenName: string;
   familyName: string;
   contactEmail: string;
+  status: "verified" | "rejection_pending_notification";
   createdAt: string;
 };
 
@@ -74,7 +75,11 @@ export function ReviewQueue() {
                 <span className="font-medium">
                   {request.givenName} {request.familyName}
                 </span>
-                <span className="text-sm text-muted-foreground">{request.contactEmail}</span>
+                <span className="text-sm text-muted-foreground">
+                  {request.status === "rejection_pending_notification"
+                    ? "Notification needs retrying"
+                    : request.contactEmail}
+                </span>
               </Link>
             </li>
           ))}
