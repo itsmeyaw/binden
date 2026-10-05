@@ -3,7 +3,7 @@
   "checkpoint_id": "01M46GHTMSEQS0ET2JYYYWN9FB",
   "strategy": "manual-commit",
   "branch": "issue-5/review-api",
-  "checkpoints_count": 6,
+  "checkpoints_count": 7,
   "files_touched": [
     "drizzle/20261005165925_yellow_glorian/snapshot.json",
     "package.json",
@@ -55,6 +55,13 @@
       "compact_transcript": "/5/transcript.jsonl",
       "content_hash": "/5/content_hash.txt",
       "prompt": "/5/prompt.txt"
+    },
+    {
+      "metadata": "/6/metadata.json",
+      "transcript": "/6/full.jsonl",
+      "compact_transcript": "/6/transcript.jsonl",
+      "content_hash": "/6/content_hash.txt",
+      "prompt": ""
     }
   ],
   "token_usage": {
