@@ -1,0 +1,39 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M49D4K44TTTJT5F8CG12VR6F",
+  "strategy": "manual-commit",
+  "branch": "issue-11/directory-reads",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/app/api/review/requests/[id]/acceptance/route.ts",
+    "src/app/api/review/requests/[id]/handover/route.ts",
+    "src/app/api/review/requests/[id]/plan/route.ts",
+    "src/app/api/review/requests/[id]/provisioning/revisions/route.ts",
+    "src/app/api/review/requests/[id]/provisioning/route.ts",
+    "src/app/api/review/requests/[id]/route.ts",
+    "src/lib/auth.ts",
+    "src/lib/directory.ts",
+    "src/lib/provisioning.ts",
+    "src/lib/review-http.ts",
+    "src/lib/workspace.ts",
+    "tests/fake-directory.ts",
+    "tests/plan.ts",
+    "tests/provisioning.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": "/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 18,
+    "cache_creation_tokens": 54995,
+    "cache_read_tokens": 236036,
+    "output_tokens": 8136,
+    "api_call_count": 8
+  }
+}
