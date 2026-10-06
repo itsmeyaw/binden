@@ -94,6 +94,12 @@ export const signupRequest = pgTable(
     rejectionReason: text("rejection_reason"),
     rejectedAt: timestamp("rejected_at", { withTimezone: true }),
     workspaceEmail: text("workspace_email"),
+    acceptedAt: timestamp("accepted_at", { withTimezone: true }),
+    // Directory id of the acting administrator who accepted the request.
+    approvedByDirectoryId: text("approved_by_directory_id"),
+    // not_started -> attempting -> created | uncertain. `attempting` left behind is uncertain too.
+    accountCreateState: text("account_create_state").notNull().default("not_started"),
+    googleUserId: text("google_user_id"),
     verificationTokenHash: text("verification_token_hash").notNull(),
     verificationExpiresAt: timestamp("verification_expires_at", { withTimezone: true }).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -109,6 +115,9 @@ export const signupRequest = pgTable(
       .where(
         sql`${table.workspaceEmail} is not null and ${table.status} in ('verified', 'under_review', 'accepted', 'provisioning', 'awaiting_handover')`,
       ),
+    uniqueIndex("signup_request_google_user_idx")
+      .on(table.googleUserId)
+      .where(sql`${table.googleUserId} is not null`),
   ],
 );
 
@@ -122,6 +131,8 @@ export const signupRequestGroup = pgTable(
     groupId: text("group_id").notNull(),
     groupEmail: text("group_email").notNull(),
     role: text().notNull().default("member"),
+    // pending -> added | failed
+    state: text().notNull().default("pending"),
   },
   (table) => [primaryKey({ columns: [table.signupRequestId, table.groupId] })],
 );
