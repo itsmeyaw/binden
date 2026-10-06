@@ -26,7 +26,6 @@ type SignupRequest = {
   givenName: string;
   familyName: string;
   contactEmail: string;
-  contactEmailConfirmedByAdmin: boolean;
   phone: string | null;
   connection: string | null;
   workspaceEmail: string;
@@ -162,8 +161,6 @@ export function ReviewRequest({ id }: { id?: string }) {
           givenName: values.get("givenName"),
           familyName: values.get("familyName"),
           contactEmail: values.get("contactEmail"),
-          // Submitting the correction is the administrator's confirmation.
-          contactEmailConfirmedByAdmin: true,
           phone: values.get("phone"),
           connection: values.get("connection"),
           // Unchanged proposals are not saved, so a corrected name can still refresh them.

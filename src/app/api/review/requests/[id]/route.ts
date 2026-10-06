@@ -47,15 +47,6 @@ export async function PATCH(request: Request, context: RouteContext<"/api/review
     const current = await getReviewableSignupRequest(id);
     if (!current || current.status !== "verified")
       return json({ error: "This signup request is no longer available." }, 409);
-    if (
-      current.contactEmail !== parsed.data.contactEmail &&
-      !parsed.data.contactEmailConfirmedByAdmin
-    ) {
-      return json(
-        { errors: { contactEmail: "Confirm the replacement contact email before saving it." } },
-        422,
-      );
-    }
     const { workspaceEmail } = parsed.data;
     // A clash is checked on every change, so a stale earlier answer is never trusted.
     if (workspaceEmail && workspaceEmail !== current.workspaceEmail) {

@@ -31,7 +31,6 @@ const correctionSchema = (domain?: string) =>
       .toLowerCase()
       .max(254, "Enter a valid contact email.")
       .email("Enter a valid contact email."),
-    contactEmailConfirmedByAdmin: z.boolean(),
     phone: optionalText(50, "Enter a phone number of 50 characters or fewer."),
     connection: optionalText(1000, "Keep the connection explanation to 1,000 characters or fewer."),
     // Omitted leaves the planned address alone; blank clears it.

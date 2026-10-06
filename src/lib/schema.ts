@@ -90,9 +90,6 @@ export const signupRequest = pgTable(
     contactEmail: text("contact_email").notNull(),
     phone: text(),
     connection: text(),
-    contactEmailConfirmedByAdmin: boolean("contact_email_confirmed_by_admin")
-      .notNull()
-      .default(false),
     status: text().notNull().default("pending_verification"),
     rejectionReason: text("rejection_reason"),
     rejectedAt: timestamp("rejected_at", { withTimezone: true }),

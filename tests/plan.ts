@@ -49,7 +49,6 @@ const details = {
   givenName: "Ada",
   familyName: "Lovelace",
   contactEmail: "ada@example.com",
-  contactEmailConfirmedByAdmin: false,
 };
 const planned = (workspaceEmail?: string) =>
   parseReviewCorrectionInput({ ...details, workspaceEmail }, "example.org");

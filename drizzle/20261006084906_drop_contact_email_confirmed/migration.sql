@@ -1,0 +1,1 @@
+ALTER TABLE "signup_request" DROP COLUMN "contact_email_confirmed_by_admin";

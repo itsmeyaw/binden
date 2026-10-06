@@ -8,7 +8,6 @@ export const reviewRequestFields = {
   givenName: signupRequest.givenName,
   familyName: signupRequest.familyName,
   contactEmail: signupRequest.contactEmail,
-  contactEmailConfirmedByAdmin: signupRequest.contactEmailConfirmedByAdmin,
   phone: signupRequest.phone,
   connection: signupRequest.connection,
   workspaceEmail: signupRequest.workspaceEmail,
@@ -51,12 +50,7 @@ export async function getReviewableSignupRequest(id: string, database = getDb) {
 
 export type SignupRequestCorrection = Pick<
   typeof signupRequest.$inferInsert,
-  | "givenName"
-  | "familyName"
-  | "contactEmail"
-  | "contactEmailConfirmedByAdmin"
-  | "phone"
-  | "connection"
+  "givenName" | "familyName" | "contactEmail" | "phone" | "connection"
 > & { workspaceEmail?: string | null };
 
 export async function correctVerifiedSignupRequest(
