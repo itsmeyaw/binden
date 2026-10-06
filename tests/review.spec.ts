@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 
-import { expect, test } from "@playwright/test";
+import { expect, type Page, test } from "@playwright/test";
 import { Pool } from "pg";
 
 const databaseUrl = process.env.TEST_DATABASE_URL;
@@ -198,5 +198,105 @@ test.describe("verified signup request review", () => {
       expect(saved.account_create_state).toBe("uncertain");
       expect(saved.google_user_id).toBeNull();
     });
+
+    async function acceptWithGroups(page: Page, local: string, groupIds: string[]) {
+      const id = await seed("Recover", "Person", `${local}.${randomUUID().slice(0, 8)}@${domain}`);
+      await pool.query(
+        "insert into signup_request_group (signup_request_id, group_id, group_email) select $1, g, g || '@' || $3 from unnest($2::text[]) g",
+        [id, groupIds, domain],
+      );
+      await page.request.post(`/api/review/requests/${id}/acceptance`);
+      return id;
+    }
+    const groupStates = async (id: string) =>
+      Object.fromEntries(
+        (
+          await pool.query(
+            "select group_id, state from signup_request_group where signup_request_id = $1",
+            [id],
+          )
+        ).rows.map((group) => [group.group_id, group.state]),
+      );
+
+    test("retries only unfinished memberships until handover", async ({ page }) => {
+      const id = await acceptWithGroups(page, "retry", ["sim-events", "sim-recovering"]);
+      expect(await groupStates(id)).toEqual({ "sim-events": "added", "sim-recovering": "failed" });
+
+      await page.goto(`/review/${id}`);
+      await expect(page.getByText("Needs attention")).toBeVisible();
+      await expect(page.locator("ol")).not.toContainText("Awaiting handover");
+      await page.getByRole("button", { name: "Retry unfinished memberships" }).click();
+
+      await expect(page.locator("ol")).toContainText("Awaiting handover");
+      expect(await groupStates(id)).toEqual({ "sim-events": "added", "sim-recovering": "added" });
+      expect((await row(id)).status).toBe("awaiting_handover");
+    });
+
+    test("replaces an unmanageable group with a recorded, confirmed revision", async ({ page }) => {
+      const id = await acceptWithGroups(page, "revise", ["sim-events", "sim-gone"]);
+      await page.goto(`/review/${id}`);
+      await expect(page.getByText("No longer manageable")).toBeVisible();
+      // Only the unfinished group can be revised.
+      await expect(page.getByRole("button", { name: "Remove or replace" })).toHaveCount(1);
+      await page.getByRole("button", { name: "Remove or replace" }).click();
+
+      const dialog = page.getByRole("alertdialog");
+      await dialog.getByLabel("Replacement group").click();
+      await page.getByRole("option", { name: /Board/ }).click();
+      await dialog.getByRole("button", { name: "Confirm revision" }).click();
+
+      await expect(page.locator("ol")).toContainText("Awaiting handover");
+      expect(await groupStates(id)).toEqual({ "sim-events": "added", "sim-board": "added" });
+      const revisions = await pool.query(
+        "select removed_group_id, replacement_group_id, replacement_role from signup_request_revision where signup_request_id = $1",
+        [id],
+      );
+      expect(revisions.rows).toEqual([
+        {
+          removed_group_id: "sim-gone",
+          replacement_group_id: "sim-board",
+          replacement_role: "member",
+        },
+      ]);
+    });
+
+    test("removing the last unfinished group needs confirmation and reaches handover", async ({
+      page,
+    }) => {
+      const id = await acceptWithGroups(page, "remove", ["sim-flaky"]);
+      const url = `/api/review/requests/${id}/provisioning/revisions`;
+      const unconfirmed = await page.request.post(url, { data: { groupId: "sim-flaky" } });
+      expect(unconfirmed.status()).toBe(422);
+      expect(await groupStates(id)).toEqual({ "sim-flaky": "failed" });
+
+      await page.goto(`/review/${id}`);
+      await page.getByRole("button", { name: "Remove or replace" }).click();
+      await page.getByRole("button", { name: "Confirm revision" }).click();
+      await expect(page.locator("ol")).toContainText("Awaiting handover");
+      expect(await groupStates(id)).toEqual({});
+    });
+
+    test("does not retry an uncertain account creation", async ({ page }) => {
+      const id = await seed("Uncertain", "Retry", `uncertain.user.retry@${domain}`);
+      await page.request.post(`/api/review/requests/${id}/acceptance`);
+      await page.goto(`/review/${id}`);
+      await expect(page.getByRole("button", { name: "Retry unfinished memberships" })).toHaveCount(
+        0,
+      );
+      const retry = await page.request.post(`/api/review/requests/${id}/provisioning`);
+      expect(retry.status()).toBe(409);
+      expect((await row(id)).account_create_state).toBe("uncertain");
+    });
+  });
+
+  test("recovery routes refuse signed-out callers", async ({ playwright }) => {
+    const anonymous = await playwright.request.newContext({ baseURL: process.env.E2E_BASE_URL });
+    const id = randomUUID();
+    const retry = await anonymous.post(`/api/review/requests/${id}/provisioning`);
+    const revise = await anonymous.post(`/api/review/requests/${id}/provisioning/revisions`, {
+      data: { groupId: "x", confirmed: true },
+    });
+    expect([retry.status(), revise.status()]).toEqual([401, 401]);
+    await anonymous.dispose();
   });
 });

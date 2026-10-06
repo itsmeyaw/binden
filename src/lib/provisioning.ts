@@ -151,7 +151,7 @@ export async function reviseAssignment(
   revision: AssignmentRevision,
   adminDirectoryId: string,
 ) {
-  const revised = await getDb().transaction(async (tx) => {
+  return getDb().transaction(async (tx) => {
     const [request] = await tx
       .select({ status: signupRequest.status })
       .from(signupRequest)
@@ -183,7 +183,6 @@ export async function reviseAssignment(
     });
     return true;
   });
-  return revised;
 }
 
 // Undefined until the request has been accepted.
