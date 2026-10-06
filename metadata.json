@@ -1,0 +1,29 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M49C7V18VH5DR35H6HKDDTKX",
+  "strategy": "manual-commit",
+  "branch": "issue-9/ui",
+  "checkpoints_count": 5,
+  "files_touched": [
+    "src/components/account-handover.tsx",
+    "src/components/review-progress.tsx",
+    "src/lib/provisioning.ts",
+    "tests/review.spec.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": "/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 22,
+    "cache_creation_tokens": 118611,
+    "cache_read_tokens": 454826,
+    "output_tokens": 6811,
+    "api_call_count": 7
+  }
+}

@@ -1,0 +1,9 @@
+Is it possible to automate sending the password reset trigger directly from UI?
+
+---
+
+We can just send-and-forget the password, right?
+
+---
+
+Or is it possible to specify the link more inside the UI to directly point to user page inside the admin console? For example, my current is https://admin.google.com/ac/users/<id>
