@@ -5,6 +5,7 @@ import { and, eq, inArray, isNotNull, ne, notExists, sql } from "drizzle-orm";
 import {
   addGroupMember,
   createWorkspaceUser,
+  type Actor,
   listManageableGroups,
   type ManageableGroup,
 } from "@/lib/directory";
@@ -246,7 +247,7 @@ export async function confirmHandover(
 }
 
 // Undefined until the request has been accepted.
-export async function getProvisioningProgress(id: string) {
+export async function getProvisioningProgress(id: string, actor: Actor) {
   const db = getDb();
   const [request] = await db
     .select({
@@ -273,7 +274,7 @@ export async function getProvisioningProgress(id: string) {
   let choices: ManageableGroup[] | null = null;
   if (groups.some((group) => group.state !== "added")) {
     try {
-      choices = await listManageableGroups();
+      choices = await listManageableGroups(actor);
     } catch {
       // Progress stays readable without the Directory.
     }

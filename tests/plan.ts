@@ -5,6 +5,7 @@ import { saveSignupPlan, suggestWorkspaceEmail } from "../src/lib/review";
 import { parsePlanInput, parseReviewCorrectionInput } from "../src/lib/review-input";
 import { getDb } from "../src/lib/db";
 import { WorkspaceUnavailable } from "../src/lib/workspace";
+import { actor, fakeDirectory } from "./fake-directory";
 
 assert.equal(
   suggestWorkspaceEmail(" José ", "O'Brien-Smith", "Example.ORG"),
@@ -58,25 +59,85 @@ assert.equal(planned(" ADA.New@Example.org ").data?.workspaceEmail, email);
 assert.equal(planned("ada@other.org").errors?.workspaceEmail, "Use an address at example.org.");
 
 async function testDirectory() {
-  const env = process.env as Record<string, string | undefined>;
-  const saved = { ...env };
+  const groupAt = (i: number) => ({ id: `g${i}`, email: `g${i}@example.org`, name: `Group ${i}` });
+  const many = [5, 3, 1, 4, 2].map(groupAt);
+  const inDirectory = async <T>(
+    options: Parameters<typeof fakeDirectory>[0],
+    run: () => Promise<T>,
+  ) => {
+    const directory = fakeDirectory(options);
+    try {
+      return await run();
+    } finally {
+      directory.restore();
+    }
+  };
+
+  // Address collisions: users, aliases and groups all count; a missing resource is available.
+  await inDirectory({ groups: many }, async () => {
+    assert.equal(await isWorkspaceEmailAvailable(actor, "Taken.User@example.org"), false);
+    assert.equal(await isWorkspaceEmailAvailable(actor, "g3@example.org"), false);
+    assert.equal(await isWorkspaceEmailAvailable(actor, email), true);
+  });
+
+  // A super admin can write every group, across pages, in a stable order.
+  const listed = await inDirectory({ groups: many }, () => listManageableGroups(actor));
+  assert.deepEqual(
+    listed.map((group) => group.id),
+    ["g1", "g2", "g3", "g4", "g5"],
+  );
+
+  // Writes are gated by role privileges: GROUPS_ALL via any assigned role allows, otherwise none.
+  const roles = (privileges: object) => ({
+    "role-1": { rolePrivileges: [{ privilegeName: "USERS_ALL" }] },
+    "role-2": privileges,
+  });
+  assert.equal(
+    (
+      await inDirectory(
+        { groups: many, roles: roles({ rolePrivileges: [{ privilegeName: "GROUPS_ALL" }] }) },
+        () => listManageableGroups(actor),
+      )
+    ).length,
+    5,
+  );
+  assert.deepEqual(
+    await inDirectory({ groups: many, roles: roles({ rolePrivileges: [] }) }, () =>
+      listManageableGroups(actor),
+    ),
+    [],
+  );
+  assert.deepEqual(
+    await inDirectory({ groups: many, roles: {}, assignments: [] }, () =>
+      listManageableGroups(actor),
+    ),
+    [],
+  );
+
+  // Denied calls are reported (reconnect only for rejected credentials) and never retried.
+  const original = console.error;
+  console.error = () => {};
   try {
-    env.GOOGLE_WORKSPACE_DOMAIN = "example.org";
-    delete env.GOOGLE_SIMULATION;
-    await assert.rejects(listManageableGroups(), WorkspaceUnavailable);
-    env.GOOGLE_SIMULATION = "true";
-    env.NODE_ENV = "production";
-    await assert.rejects(isWorkspaceEmailAvailable(email), WorkspaceUnavailable);
-    env.NODE_ENV = "test";
-    assert.equal(await isWorkspaceEmailAvailable("Taken.User@example.org"), false);
-    assert.equal(await isWorkspaceEmailAvailable(email), true);
-    assert.ok(
-      (await listManageableGroups()).every((group) => group.email.endsWith("@example.org")),
-    );
+    for (const status of [401, 403, 503]) {
+      const directory = fakeDirectory({ status });
+      try {
+        for (const call of [
+          () => isWorkspaceEmailAvailable(actor, email),
+          () => listManageableGroups(actor),
+        ]) {
+          await assert.rejects(
+            call(),
+            (error: unknown) =>
+              error instanceof WorkspaceUnavailable && error.reconnect === (status === 401),
+          );
+        }
+        assert.equal(directory.calls.length, 2);
+      } finally {
+        directory.restore();
+      }
+    }
   } finally {
-    env.GOOGLE_SIMULATION = saved.GOOGLE_SIMULATION;
-    env.NODE_ENV = saved.NODE_ENV;
-    env.GOOGLE_WORKSPACE_DOMAIN = saved.GOOGLE_WORKSPACE_DOMAIN;
+    console.error = original;
   }
 }
 

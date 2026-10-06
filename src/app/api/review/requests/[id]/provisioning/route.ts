@@ -21,7 +21,7 @@ export async function POST(
       return json({ error: "This signup request has nothing to retry." }, 409);
     if (outcome === "uncertain")
       return json({ error: "The account creation outcome must be reconciled first." }, 409);
-    const progress = await getProvisioningProgress(id);
+    const progress = await getProvisioningProgress(id, access);
     if (!progress) return json({ error: "This signup request is no longer available." }, 409);
     return json({ progress });
   } catch (error) {

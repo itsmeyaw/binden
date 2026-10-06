@@ -30,7 +30,7 @@ export async function POST(
     const { groupId, replacement } = parsed.data;
     let resolved;
     if (replacement) {
-      const group = (await listManageableGroups()).find((item) => item.id === replacement.id);
+      const group = (await listManageableGroups(access)).find((item) => item.id === replacement.id);
       if (!group) return json({ errors: { replacement: "Choose a group you can manage." } }, 422);
       resolved = { groupId: group.id, groupEmail: group.email, role: replacement.role };
     }
@@ -45,7 +45,7 @@ export async function POST(
     }
     // The replacement is attempted now, and a removal may have left nothing unfinished.
     await retryProvisioning(id);
-    const progress = await getProvisioningProgress(id);
+    const progress = await getProvisioningProgress(id, access);
     if (!progress) return json({ error: "This signup request is no longer available." }, 409);
     return json({ progress });
   } catch (error) {

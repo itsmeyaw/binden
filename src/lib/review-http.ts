@@ -1,5 +1,5 @@
 import type { getReviewAccess } from "@/lib/auth";
-import { isWorkspaceEmailAvailable } from "@/lib/directory";
+import { type Actor, isWorkspaceEmailAvailable } from "@/lib/directory";
 import { suggestWorkspaceEmail } from "@/lib/review";
 import { WorkspaceUnavailable } from "@/lib/workspace";
 
@@ -45,7 +45,7 @@ export function isUniqueViolation(error: unknown): boolean {
 // `workspaceEmailTaken` is null when the Directory cannot answer.
 export async function withWorkspaceEmail<
   T extends { givenName: string; familyName: string; workspaceEmail: string | null },
->(signup: T) {
+>(actor: Actor, signup: T) {
   const domain = process.env.GOOGLE_WORKSPACE_DOMAIN;
   const proposed =
     signup.workspaceEmail ??
@@ -53,7 +53,7 @@ export async function withWorkspaceEmail<
   let taken: boolean | null = null;
   if (proposed) {
     try {
-      taken = !(await isWorkspaceEmailAvailable(proposed));
+      taken = !(await isWorkspaceEmailAvailable(actor, proposed));
     } catch {
       // Unknown clash state; saving still re-checks.
     }
