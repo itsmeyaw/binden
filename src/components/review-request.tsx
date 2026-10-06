@@ -5,7 +5,12 @@ import { useEffect, useState } from "react";
 import { ArrowLeftIcon, CircleAlertIcon, InfoIcon, PencilIcon } from "lucide-react";
 
 import { ReviewAccess, type ReviewOutcome } from "@/components/review-access";
-import { type Plan, ReviewPlan, roleLabels, type Role } from "@/components/review-plan";
+import {
+  type Plan,
+  GroupMembershipPicker,
+  roleLabels,
+  type Role,
+} from "@/components/group-membership-picker";
 import { type Progress, ReviewProgress } from "@/components/review-progress";
 import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
@@ -503,7 +508,7 @@ export function ReviewRequest({ id }: { id?: string }) {
                         <p className="text-sm text-muted-foreground">Loading group assignment</p>
                       )}
                       {planState.status === "ready" && (
-                        <ReviewPlan
+                        <GroupMembershipPicker
                           disabled={!editing || pending}
                           errors={errors.groups}
                           plan={planState.plan}

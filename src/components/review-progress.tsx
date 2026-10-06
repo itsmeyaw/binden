@@ -5,7 +5,7 @@ import {
   LoaderCircleIcon,
 } from "lucide-react";
 
-import { roleLabels, type Role } from "@/components/review-plan";
+import { roleLabels, type Role } from "@/components/group-membership-picker";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 

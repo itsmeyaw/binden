@@ -36,7 +36,7 @@ export type Plan = {
   selected: Array<{ groupId: string; groupEmail: string; role: Role; manageable: boolean }>;
 };
 
-export function ReviewPlan({
+export function GroupMembershipPicker({
   disabled,
   errors,
   plan,
