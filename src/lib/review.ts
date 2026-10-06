@@ -1,4 +1,4 @@
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, ne } from "drizzle-orm";
 
 import { getDb } from "@/lib/db";
 import { mailMessage, signupRequest, signupRequestGroup } from "@/lib/schema";
@@ -13,6 +13,7 @@ export const reviewRequestFields = {
   workspaceEmail: signupRequest.workspaceEmail,
   status: signupRequest.status,
   rejectionReason: signupRequest.rejectionReason,
+  reviewerNotificationState: signupRequest.reviewerNotificationState,
   createdAt: signupRequest.createdAt,
 };
 
@@ -23,6 +24,7 @@ const reviewableStatuses = [
   "accepted",
   "provisioning",
   "awaiting_handover",
+  "handover_confirmed",
 ];
 
 export async function listReviewableSignupRequests(database = getDb) {
@@ -107,6 +109,76 @@ export async function captureRejectionNotification(id: string, database = getDb)
       .returning(reviewRequestFields);
     return completed;
   });
+}
+
+// Reviewer notices carry no applicant information, only a link to the queue.
+export function reviewerNoticeMessage(appUrl: string, text: string) {
+  return `${text} Review queue: ${new URL("/review", appUrl)}`;
+}
+
+// Writes a captured message to the reviewer notification group. Returns false when it cannot.
+export async function captureReviewerMail(
+  signupRequestId: string,
+  subject: string,
+  text: string,
+  target: Pick<ReturnType<typeof getDb>, "insert"> = getDb(),
+) {
+  const group = process.env.REVIEWER_NOTIFICATION_GROUP;
+  const appUrl = process.env.APP_URL;
+  if (process.env.MAIL_CAPTURE !== "true" || !group || !appUrl) return false;
+  await target
+    .insert(mailMessage)
+    .values({ signupRequestId, to: group, subject, text: reviewerNoticeMessage(appUrl, text) });
+  return true;
+}
+
+// Notifies the reviewer group once per verified request. A failure leaves the request in the
+// queue, marked `failed` so it can be retried; the mail and the `sent` mark commit together.
+export async function sendReviewerNotification(
+  id: string,
+  database = getDb,
+): Promise<"sent" | "failed" | "skipped"> {
+  try {
+    const sent = await database().transaction(async (tx) => {
+      const [claimed] = await tx
+        .update(signupRequest)
+        .set({ reviewerNotificationState: "sent" })
+        .where(
+          and(
+            eq(signupRequest.id, id),
+            eq(signupRequest.status, "verified"),
+            ne(signupRequest.reviewerNotificationState, "sent"),
+          ),
+        )
+        .returning({ id: signupRequest.id });
+      if (!claimed) return "skipped" as const;
+      const captured = await captureReviewerMail(
+        id,
+        "New Workspace signup request to review",
+        "A verified signup request is waiting for review.",
+        tx,
+      );
+      if (!captured) throw new Error("Reviewer notification is not configured");
+      return "sent" as const;
+    });
+    return sent;
+  } catch {
+    try {
+      await database()
+        .update(signupRequest)
+        .set({ reviewerNotificationState: "failed" })
+        .where(
+          and(
+            eq(signupRequest.id, id),
+            eq(signupRequest.status, "verified"),
+            ne(signupRequest.reviewerNotificationState, "sent"),
+          ),
+        );
+    } catch {
+      // The state stays `pending`, which is retryable too.
+    }
+    return "failed";
+  }
 }
 
 function nameToken(name: string) {
