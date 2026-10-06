@@ -3,8 +3,18 @@
   "checkpoint_id": "01M486EHCE0VA7CHYT68085Y6H",
   "strategy": "manual-commit",
   "branch": "main",
-  "checkpoints_count": 2,
-  "files_touched": null,
+  "checkpoints_count": 3,
+  "files_touched": [
+    "drizzle/20261006084906_drop_contact_email_confirmed/migration.sql",
+    "drizzle/20261006084906_drop_contact_email_confirmed/snapshot.json",
+    "src/app/api/review/requests/[id]/route.ts",
+    "src/components/review-request.tsx",
+    "src/lib/review-input.ts",
+    "src/lib/review.ts",
+    "src/lib/schema.ts",
+    "tests/plan.ts",
+    "tests/review.ts"
+  ],
   "sessions": [
     {
       "metadata": "/0/metadata.json",
@@ -19,6 +29,13 @@
       "compact_transcript": "/1/transcript.jsonl",
       "content_hash": "/1/content_hash.txt",
       "prompt": "/1/prompt.txt"
+    },
+    {
+      "metadata": "/2/metadata.json",
+      "transcript": "/2/full.jsonl",
+      "compact_transcript": "/2/transcript.jsonl",
+      "content_hash": "/2/content_hash.txt",
+      "prompt": ""
     }
   ],
   "token_usage": {
