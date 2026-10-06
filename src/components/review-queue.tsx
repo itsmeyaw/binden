@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { ReviewAccess, type ReviewOutcome } from "@/components/review-access";
+import { statusLabels } from "@/components/review-progress";
 import { Spinner } from "@/components/ui/spinner";
 
 type SignupRequest = {
@@ -11,7 +12,12 @@ type SignupRequest = {
   givenName: string;
   familyName: string;
   contactEmail: string;
-  status: "verified" | "rejection_pending_notification";
+  status:
+    | "verified"
+    | "rejection_pending_notification"
+    | "accepted"
+    | "provisioning"
+    | "awaiting_handover";
   createdAt: string;
 };
 
@@ -78,7 +84,9 @@ export function ReviewQueue() {
                 <span className="text-sm text-muted-foreground">
                   {request.status === "rejection_pending_notification"
                     ? "Notification needs retrying"
-                    : request.contactEmail}
+                    : request.status === "verified"
+                      ? request.contactEmail
+                      : statusLabels[request.status]}
                 </span>
               </Link>
             </li>

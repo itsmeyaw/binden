@@ -1,4 +1,4 @@
-import { and, eq, or } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 
 import { getDb } from "@/lib/db";
 import { mailMessage, signupRequest, signupRequestGroup } from "@/lib/schema";
@@ -16,18 +16,20 @@ export const reviewRequestFields = {
   createdAt: signupRequest.createdAt,
 };
 
-const reviewableStatuses = ["verified", "rejection_pending_notification"] as const;
+// Accepted requests stay visible so their provisioning progress can be followed.
+const reviewableStatuses = [
+  "verified",
+  "rejection_pending_notification",
+  "accepted",
+  "provisioning",
+  "awaiting_handover",
+];
 
 export async function listReviewableSignupRequests(database = getDb) {
   return database()
     .select(reviewRequestFields)
     .from(signupRequest)
-    .where(
-      or(
-        eq(signupRequest.status, reviewableStatuses[0]),
-        eq(signupRequest.status, reviewableStatuses[1]),
-      ),
-    )
+    .where(inArray(signupRequest.status, reviewableStatuses))
     .orderBy(signupRequest.createdAt);
 }
 
@@ -35,15 +37,7 @@ export async function getReviewableSignupRequest(id: string, database = getDb) {
   const [request] = await database()
     .select(reviewRequestFields)
     .from(signupRequest)
-    .where(
-      and(
-        eq(signupRequest.id, id),
-        or(
-          eq(signupRequest.status, reviewableStatuses[0]),
-          eq(signupRequest.status, reviewableStatuses[1]),
-        ),
-      ),
-    )
+    .where(and(eq(signupRequest.id, id), inArray(signupRequest.status, reviewableStatuses)))
     .limit(1);
   return request;
 }

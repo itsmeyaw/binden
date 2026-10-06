@@ -26,5 +26,26 @@ export async function listManageableGroups(): Promise<ManageableGroup[]> {
     { id: "sim-events", email: `events@${domain}`, name: "Events team" },
     { id: "sim-volunteers", email: `volunteers@${domain}`, name: "Volunteers" },
     { id: "sim-board", email: `board@${domain}`, name: "Board" },
+    // Manageable, but adding members always fails: exercises partial provisioning.
+    { id: "sim-flaky", email: `flaky@${domain}`, name: "Flaky group" },
   ];
+}
+
+// The create call may have reached Google even though no answer came back.
+export class AccountCreateUncertain extends Error {
+  constructor() {
+    super("Account creation outcome unknown");
+  }
+}
+
+// `uncertain.user*` simulates a timeout after the request was sent.
+export async function createWorkspaceUser(email: string): Promise<{ id: string }> {
+  simulatedDomain();
+  if (email.toLowerCase().startsWith("uncertain.user")) throw new AccountCreateUncertain();
+  return { id: `sim-user-${email.toLowerCase()}` };
+}
+
+export async function addGroupMember(groupId: string, _userId: string, _role: string) {
+  simulatedDomain();
+  if (groupId === "sim-flaky") throw new Error("Group membership rejected");
 }

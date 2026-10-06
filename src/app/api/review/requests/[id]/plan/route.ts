@@ -14,12 +14,12 @@ import {
 } from "@/lib/review";
 import {
   deniedResponse,
+  failure,
   isUniqueViolation,
   json,
   workspaceEmailCollision as collision,
 } from "@/lib/review-http";
 import { parsePlanInput } from "@/lib/review-input";
-import { WorkspaceUnavailable } from "@/lib/workspace";
 
 async function planResponse(
   signup: { givenName: string; familyName: string },
@@ -38,15 +38,6 @@ async function planResponse(
     groups,
     selected: plan.groups.map((group) => ({ ...group, manageable: manageable.has(group.groupId) })),
   };
-}
-
-function failure(error: unknown) {
-  if (error instanceof WorkspaceUnavailable)
-    return json(
-      { outcome: error.reconnect ? "reconnect" : "unavailable" },
-      error.reconnect ? 401 : 503,
-    );
-  return json({ outcome: "unavailable" }, 503);
 }
 
 async function load(request: Request, context: RouteContext<"/api/review/requests/[id]/plan">) {
