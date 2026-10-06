@@ -69,6 +69,14 @@ const planSchema = (domain: string) =>
       .default([]),
   });
 
+const revisionSchema = z.object({
+  groupId: z.string().min(1).max(255),
+  replacement: z
+    .object({ id: z.string().min(1).max(255), role: z.enum(groupRoles).default("member") })
+    .optional(),
+  confirmed: z.literal(true, "Confirm the revision."),
+});
+
 type Errors = Partial<Record<string, string>>;
 
 function parse<T extends z.ZodType>(
@@ -95,4 +103,8 @@ export function parseRejectionInput(value: unknown) {
 
 export function parsePlanInput(value: unknown, domain: string) {
   return parse(planSchema(domain), value);
+}
+
+export function parseRevisionInput(value: unknown) {
+  return parse(revisionSchema, value);
 }

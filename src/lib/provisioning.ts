@@ -1,10 +1,15 @@
 import "server-only";
 
-import { and, eq, isNotNull } from "drizzle-orm";
+import { and, eq, inArray, isNotNull, ne, notExists, sql } from "drizzle-orm";
 
-import { addGroupMember, createWorkspaceUser } from "@/lib/directory";
+import {
+  addGroupMember,
+  createWorkspaceUser,
+  listManageableGroups,
+  type ManageableGroup,
+} from "@/lib/directory";
 import { getDb } from "@/lib/db";
-import { signupRequest, signupRequestGroup } from "@/lib/schema";
+import { signupRequest, signupRequestGroup, signupRequestRevision } from "@/lib/schema";
 
 const provisioningStatuses = ["accepted", "provisioning", "awaiting_handover"];
 
@@ -26,7 +31,7 @@ export async function acceptSignupRequest(id: string, approverDirectoryId: strin
 
 // Only the caller that moves accepted -> provisioning creates the account, and `attempting`
 // is persisted in that same statement, so an interrupted create is never silently repeated.
-// ponytail: runs inline in the accept request; #8 adds recovery of uncertain/partial runs.
+// ponytail: runs inline in the accept request; an uncertain create waits for reconciliation (#11).
 export async function provisionAcceptedRequest(id: string) {
   const db = getDb();
   const [claimed] = await db
@@ -52,18 +57,30 @@ export async function provisionAcceptedRequest(id: string) {
     .set({ accountCreateState: "created", googleUserId: userId })
     .where(eq(signupRequest.id, id));
 
+  await addUnfinishedMemberships(id, userId);
+  await completeIfAllAdded(id);
+}
+
+// Touches only `pending` and `failed` groups, so successful memberships are never re-sent.
+// ponytail: overlapping retries can both try one unfinished group; the real Directory call (#11)
+// must treat "already a member" as success.
+async function addUnfinishedMemberships(id: string, userId: string) {
+  const db = getDb();
   const groups = await db
     .select()
     .from(signupRequestGroup)
-    .where(eq(signupRequestGroup.signupRequestId, id));
-  let complete = true;
+    .where(
+      and(
+        eq(signupRequestGroup.signupRequestId, id),
+        inArray(signupRequestGroup.state, ["pending", "failed"]),
+      ),
+    );
   for (const group of groups) {
     let state = "added";
     try {
       await addGroupMember(group.groupId, userId, group.role);
     } catch {
       state = "failed";
-      complete = false;
     }
     await db
       .update(signupRequestGroup)
@@ -75,11 +92,97 @@ export async function provisionAcceptedRequest(id: string) {
         ),
       );
   }
-  if (complete)
-    await db
-      .update(signupRequest)
-      .set({ status: "awaiting_handover" })
-      .where(and(eq(signupRequest.id, id), eq(signupRequest.status, "provisioning")));
+}
+
+// One conditional statement: handover is reached only when no selected membership is unfinished,
+// even if a revision or another retry runs at the same time.
+async function completeIfAllAdded(id: string) {
+  await getDb()
+    .update(signupRequest)
+    .set({ status: "awaiting_handover" })
+    .where(
+      and(
+        eq(signupRequest.id, id),
+        eq(signupRequest.status, "provisioning"),
+        eq(signupRequest.accountCreateState, "created"),
+        notExists(
+          getDb()
+            .select({ one: sql`1` })
+            .from(signupRequestGroup)
+            .where(
+              and(
+                eq(signupRequestGroup.signupRequestId, id),
+                ne(signupRequestGroup.state, "added"),
+              ),
+            ),
+        ),
+      ),
+    );
+}
+
+// Retries only unfinished memberships. An unknown account outcome is never repeated here.
+export async function retryProvisioning(
+  id: string,
+): Promise<"retried" | "uncertain" | "unavailable"> {
+  const [request] = await getDb()
+    .select({
+      status: signupRequest.status,
+      state: signupRequest.accountCreateState,
+      googleUserId: signupRequest.googleUserId,
+    })
+    .from(signupRequest)
+    .where(eq(signupRequest.id, id));
+  if (request?.status !== "provisioning") return "unavailable";
+  if (request.state !== "created" || !request.googleUserId) return "uncertain";
+  await addUnfinishedMemberships(id, request.googleUserId);
+  await completeIfAllAdded(id);
+  return "retried";
+}
+
+export type AssignmentRevision = {
+  groupId: string;
+  replacement?: { groupId: string; groupEmail: string; role: "member" | "manager" | "owner" };
+};
+
+// Removes or replaces one unfinished assignment and records why. Successful memberships are
+// never touched. Returns false when the request or assignment is not revisable.
+export async function reviseAssignment(
+  id: string,
+  revision: AssignmentRevision,
+  adminDirectoryId: string,
+) {
+  return getDb().transaction(async (tx) => {
+    const [request] = await tx
+      .select({ status: signupRequest.status })
+      .from(signupRequest)
+      .where(eq(signupRequest.id, id))
+      .for("update");
+    if (request?.status !== "provisioning") return false;
+    const [removed] = await tx
+      .delete(signupRequestGroup)
+      .where(
+        and(
+          eq(signupRequestGroup.signupRequestId, id),
+          eq(signupRequestGroup.groupId, revision.groupId),
+          ne(signupRequestGroup.state, "added"),
+        ),
+      )
+      .returning();
+    if (!removed) return false;
+    const { replacement } = revision;
+    if (replacement)
+      await tx.insert(signupRequestGroup).values({ ...replacement, signupRequestId: id });
+    await tx.insert(signupRequestRevision).values({
+      signupRequestId: id,
+      removedGroupId: removed.groupId,
+      removedGroupEmail: removed.groupEmail,
+      replacementGroupId: replacement?.groupId,
+      replacementGroupEmail: replacement?.groupEmail,
+      replacementRole: replacement?.role,
+      revisedByDirectoryId: adminDirectoryId,
+    });
+    return true;
+  });
 }
 
 // Undefined until the request has been accepted.
@@ -104,5 +207,24 @@ export async function getProvisioningProgress(id: string) {
     })
     .from(signupRequestGroup)
     .where(eq(signupRequestGroup.signupRequestId, id));
-  return { ...request, groups };
+  // Unfinished groups the acting administrator can no longer manage; null when the Directory is unreachable.
+  let choices: ManageableGroup[] | null = null;
+  if (groups.some((group) => group.state !== "added")) {
+    try {
+      choices = await listManageableGroups();
+    } catch {
+      // Progress stays readable without the Directory.
+    }
+  }
+  const manageable = choices && new Set(choices.map((group) => group.id));
+  const selected = new Set(groups.map((group) => group.groupId));
+  return {
+    ...request,
+    // Replacement options for an unfinished assignment: manageable and not already selected.
+    choices: choices?.filter((group) => !selected.has(group.id)) ?? [],
+    groups: groups.map((group) => ({
+      ...group,
+      manageable: manageable?.has(group.groupId) ?? null,
+    })),
+  };
 }
