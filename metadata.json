@@ -5,7 +5,6 @@
   "branch": "issue-7/schema",
   "checkpoints_count": 3,
   "files_touched": [
-    "drizzle/20261006084906_drop_contact_email_confirmed/snapshot.json",
     "drizzle/20261006125948_accept_provisioning_state/migration.sql",
     "drizzle/20261006125948_accept_provisioning_state/snapshot.json",
     "src/lib/schema.ts"
