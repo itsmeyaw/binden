@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 
 import { expect, type Page, test } from "@playwright/test";
 import { Pool } from "pg";
@@ -153,7 +153,7 @@ test.describe("verified signup request review", () => {
       await expect(steps).toContainText("Provisioning");
       await expect(steps).toContainText("Complete");
       await expect(steps).toContainText("Awaiting handover");
-      await expect(steps).toContainText("First-login instructions have not been sent yet.");
+      await expect(steps).toContainText("Send first-login instructions in the Admin console");
       await expect(page.getByRole("button", { name: "Accept request" })).toHaveCount(0);
 
       const saved = await row(id);
@@ -287,6 +287,131 @@ test.describe("verified signup request review", () => {
       expect(retry.status()).toBe(409);
       expect((await row(id)).account_create_state).toBe("uncertain");
     });
+
+    const mailTo = async (id: string) =>
+      (
+        await pool.query(
+          'select "to", subject, text from mail_message where signup_request_id = $1',
+          [id],
+        )
+      ).rows;
+
+    test("confirms handover once provisioning succeeded, recording only that instructions were sent", async ({
+      page,
+    }) => {
+      const group = process.env.E2E_REVIEWER_NOTIFICATION_GROUP;
+      const id = await seed("Hand", "Over", `handover.${randomUUID().slice(0, 8)}@${domain}`);
+      await pool.query(
+        "insert into signup_request_group (signup_request_id, group_id, group_email) values ($1, 'sim-events', 'events@' || $2)",
+        [id, domain],
+      );
+      await page.request.post(`/api/review/requests/${id}/acceptance`);
+      await page.goto(`/review/${id}`);
+      const steps = page.locator("ol");
+      await expect(steps).toContainText("Reset password");
+      await expect(steps).toContainText("The application never sends or stores the password.");
+      await expect(page.getByRole("link", { name: /Admin console user page/ })).toBeVisible();
+
+      await page.getByRole("button", { name: "Confirm instructions were sent" }).click();
+      const dialog = page.getByRole("alertdialog");
+      await expect(dialog).toContainText("does not show that the message was delivered");
+      await dialog.getByRole("button", { name: "Confirm handover" }).click();
+
+      await expect(steps).toContainText("Handover confirmed");
+      await expect(steps).toContainText("that first-login instructions were sent");
+      await expect(
+        page.getByRole("button", { name: "Confirm instructions were sent" }),
+      ).toHaveCount(0);
+      const saved = (
+        await pool.query(
+          "select status, handover_confirmed_at, handover_confirmed_by_directory_id from signup_request where id = $1",
+          [id],
+        )
+      ).rows[0];
+      expect(saved.status).toBe("handover_confirmed");
+      expect(saved.handover_confirmed_at).toBeTruthy();
+      expect(saved.handover_confirmed_by_directory_id).toBeTruthy();
+
+      // Repeating is safe; only a minimal notice to the reviewer group is captured.
+      const again = await page.request.post(`/api/review/requests/${id}/handover`);
+      expect((await again.json()).progress.status).toBe("handover_confirmed");
+      const messages = await mailTo(id);
+      expect(messages).toHaveLength(1);
+      if (group) expect(messages[0].to).toBe(group);
+      expect(messages[0].text).not.toMatch(/Hand Over|password/i);
+
+      await page.goto("/review");
+      await expect(page.getByRole("link", { name: /Hand Over/ })).toContainText(
+        "Handover confirmed",
+      );
+    });
+
+    test("blocks handover confirmation until memberships have succeeded", async ({ page }) => {
+      const id = await acceptWithGroups(page, "blocked", ["sim-events", "sim-flaky"]);
+      const response = await page.request.post(`/api/review/requests/${id}/handover`);
+      expect(response.status()).toBe(409);
+      expect((await row(id)).status).toBe("provisioning");
+      await page.goto(`/review/${id}`);
+      await expect(
+        page.getByRole("button", { name: "Confirm instructions were sent" }),
+      ).toHaveCount(0);
+    });
+
+    test("a request that is not awaiting handover cannot be confirmed", async ({ page }) => {
+      const id = await seed("Not", "Ready", null);
+      const response = await page.request.post(`/api/review/requests/${id}/handover`);
+      expect(response.status()).toBe(409);
+      expect((await row(id)).status).toBe("verified");
+    });
+
+    test("verification notifies reviewers with a queue link, and a failed notice is retryable", async ({
+      page,
+      request,
+    }) => {
+      const group = process.env.E2E_REVIEWER_NOTIFICATION_GROUP;
+      test.skip(
+        !group,
+        "Set E2E_REVIEWER_NOTIFICATION_GROUP to the server's REVIEWER_NOTIFICATION_GROUP.",
+      );
+      const id = randomUUID();
+      ids.push(id);
+      const token = randomUUID();
+      const hash = createHash("sha256").update(token).digest("hex");
+      await pool.query(
+        `insert into signup_request
+          (id, given_name, family_name, contact_email, status, verification_token_hash, verification_expires_at)
+         values ($1, 'Notify', 'Me', $2, 'pending_verification', $3, now() + interval '1 day')`,
+        [id, `notify-${id}@example.test`, hash],
+      );
+      const verified = await request.get(`/api/verify?token=${token}`);
+      expect((await verified.json()).outcome).toBe("verified");
+      const [notice] = await mailTo(id);
+      expect(notice.to).toBe(group);
+      expect(notice.text).toContain("/review");
+      expect(notice.text).not.toMatch(/Notify Me|example\.test/);
+
+      // Simulate a failed delivery: the request stays reviewable and can be retried.
+      await pool.query("delete from mail_message where signup_request_id = $1", [id]);
+      await pool.query(
+        "update signup_request set reviewer_notification_state = 'failed' where id = $1",
+        [id],
+      );
+      await page.goto(`/review/${id}`);
+      await expect(page.getByText("Reviewer notification not sent")).toBeVisible();
+      await expect(page.getByRole("button", { name: "Accept request" })).toBeEnabled();
+      await page.getByRole("button", { name: "Retry notification" }).click();
+      await expect(page.getByText("Reviewer notification not sent")).toBeHidden();
+      expect(await mailTo(id)).toHaveLength(1);
+    });
+  });
+
+  test("handover and notification routes refuse signed-out callers", async ({ playwright }) => {
+    const anonymous = await playwright.request.newContext({ baseURL: process.env.E2E_BASE_URL });
+    const id = randomUUID();
+    const handover = await anonymous.post(`/api/review/requests/${id}/handover`);
+    const notification = await anonymous.post(`/api/review/requests/${id}/notification`);
+    expect([handover.status(), notification.status()]).toEqual([401, 401]);
+    await anonymous.dispose();
   });
 
   test("recovery routes refuse signed-out callers", async ({ playwright }) => {

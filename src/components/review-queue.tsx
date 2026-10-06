@@ -17,7 +17,8 @@ type SignupRequest = {
     | "rejection_pending_notification"
     | "accepted"
     | "provisioning"
-    | "awaiting_handover";
+    | "awaiting_handover"
+    | "handover_confirmed";
   createdAt: string;
 };
 

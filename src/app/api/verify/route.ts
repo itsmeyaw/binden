@@ -1,6 +1,7 @@
 import { and, eq, gt } from "drizzle-orm";
 
 import { getDb } from "@/lib/db";
+import { sendReviewerNotification } from "@/lib/review";
 import { signupRequest } from "@/lib/schema";
 import { hashVerificationToken } from "@/lib/verification";
 
@@ -31,7 +32,11 @@ export function createVerificationHandler(overrides: Partial<VerificationDepende
           ),
         )
         .returning({ id: signupRequest.id });
-      if (verified) return json({ outcome: "verified" });
+      if (verified) {
+        // Never fails verification: an unsent notice stays retryable from the review queue.
+        await sendReviewerNotification(verified.id, database);
+        return json({ outcome: "verified" });
+      }
 
       const [existing] = await db
         .select({

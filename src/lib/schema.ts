@@ -100,6 +100,11 @@ export const signupRequest = pgTable(
     // not_started -> attempting -> created | uncertain. `attempting` left behind is uncertain too.
     accountCreateState: text("account_create_state").notNull().default("not_started"),
     googleUserId: text("google_user_id"),
+    // pending -> sent | failed; a failed notice stays retryable while the request is verified.
+    reviewerNotificationState: text("reviewer_notification_state").notNull().default("pending"),
+    // Records that first-login instructions were sent, not inbox delivery or first sign-in.
+    handoverConfirmedAt: timestamp("handover_confirmed_at", { withTimezone: true }),
+    handoverConfirmedByDirectoryId: text("handover_confirmed_by_directory_id"),
     verificationTokenHash: text("verification_token_hash").notNull(),
     verificationExpiresAt: timestamp("verification_expires_at", { withTimezone: true }).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

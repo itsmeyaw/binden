@@ -9,9 +9,15 @@ import {
   type ManageableGroup,
 } from "@/lib/directory";
 import { getDb } from "@/lib/db";
+import { captureReviewerMail } from "@/lib/review";
 import { signupRequest, signupRequestGroup, signupRequestRevision } from "@/lib/schema";
 
-const provisioningStatuses = ["accepted", "provisioning", "awaiting_handover"];
+const provisioningStatuses = [
+  "accepted",
+  "provisioning",
+  "awaiting_handover",
+  "handover_confirmed",
+];
 
 // The decision is one conditional update, so repeated or concurrent accepts yield one winner.
 export async function acceptSignupRequest(id: string, approverDirectoryId: string) {
@@ -185,6 +191,60 @@ export async function reviseAssignment(
   });
 }
 
+// Records that first-login instructions were sent (not delivered, not used). One conditional
+// statement, so it needs provisioning complete and every selected membership added, and only one
+// concurrent confirmation wins.
+export async function confirmHandover(
+  id: string,
+  adminDirectoryId: string,
+): Promise<"confirmed" | "already" | "blocked" | "unavailable"> {
+  const db = getDb();
+  const [confirmed] = await db
+    .update(signupRequest)
+    .set({
+      status: "handover_confirmed",
+      handoverConfirmedAt: new Date(),
+      handoverConfirmedByDirectoryId: adminDirectoryId,
+    })
+    .where(
+      and(
+        eq(signupRequest.id, id),
+        eq(signupRequest.status, "awaiting_handover"),
+        eq(signupRequest.accountCreateState, "created"),
+        notExists(
+          db
+            .select({ one: sql`1` })
+            .from(signupRequestGroup)
+            .where(
+              and(
+                eq(signupRequestGroup.signupRequestId, id),
+                ne(signupRequestGroup.state, "added"),
+              ),
+            ),
+        ),
+      ),
+    )
+    .returning({ id: signupRequest.id });
+  if (confirmed) {
+    try {
+      await captureReviewerMail(
+        id,
+        "Workspace account handover confirmed",
+        "An administrator confirmed that first-login instructions were sent.",
+      );
+    } catch {
+      // ponytail: the confirmation stands; this notice is not retried.
+    }
+    return "confirmed";
+  }
+  const [request] = await db
+    .select({ status: signupRequest.status })
+    .from(signupRequest)
+    .where(eq(signupRequest.id, id));
+  if (request?.status === "handover_confirmed") return "already";
+  return request && provisioningStatuses.includes(request.status) ? "blocked" : "unavailable";
+}
+
 // Undefined until the request has been accepted.
 export async function getProvisioningProgress(id: string) {
   const db = getDb();
@@ -193,6 +253,8 @@ export async function getProvisioningProgress(id: string) {
       status: signupRequest.status,
       workspaceEmail: signupRequest.workspaceEmail,
       acceptedAt: signupRequest.acceptedAt,
+      handoverConfirmedAt: signupRequest.handoverConfirmedAt,
+      googleUserId: signupRequest.googleUserId,
       accountCreateState: signupRequest.accountCreateState,
     })
     .from(signupRequest)

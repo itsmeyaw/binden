@@ -10,7 +10,7 @@
     "lint:fix": "pnpm lint --fix",
     "format": "oxfmt --write .",
     "format:check": "oxfmt --check .",
-    "test": "tsx tests/signup.ts && tsx --conditions=react-server tests/workspace.ts && tsx tests/review.ts && tsx --conditions=react-server tests/plan.ts && tsx --conditions=react-server tests/provisioning.ts",
+    "test": "tsx tests/signup.ts && tsx --conditions=react-server tests/workspace.ts && tsx tests/review.ts && tsx --conditions=react-server tests/plan.ts && tsx --conditions=react-server tests/provisioning.ts && tsx --conditions=react-server tests/handover.ts",
     "test:e2e": "playwright test"
   },
   "dependencies": {
