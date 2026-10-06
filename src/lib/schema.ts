@@ -137,6 +137,21 @@ export const signupRequestGroup = pgTable(
   (table) => [primaryKey({ columns: [table.signupRequestId, table.groupId] })],
 );
 
+// Recorded, confirmed removal or replacement of an unfinished group assignment.
+export const signupRequestRevision = pgTable("signup_request_revision", {
+  id: uuid().defaultRandom().primaryKey(),
+  signupRequestId: uuid("signup_request_id")
+    .notNull()
+    .references(() => signupRequest.id, { onDelete: "cascade" }),
+  removedGroupId: text("removed_group_id").notNull(),
+  removedGroupEmail: text("removed_group_email").notNull(),
+  replacementGroupId: text("replacement_group_id"),
+  replacementGroupEmail: text("replacement_group_email"),
+  replacementRole: text("replacement_role"),
+  revisedByDirectoryId: text("revised_by_directory_id").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export const mailMessage = pgTable("mail_message", {
   id: uuid().defaultRandom().primaryKey(),
   signupRequestId: uuid("signup_request_id")
