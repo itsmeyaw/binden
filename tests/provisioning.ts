@@ -14,9 +14,15 @@ async function main() {
   if (!env.DATABASE_URL) return console.log("Skipped provisioning test: DATABASE_URL is not set.");
   const { eq } = await import("drizzle-orm");
   const { db } = await import("../src/lib/db");
-  const { signupRequest, signupRequestGroup } = await import("../src/lib/schema");
-  const { acceptSignupRequest, getProvisioningProgress, provisionAcceptedRequest } =
-    await import("../src/lib/provisioning");
+  const { signupRequest, signupRequestGroup, signupRequestRevision } =
+    await import("../src/lib/schema");
+  const {
+    acceptSignupRequest,
+    getProvisioningProgress,
+    provisionAcceptedRequest,
+    retryProvisioning,
+    reviseAssignment,
+  } = await import("../src/lib/provisioning");
 
   const ids: string[] = [];
   async function seed(local: string, groups: string[], status = "verified") {
@@ -77,6 +83,59 @@ async function main() {
       { "sim-events": "added", "sim-flaky": "failed" },
     );
 
+    // Retry touches only unfinished groups; sim-recovering succeeds on its second attempt.
+    const recover = await seed("recover", ["sim-events", "sim-recovering"]);
+    await accept(recover);
+    progress = await getProvisioningProgress(recover);
+    assert.equal(progress?.status, "provisioning");
+    await Promise.all([retryProvisioning(recover), retryProvisioning(recover)]);
+    progress = await getProvisioningProgress(recover);
+    assert.equal(progress?.status, "awaiting_handover");
+    assert.ok(progress?.groups.every((group) => group.state === "added"));
+
+    // Revising an unfinished group keeps successful ones, records the change, then completes.
+    const gone = await seed("gone", ["sim-events", "sim-gone"]);
+    await accept(gone);
+    progress = await getProvisioningProgress(gone);
+    assert.equal(progress?.groups.find((group) => group.groupId === "sim-gone")?.manageable, false);
+    assert.equal(await reviseAssignment(gone, { groupId: "sim-events" }, "admin-2"), false);
+    assert.equal(await reviseAssignment(gone, { groupId: "missing" }, "admin-2"), false);
+    assert.equal(
+      await reviseAssignment(
+        gone,
+        {
+          groupId: "sim-gone",
+          replacement: { groupId: "sim-board", groupEmail: "board@example.org", role: "manager" },
+        },
+        "admin-2",
+      ),
+      true,
+    );
+    assert.equal(await retryProvisioning(gone), "retried");
+    progress = await getProvisioningProgress(gone);
+    assert.equal(progress?.status, "awaiting_handover");
+    assert.deepEqual(progress!.groups.map((group) => group.groupId).sort(), [
+      "sim-board",
+      "sim-events",
+    ]);
+    const revisions = await db
+      .select()
+      .from(signupRequestRevision)
+      .where(eq(signupRequestRevision.signupRequestId, gone));
+    assert.equal(revisions.length, 1);
+    assert.equal(revisions[0].removedGroupId, "sim-gone");
+    assert.equal(revisions[0].replacementGroupId, "sim-board");
+    assert.equal(revisions[0].revisedByDirectoryId, "admin-2");
+    // Nothing is revisable once handover is reached.
+    assert.equal(await reviseAssignment(gone, { groupId: "sim-board" }, "admin-2"), false);
+
+    // Removing the last unfinished group (nothing left selected) reaches handover.
+    const removeOnly = await seed("removeonly", ["sim-flaky"]);
+    await accept(removeOnly);
+    assert.equal(await reviseAssignment(removeOnly, { groupId: "sim-flaky" }, "admin-2"), true);
+    await retryProvisioning(removeOnly);
+    assert.equal((await getProvisioningProgress(removeOnly))?.status, "awaiting_handover");
+
     // An uncertain create is recorded and never repeated.
     const uncertain = await seed("uncertain.user", ["sim-events"]);
     await Promise.all([accept(uncertain), accept(uncertain)]);
@@ -85,6 +144,9 @@ async function main() {
     assert.equal(progress?.status, "provisioning");
     assert.equal(progress?.accountCreateState, "uncertain");
     assert.equal(progress?.groups[0].state, "pending");
+    assert.equal(await retryProvisioning(uncertain), "uncertain");
+    assert.equal((await getProvisioningProgress(uncertain))?.groups[0].state, "pending");
+    assert.equal(await retryProvisioning(ok), "unavailable");
   } finally {
     for (const id of ids) await db.delete(signupRequest).where(eq(signupRequest.id, id));
     await db.$client.end();
