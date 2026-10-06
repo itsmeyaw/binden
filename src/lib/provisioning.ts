@@ -254,6 +254,7 @@ export async function getProvisioningProgress(id: string) {
       workspaceEmail: signupRequest.workspaceEmail,
       acceptedAt: signupRequest.acceptedAt,
       handoverConfirmedAt: signupRequest.handoverConfirmedAt,
+      googleUserId: signupRequest.googleUserId,
       accountCreateState: signupRequest.accountCreateState,
     })
     .from(signupRequest)

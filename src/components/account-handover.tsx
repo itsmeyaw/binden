@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { CircleAlertIcon, ExternalLinkIcon } from "lucide-react";
 
+import { authClient } from "@/lib/auth-client";
 import { post } from "@/components/provisioning-recovery";
 import type { Progress } from "@/components/review-progress";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -21,13 +22,23 @@ import { Spinner } from "@/components/ui/spinner";
 
 export function AccountHandover({
   email,
+  googleUserId,
   requestId,
   onProgress,
 }: {
   email: string | null;
+  googleUserId: string | null;
   requestId: string;
   onProgress: (progress: Progress) => void;
 }) {
+  const adminEmail = authClient.useSession().data?.user.email;
+  // Opens the user's own page; falls back to the list when the id is unknown.
+  const adminUrl = new URL(
+    googleUserId
+      ? `https://admin.google.com/ac/users/${encodeURIComponent(googleUserId)}`
+      : "https://admin.google.com/ac/users",
+  );
+  if (adminEmail) adminUrl.searchParams.set("authuser", adminEmail);
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string>();
@@ -61,13 +72,13 @@ export function AccountHandover({
               Open the{" "}
               <a
                 className="inline-flex items-center gap-1 underline"
-                href="https://admin.google.com/ac/users"
+                href={adminUrl.href}
                 rel="noreferrer"
                 target="_blank"
               >
-                Admin console users list <ExternalLinkIcon className="size-3" />
+                Admin console user page <ExternalLinkIcon className="size-3" />
               </a>{" "}
-              and find {email}.
+              for {email}.
             </li>
             <li>Choose Reset password and require a password change at next sign-in.</li>
             <li>Choose the option to email the instructions to the applicant.</li>

@@ -310,7 +310,7 @@ test.describe("verified signup request review", () => {
       const steps = page.locator("ol");
       await expect(steps).toContainText("Reset password");
       await expect(steps).toContainText("The application never sends or stores the password.");
-      await expect(page.getByRole("link", { name: /Admin console users list/ })).toBeVisible();
+      await expect(page.getByRole("link", { name: /Admin console user page/ })).toBeVisible();
 
       await page.getByRole("button", { name: "Confirm instructions were sent" }).click();
       const dialog = page.getByRole("alertdialog");
