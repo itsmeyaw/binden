@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { ArrowLeftIcon, CircleAlertIcon, InfoIcon, PencilIcon } from "lucide-react";
 
 import { ReviewAccess, type ReviewOutcome } from "@/components/review-access";
-import { ReviewPlan } from "@/components/review-plan";
+import { type Plan, ReviewPlan, type Role } from "@/components/review-plan";
 import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -64,6 +64,7 @@ type Errors = Partial<
     | "workspaceEmail"
     | "phone"
     | "connection"
+    | "groups"
     | "reason",
     string
   >
@@ -86,6 +87,29 @@ async function fetchRequest(id: string): Promise<State> {
   }
 }
 
+type PlanState =
+  | { status: "loading" }
+  | { status: "ready"; plan: Plan }
+  | { status: ReviewOutcome };
+type PlanResult = Plan & { outcome?: ReviewOutcome; errors?: Errors };
+
+async function fetchPlan(id: string, init?: RequestInit) {
+  try {
+    const response = await fetch(`/api/review/requests/${encodeURIComponent(id)}/plan`, {
+      cache: "no-store",
+      ...init,
+    });
+    const result = (await response.json()) as PlanResult;
+    return { ok: response.ok, result };
+  } catch {
+    return { ok: false, result: { outcome: "unavailable" } as PlanResult };
+  }
+}
+
+function rolesOf(plan: Plan) {
+  return Object.fromEntries(plan.selected.map((group) => [group.groupId, group.role]));
+}
+
 export function ReviewRequest({ id }: { id?: string }) {
   const [state, setState] = useState<State>({ status: id ? "loading" : "unselected" });
   const [editing, setEditing] = useState(false);
@@ -93,6 +117,8 @@ export function ReviewRequest({ id }: { id?: string }) {
   const [pending, setPending] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
   const [emailEdited, setEmailEdited] = useState(false);
+  const [planState, setPlanState] = useState<PlanState>({ status: "loading" });
+  const [roles, setRoles] = useState<Record<string, Role>>({});
 
   useEffect(() => {
     if (!id) return;
@@ -100,6 +126,21 @@ export function ReviewRequest({ id }: { id?: string }) {
     let active = true;
     void fetchRequest(requestId).then((next) => {
       if (active) setState(next);
+    });
+    return () => {
+      active = false;
+    };
+  }, [id]);
+
+  useEffect(() => {
+    if (!id) return;
+    let active = true;
+    void fetchPlan(id).then(({ ok, result }) => {
+      if (!active) return;
+      if (ok) {
+        setPlanState({ status: "ready", plan: result });
+        setRoles(rolesOf(result));
+      } else setPlanState({ status: result.outcome ?? "unavailable" });
     });
     return () => {
       active = false;
@@ -142,7 +183,33 @@ export function ReviewRequest({ id }: { id?: string }) {
         setErrors(result.errors ?? {});
         return;
       }
-      if (result.request) setState({ status: "ready", request: result.request });
+      if (!result.request) return;
+      setState({ status: "ready", request: result.request });
+      const plan = await fetchPlan(id, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          workspaceEmail: result.request.workspaceEmail,
+          groups: Object.entries(roles).map(([groupId, role]) => ({ id: groupId, role })),
+        }),
+      });
+      if (!plan.ok) {
+        if (plan.result.errors) setErrors(plan.result.errors);
+        else if (plan.result.outcome) setPlanState({ status: plan.result.outcome });
+        else setErrors({ groups: "The group assignment could not be saved. Please try again." });
+        return;
+      }
+      setPlanState({ status: "ready", plan: plan.result });
+      setRoles(rolesOf(plan.result));
+      setState({
+        status: "ready",
+        request: {
+          ...result.request,
+          workspaceEmail: plan.result.workspaceEmail,
+          workspaceEmailSaved: plan.result.saved,
+          workspaceEmailTaken: plan.result.unavailable,
+        },
+      });
       setEmailEdited(false);
       setEditing(false);
     } catch {
@@ -368,6 +435,35 @@ export function ReviewRequest({ id }: { id?: string }) {
                       />
                       <FieldError>{errors.connection}</FieldError>
                     </Field>
+                    <Field className="sm:col-span-2">
+                      {planState.status === "loading" && (
+                        <p className="text-sm text-muted-foreground">Loading group assignment</p>
+                      )}
+                      {planState.status === "ready" && (
+                        <ReviewPlan
+                          disabled={!editing || pending}
+                          errors={errors.groups}
+                          plan={planState.plan}
+                          roles={roles}
+                          setRoles={setRoles}
+                        />
+                      )}
+                      {planState.status !== "loading" && planState.status !== "ready" && (
+                        <ReviewAccess
+                          outcome={planState.status}
+                          retry={() => {
+                            if (!id) return;
+                            setPlanState({ status: "loading" });
+                            void fetchPlan(id).then(({ ok, result }) => {
+                              if (ok) {
+                                setPlanState({ status: "ready", plan: result });
+                                setRoles(rolesOf(result));
+                              } else setPlanState({ status: result.outcome ?? "unavailable" });
+                            });
+                          }}
+                        />
+                      )}
+                    </Field>
                     <Field className="sm:col-span-2" orientation="horizontal">
                       <Checkbox
                         defaultChecked={state.request.contactEmailConfirmedByAdmin}
@@ -383,7 +479,11 @@ export function ReviewRequest({ id }: { id?: string }) {
                 </FieldSet>
                 <div className="mt-5 flex flex-wrap gap-2">
                   {editing ? (
-                    <Button disabled={pending} type="submit" variant="outline">
+                    <Button
+                      disabled={pending || planState.status !== "ready"}
+                      type="submit"
+                      variant="outline"
+                    >
                       {pending && <Spinner data-icon="inline-start" />}
                       <PencilIcon data-icon="inline-start" /> Done
                     </Button>
@@ -408,13 +508,6 @@ export function ReviewRequest({ id }: { id?: string }) {
                   )}
                 </div>
               </form>
-              <Separator />
-              <ReviewPlan
-                emailSaved={state.request.workspaceEmailSaved}
-                id={state.request.id}
-                key={state.request.id}
-                workspaceEmail={state.request.workspaceEmail}
-              />
               {rejecting && <Separator />}
               {rejecting && (
                 <form noValidate onSubmit={reject}>

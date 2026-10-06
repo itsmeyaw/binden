@@ -72,12 +72,12 @@ test.describe("verified signup request review", () => {
 
     const clash = page.getByText("Choose a different address.");
 
-    // Saving the plan with the clashing proposal is refused.
-    await page.getByRole("button", { name: "Save plan" }).click();
+    // Saving the form with the clashing proposal is refused.
+    await page.getByRole("button", { name: "Correct details" }).click();
+    await page.getByRole("button", { name: "Done" }).click();
     await expect(clash).toBeVisible();
 
     // Editing to another taken address is refused and nothing is saved.
-    await page.getByRole("button", { name: "Correct details" }).click();
     await email.fill("taken.user");
     await expect(clash).toBeHidden();
     await page.getByRole("button", { name: "Done" }).click();
@@ -94,23 +94,18 @@ test.describe("verified signup request review", () => {
       await pool.query("select workspace_email from signup_request where id = $1", [id])
     ).rows;
     expect(saved).toBe(`ada.l@${domain}`);
-    await expect(page.getByText("No initial groups saved.")).toBeVisible();
 
+    await page.getByRole("button", { name: "Correct details" }).click();
     await page.getByRole("checkbox", { name: /Events team/ }).click();
     await page.getByRole("checkbox", { name: /Board/ }).click();
     await page.getByRole("combobox", { name: "Role in Board" }).click();
     await page.getByRole("option", { name: "Owner" }).click();
-    await page.getByRole("button", { name: "Save plan" }).click();
-
-    const review = page.getByRole("region", { name: "Final review" });
-    await expect(review.getByText(`ada.l@${domain}`)).toBeVisible();
-    await expect(review.getByRole("listitem").filter({ hasText: "events@" })).toContainText(
-      "Member",
-    );
-    await expect(review.getByRole("listitem").filter({ hasText: "board@" })).toContainText("Owner");
-    await expect(review.getByText("do not grant administrative authority")).toBeVisible();
+    await page.getByRole("button", { name: "Done" }).click();
 
     await page.reload();
     await expect(email).toHaveValue(`ada.l@${domain}`);
+    await expect(page.getByRole("checkbox", { name: /Events team/ })).toBeChecked();
+    await expect(page.getByRole("checkbox", { name: /Board/ })).toBeChecked();
+    await expect(page.getByRole("combobox", { name: "Role in Board" })).toHaveText("Owner");
   });
 });
