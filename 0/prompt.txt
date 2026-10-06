@@ -1,0 +1,1 @@
+Review the uncommitted diff in /Users/itsmeyaw/projects/binden/.worktrees/issue-4-review. User asks to make the review table a connected left/right surface like a split table, with heading/support text outside. Check correctness, responsive Tailwind behavior, accessibility, and regressions. No edits. Return only actionable findings with severity and file:line, or No findings.
