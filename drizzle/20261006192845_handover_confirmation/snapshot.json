@@ -1,8 +1,8 @@
 {
   "version": "8",
   "dialect": "postgres",
-  "id": "8134f08f-0b6f-4245-9f8c-e6171f65e095",
-  "prevIds": ["3b61e019-ab75-4ad8-988b-c4e8c24e31cd"],
+  "id": "f06718ff-d7b3-4327-97ba-b749bdbad8ef",
+  "prevIds": ["8134f08f-0b6f-4245-9f8c-e6171f65e095"],
   "ddl": [
     {
       "isRlsEnabled": false,
@@ -587,6 +587,45 @@
       "generated": null,
       "identity": null,
       "name": "google_user_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "signup_request"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'pending'",
+      "generated": null,
+      "identity": null,
+      "name": "reviewer_notification_state",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "signup_request"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "handover_confirmed_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "signup_request"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "handover_confirmed_by_directory_id",
       "entityType": "columns",
       "schema": "public",
       "table": "signup_request"
