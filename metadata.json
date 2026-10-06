@@ -1,0 +1,52 @@
+{
+  "cli_version": "0.10.6",
+  "checkpoint_id": "01M47WDQSY12RN8SZWSHCPRC12",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 7,
+  "files_touched": [
+    ".worktrees/issue-4-review/.env.example",
+    ".worktrees/issue-4-review/README.md",
+    ".worktrees/issue-4-review/docs/live-workspace-smoke-check.md",
+    ".worktrees/issue-4-review/package.json",
+    ".worktrees/issue-4-review/playwright.config.ts",
+    ".worktrees/issue-4-review/src/app/api/auth/[...all]/route.ts",
+    ".worktrees/issue-4-review/src/app/api/review/requests/[id]/route.ts",
+    ".worktrees/issue-4-review/src/app/api/review/requests/route.ts",
+    ".worktrees/issue-4-review/src/app/api/signup/route.ts",
+    ".worktrees/issue-4-review/src/app/login/page.tsx",
+    ".worktrees/issue-4-review/src/app/review/[id]/page.tsx",
+    ".worktrees/issue-4-review/src/app/review/loading.tsx",
+    ".worktrees/issue-4-review/src/app/review/page.tsx",
+    ".worktrees/issue-4-review/src/components/auth-button.tsx",
+    ".worktrees/issue-4-review/src/components/review-access.tsx",
+    ".worktrees/issue-4-review/src/components/review-queue.tsx",
+    ".worktrees/issue-4-review/src/components/review-request.tsx",
+    ".worktrees/issue-4-review/src/lib/auth.ts",
+    ".worktrees/issue-4-review/src/lib/db.ts",
+    ".worktrees/issue-4-review/src/lib/review.ts",
+    ".worktrees/issue-4-review/src/lib/schema.ts",
+    ".worktrees/issue-4-review/src/lib/workspace.ts",
+    ".worktrees/issue-4-review/test-results/.last-run.json",
+    ".worktrees/issue-4-review/tests/review.spec.ts",
+    ".worktrees/issue-4-review/tests/signup.ts",
+    "signup-01-layout.png",
+    "signup-01-mobile.png"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": "/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 196,
+    "cache_creation_tokens": 503777,
+    "cache_read_tokens": 9736401,
+    "output_tokens": 28807,
+    "api_call_count": 98
+  }
+}

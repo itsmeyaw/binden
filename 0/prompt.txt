@@ -1,0 +1,23 @@
+Implement the issue #4 from the issue tracker.
+
+---
+
+Now I have access to Google workspace, we can use this for authentication directly instead of using simulation. Update the ticket first then present a full plan.
+
+---
+
+Lgtm, use role id as authorization policy.
+
+---
+
+How to get role id for the reviewer?
+
+---
+
+I got error: ➜  binden git:(main) ACCESS_TOKEN="$(gcloud auth print-access-token)"
+
+curl -s \
+  -H "Authorization: Bearer $ACCESS_TOKEN" \
+  "https://admin.googleapis.com/admin/directory/v1/customer/my_customer/roles?maxResults=100" \
+  | jq '.items[] | {roleName, roleId, isSystemRole}'
+jq: error (at <stdin>:25): Cannot iterate over null (null)

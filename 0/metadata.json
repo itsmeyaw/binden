@@ -1,0 +1,88 @@
+{
+  "cli_version": "0.10.6",
+  "checkpoint_id": "01M47WDQSY12RN8SZWSHCPRC12",
+  "session_id": "ses_ef7a151c0ffeBRNYJ02gsAhFFt",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-06T05:54:14.754592Z",
+  "branch": "main",
+  "checkpoints_count": 7,
+  "save_step_count": 2,
+  "files_touched": [
+    ".worktrees/issue-4-review/.env.example",
+    ".worktrees/issue-4-review/README.md",
+    ".worktrees/issue-4-review/docs/live-workspace-smoke-check.md",
+    ".worktrees/issue-4-review/package.json",
+    ".worktrees/issue-4-review/playwright.config.ts",
+    ".worktrees/issue-4-review/src/app/api/auth/[...all]/route.ts",
+    ".worktrees/issue-4-review/src/app/api/review/requests/[id]/route.ts",
+    ".worktrees/issue-4-review/src/app/api/review/requests/route.ts",
+    ".worktrees/issue-4-review/src/app/api/signup/route.ts",
+    ".worktrees/issue-4-review/src/app/login/page.tsx",
+    ".worktrees/issue-4-review/src/app/review/[id]/page.tsx",
+    ".worktrees/issue-4-review/src/app/review/loading.tsx",
+    ".worktrees/issue-4-review/src/app/review/page.tsx",
+    ".worktrees/issue-4-review/src/components/auth-button.tsx",
+    ".worktrees/issue-4-review/src/components/review-access.tsx",
+    ".worktrees/issue-4-review/src/components/review-queue.tsx",
+    ".worktrees/issue-4-review/src/components/review-request.tsx",
+    ".worktrees/issue-4-review/src/lib/auth.ts",
+    ".worktrees/issue-4-review/src/lib/db.ts",
+    ".worktrees/issue-4-review/src/lib/review.ts",
+    ".worktrees/issue-4-review/src/lib/schema.ts",
+    ".worktrees/issue-4-review/src/lib/workspace.ts",
+    ".worktrees/issue-4-review/test-results/.last-run.json",
+    ".worktrees/issue-4-review/tests/review.spec.ts",
+    ".worktrees/issue-4-review/tests/signup.ts",
+    "signup-01-layout.png",
+    "signup-01-mobile.png"
+  ],
+  "agent": "OpenCode",
+  "model": "openai.gpt-5.6-terra",
+  "turn_id": "496080aa43a7",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 196,
+    "cache_creation_tokens": 503777,
+    "cache_read_tokens": 9736401,
+    "output_tokens": 28807,
+    "api_call_count": 98
+  },
+  "session_metrics": {
+    "turn_count": 7
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-10-06T05:54:14.674196Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 7935,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 7935,
+    "total_lines_changed": 7984,
+    "agent_percentage": 0,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    }
+  ]
+}
