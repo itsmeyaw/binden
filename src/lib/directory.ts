@@ -28,6 +28,8 @@ export async function listManageableGroups(): Promise<ManageableGroup[]> {
     { id: "sim-board", email: `board@${domain}`, name: "Board" },
     // Manageable, but adding members always fails: exercises partial provisioning.
     { id: "sim-flaky", email: `flaky@${domain}`, name: "Flaky group" },
+    // Fails on the first add per user, then works: exercises retrying unfinished memberships.
+    { id: "sim-recovering", email: `recovering@${domain}`, name: "Recovering group" },
   ];
 }
 
@@ -45,7 +47,15 @@ export async function createWorkspaceUser(email: string): Promise<{ id: string }
   return { id: `sim-user-${email.toLowerCase()}` };
 }
 
-export async function addGroupMember(groupId: string, _userId: string, _role: string) {
+const attempted = new Set<string>();
+
+// `sim-gone` is not listed as manageable (deleted or no longer manageable) and always fails.
+export async function addGroupMember(groupId: string, userId: string, _role: string) {
   simulatedDomain();
-  if (groupId === "sim-flaky") throw new Error("Group membership rejected");
+  if (groupId === "sim-flaky" || groupId === "sim-gone")
+    throw new Error("Group membership rejected");
+  if (groupId === "sim-recovering" && !attempted.has(`${userId}:${groupId}`)) {
+    attempted.add(`${userId}:${groupId}`);
+    throw new Error("Group membership rejected");
+  }
 }
