@@ -9,14 +9,7 @@ import { type Plan, ReviewPlan, type Role } from "@/components/review-plan";
 import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-  FieldSet,
-} from "@/components/ui/field";
+import { Field, FieldError, FieldGroup, FieldLabel, FieldSet } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
   InputGroup,
@@ -404,9 +397,6 @@ export function ReviewRequest({ id }: { id?: string }) {
                           </InputGroupAddon>
                         )}
                       </InputGroup>
-                      {state.request.workspaceEmailSaved && (
-                        <FieldDescription>Planned account address.</FieldDescription>
-                      )}
                       <FieldError>
                         {errors.workspaceEmail ??
                           (state.request.workspaceEmailTaken && !emailEdited
