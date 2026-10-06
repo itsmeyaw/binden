@@ -368,7 +368,11 @@ export function ReviewRequest({ id }: { id?: string }) {
       {state.status === "ready" && state.progress && (
         <ReviewProgress
           name={`${state.request.givenName} ${state.request.familyName}`}
+          onProgress={(progress) =>
+            setState({ ...state, request: { ...state.request, status: progress.status }, progress })
+          }
           progress={state.progress}
+          requestId={state.request.id}
         />
       )}
       {state.status === "ready" && !state.progress && (

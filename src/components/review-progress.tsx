@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 
 import { roleLabels, type Role } from "@/components/group-membership-picker";
+import { RetryProvisioning, ReviseAssignment } from "@/components/provisioning-recovery";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 
@@ -19,7 +20,10 @@ export type Progress = {
     groupEmail: string;
     role: Role;
     state: "pending" | "added" | "failed";
+    // null when the Directory could not be reached.
+    manageable: boolean | null;
   }>;
+  choices: Array<{ id: string; email: string; name: string }>;
 };
 
 export const statusLabels: Record<Progress["status"], string> = {
@@ -30,9 +34,24 @@ export const statusLabels: Record<Progress["status"], string> = {
 
 const groupStates = { pending: "Pending", added: "Added", failed: "Failed" } as const;
 
-export function ReviewProgress({ name, progress }: { name: string; progress: Progress }) {
+export function ReviewProgress({
+  name,
+  progress,
+  requestId,
+  onProgress,
+}: {
+  name: string;
+  progress: Progress;
+  requestId: string;
+  onProgress: (progress: Progress) => void;
+}) {
   const uncertain = progress.accountCreateState === "uncertain";
   const failed = progress.groups.some((group) => group.state === "failed");
+  // Recovery is only for a created account whose selected memberships are not all added.
+  const recoverable =
+    progress.status === "provisioning" &&
+    progress.accountCreateState === "created" &&
+    progress.groups.some((group) => group.state !== "added");
   const done = progress.status === "awaiting_handover";
 
   return (
@@ -90,14 +109,26 @@ export function ReviewProgress({ name, progress }: { name: string; progress: Pro
                 Some memberships could not be added. Successful ones are kept.
               </span>
             )}
+            {recoverable && <RetryProvisioning onProgress={onProgress} requestId={requestId} />}
             {progress.groups.length > 0 && progress.accountCreateState !== "uncertain" && (
               <ul className="flex flex-col gap-1 text-sm">
                 {progress.groups.map((group) => (
-                  <li className="flex items-center gap-2" key={group.groupId}>
+                  <li className="flex flex-wrap items-center gap-2" key={group.groupId}>
                     {group.groupEmail} · {roleLabels[group.role]}
                     <Badge variant={group.state === "failed" ? "destructive" : "outline"}>
                       {groupStates[group.state]}
                     </Badge>
+                    {group.manageable === false && (
+                      <Badge variant="destructive">No longer manageable</Badge>
+                    )}
+                    {recoverable && group.state !== "added" && (
+                      <ReviseAssignment
+                        choices={progress.choices}
+                        group={group}
+                        onProgress={onProgress}
+                        requestId={requestId}
+                      />
+                    )}
                   </li>
                 ))}
               </ul>

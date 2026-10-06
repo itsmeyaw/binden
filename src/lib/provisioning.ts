@@ -2,7 +2,12 @@ import "server-only";
 
 import { and, eq, inArray, isNotNull, ne, notExists, sql } from "drizzle-orm";
 
-import { addGroupMember, createWorkspaceUser, listManageableGroups } from "@/lib/directory";
+import {
+  addGroupMember,
+  createWorkspaceUser,
+  listManageableGroups,
+  type ManageableGroup,
+} from "@/lib/directory";
 import { getDb } from "@/lib/db";
 import { signupRequest, signupRequestGroup, signupRequestRevision } from "@/lib/schema";
 
@@ -204,16 +209,20 @@ export async function getProvisioningProgress(id: string) {
     .from(signupRequestGroup)
     .where(eq(signupRequestGroup.signupRequestId, id));
   // Unfinished groups the acting administrator can no longer manage; null when the Directory is unreachable.
-  let manageable: Set<string> | null = null;
+  let choices: ManageableGroup[] | null = null;
   if (groups.some((group) => group.state !== "added")) {
     try {
-      manageable = new Set((await listManageableGroups()).map((group) => group.id));
+      choices = await listManageableGroups();
     } catch {
       // Progress stays readable without the Directory.
     }
   }
+  const manageable = choices && new Set(choices.map((group) => group.id));
+  const selected = new Set(groups.map((group) => group.groupId));
   return {
     ...request,
+    // Replacement options for an unfinished assignment: manageable and not already selected.
+    choices: choices?.filter((group) => !selected.has(group.id)) ?? [],
     groups: groups.map((group) => ({
       ...group,
       manageable: manageable?.has(group.groupId) ?? null,
