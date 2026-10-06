@@ -1,0 +1,9 @@
+Review `git diff main...HEAD` in /Users/itsmeyaw/projects/binden/.worktrees/issue-5-review-lifecycle against GitHub issue #5. Exclude uncommitted `.opencode/plugins/entire.ts` formatting churn. Issue:
+Title: Correct or reject a signup request
+Build an administrator review decision that either corrects a signup request or rejects it with an applicant-facing reason. The real application persists corrections and rejection lifecycle state, uses local mail capture for the outcome message, and permits a fresh request after rejection.
+Acceptance:
+1. Authorized administrator can correct submitted information, including recording an administrator-confirmed contact email without applicant reverification.
+2. Authorized administrator can reject a verified signup request only with a required applicant-facing reason.
+3. Failed rejection notification retains necessary request data and exposes a retryable outcome.
+4. Rejected applicant can submit a fresh request without overwriting historical workflow state.
+Report missing/partial requirements, scope creep, and wrong implementations with severity and file/line. Under 400 words.
