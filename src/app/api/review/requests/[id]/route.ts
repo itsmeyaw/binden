@@ -9,6 +9,7 @@ import {
   withWorkspaceEmail,
   workspaceEmailCollision as collision,
 } from "@/lib/review-http";
+import { getProvisioningProgress } from "@/lib/provisioning";
 import { correctVerifiedSignupRequest, getReviewableSignupRequest } from "@/lib/review";
 import { parseReviewCorrectionInput } from "@/lib/review-input";
 
@@ -21,6 +22,9 @@ export async function GET(request: Request, context: RouteContext<"/api/review/r
   try {
     const signup = await getReviewableSignupRequest(id);
     if (!signup) return json({ error: "Request not found." }, 404);
+    const progress = await getProvisioningProgress(id);
+    // The address is taken by this very request once it is accepted, so it is not re-checked.
+    if (progress) return json({ request: signup, progress });
     return json({ request: await withWorkspaceEmail(signup) });
   } catch {
     return json({ outcome: "unavailable" }, 503);
