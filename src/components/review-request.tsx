@@ -367,26 +367,24 @@ export function ReviewRequest({ id }: { id?: string }) {
                     >
                       <FieldLabel htmlFor="workspace-email">
                         Workspace email
-                        {!state.request.workspaceEmailSaved && (
-                          <Tooltip>
-                            <TooltipTrigger
-                              render={
-                                <span
-                                  aria-label="About the proposed address"
-                                  // A real button would be disabled along with the fieldset.
-                                  // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
-                                  role="button"
-                                  tabIndex={0}
-                                />
-                              }
-                            >
-                              <InfoIcon className="size-3.5 text-muted-foreground" />
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              Proposed from the applicant&apos;s name. Correct details to change it.
-                            </TooltipContent>
-                          </Tooltip>
-                        )}
+                        <Tooltip>
+                          <TooltipTrigger
+                            render={
+                              <span
+                                aria-label="About the proposed address"
+                                // A real button would be disabled along with the fieldset.
+                                // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
+                                role="button"
+                                tabIndex={0}
+                              />
+                            }
+                          >
+                            <InfoIcon className="size-3.5 text-muted-foreground" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            Proposed from the applicant&apos;s name. Correct details to change it.
+                          </TooltipContent>
+                        </Tooltip>
                       </FieldLabel>
                       <InputGroup>
                         <InputGroupInput
