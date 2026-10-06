@@ -8,7 +8,6 @@ import { ReviewAccess, type ReviewOutcome } from "@/components/review-access";
 import { type Plan, ReviewPlan, type Role } from "@/components/review-plan";
 import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldError, FieldGroup, FieldLabel, FieldSet } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
@@ -163,7 +162,8 @@ export function ReviewRequest({ id }: { id?: string }) {
           givenName: values.get("givenName"),
           familyName: values.get("familyName"),
           contactEmail: values.get("contactEmail"),
-          contactEmailConfirmedByAdmin: values.get("contactEmailConfirmedByAdmin") === "on",
+          // Submitting the correction is the administrator's confirmation.
+          contactEmailConfirmedByAdmin: true,
           phone: values.get("phone"),
           connection: values.get("connection"),
           // Unchanged proposals are not saved, so a corrected name can still refresh them.
@@ -451,17 +451,6 @@ export function ReviewRequest({ id }: { id?: string }) {
                           }}
                         />
                       )}
-                    </Field>
-                    <Field className="sm:col-span-2" orientation="horizontal">
-                      <Checkbox
-                        defaultChecked={state.request.contactEmailConfirmedByAdmin}
-                        disabled={!editing || pending}
-                        id="contact-email-confirmed"
-                        name="contactEmailConfirmedByAdmin"
-                      />
-                      <FieldLabel htmlFor="contact-email-confirmed">
-                        I confirm this contact email as an administrator.
-                      </FieldLabel>
                     </Field>
                   </FieldGroup>
                 </FieldSet>
