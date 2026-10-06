@@ -396,8 +396,8 @@ export function ReviewRequest({ id }: { id?: string }) {
           ) : (
             <>
               <form noValidate onSubmit={correct}>
-                <FieldSet disabled={pending || !editing}>
-                  <FieldGroup className="sm:grid sm:grid-cols-2">
+                <FieldSet className="min-w-0" disabled={pending || !editing}>
+                  <FieldGroup className="sm:grid sm:grid-cols-[repeat(2,minmax(0,1fr))]">
                     <Field data-invalid={Boolean(errors.givenName)}>
                       <FieldLabel htmlFor="given-name">Given name</FieldLabel>
                       <Input
