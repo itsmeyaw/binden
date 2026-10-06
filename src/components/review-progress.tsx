@@ -6,14 +6,16 @@ import {
 } from "lucide-react";
 
 import { roleLabels, type Role } from "@/components/group-membership-picker";
+import { AccountHandover } from "@/components/account-handover";
 import { RetryProvisioning, ReviseAssignment } from "@/components/provisioning-recovery";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 
 export type Progress = {
-  status: "accepted" | "provisioning" | "awaiting_handover";
+  status: "accepted" | "provisioning" | "awaiting_handover" | "handover_confirmed";
   workspaceEmail: string | null;
   acceptedAt: string | null;
+  handoverConfirmedAt: string | null;
   accountCreateState: "not_started" | "attempting" | "created" | "uncertain";
   groups: Array<{
     groupId: string;
@@ -30,6 +32,7 @@ export const statusLabels: Record<Progress["status"], string> = {
   accepted: "Accepted",
   provisioning: "Provisioning",
   awaiting_handover: "Awaiting handover",
+  handover_confirmed: "Handover confirmed",
 };
 
 const groupStates = { pending: "Pending", added: "Added", failed: "Failed" } as const;
@@ -52,7 +55,8 @@ export function ReviewProgress({
     progress.status === "provisioning" &&
     progress.accountCreateState === "created" &&
     progress.groups.some((group) => group.state !== "added");
-  const done = progress.status === "awaiting_handover";
+  const confirmed = progress.status === "handover_confirmed";
+  const done = progress.status === "awaiting_handover" || confirmed;
 
   return (
     <div className="flex flex-col gap-5">
@@ -136,17 +140,38 @@ export function ReviewProgress({
           </div>
         </li>
         <li className="flex gap-3">
-          <CircleDashedIcon className="mt-0.5 size-5 shrink-0 text-muted-foreground" />
-          <div className="flex flex-col gap-1">
+          {confirmed ? (
+            <CheckCircle2Icon className="mt-0.5 size-5 shrink-0 text-primary" />
+          ) : (
+            <CircleDashedIcon className="mt-0.5 size-5 shrink-0 text-muted-foreground" />
+          )}
+          <div className="flex flex-col gap-2">
             <span className="flex items-center gap-2 font-medium">
               Account handover{" "}
-              <Badge variant="outline">{done ? "Awaiting handover" : "Not started"}</Badge>
+              <Badge variant={confirmed ? "secondary" : "outline"}>
+                {confirmed ? "Handover confirmed" : done ? "Awaiting handover" : "Not started"}
+              </Badge>
             </span>
-            <span className="text-sm text-muted-foreground">
-              {done
-                ? "Provisioning is complete. First-login instructions have not been sent yet."
-                : "Available once provisioning completes."}
-            </span>
+            {confirmed ? (
+              <span className="text-sm text-muted-foreground">
+                An administrator confirmed on{" "}
+                {progress.handoverConfirmedAt
+                  ? new Date(progress.handoverConfirmedAt).toLocaleString()
+                  : "an earlier date"}{" "}
+                that first-login instructions were sent. This does not show the message arrived or
+                that the applicant has signed in.
+              </span>
+            ) : done ? (
+              <AccountHandover
+                email={progress.workspaceEmail}
+                onProgress={onProgress}
+                requestId={requestId}
+              />
+            ) : (
+              <span className="text-sm text-muted-foreground">
+                Available once provisioning completes.
+              </span>
+            )}
           </div>
         </li>
       </ol>

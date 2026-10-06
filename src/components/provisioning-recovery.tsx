@@ -31,7 +31,7 @@ import { Spinner } from "@/components/ui/spinner";
 type Group = Progress["groups"][number];
 type Recovery = { requestId: string; onProgress: (progress: Progress) => void };
 
-async function post(path: string, body?: unknown) {
+export async function post(path: string, body?: unknown) {
   const response = await fetch(path, {
     method: "POST",
     headers: body ? { "Content-Type": "application/json" } : undefined,

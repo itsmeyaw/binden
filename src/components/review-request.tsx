@@ -50,6 +50,7 @@ type SignupRequest = {
   workspaceDomain: string | null;
   status: "verified" | "rejection_pending_notification" | Progress["status"];
   rejectionReason: string | null;
+  reviewerNotificationState: "pending" | "sent" | "failed";
   createdAt: string;
 };
 
@@ -124,6 +125,7 @@ export function ReviewRequest({ id }: { id?: string }) {
   const [rejecting, setRejecting] = useState(false);
   const [accepting, setAccepting] = useState(false);
   const [acceptError, setAcceptError] = useState<string>();
+  const [notificationError, setNotificationError] = useState<string>();
   const [pending, setPending] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
   const [emailEdited, setEmailEdited] = useState(false);
@@ -340,6 +342,24 @@ export function ReviewRequest({ id }: { id?: string }) {
     }
   }
 
+  async function retryReviewerNotification() {
+    if (!id || state.status !== "ready") return;
+    setPending(true);
+    setNotificationError(undefined);
+    try {
+      const response = await fetch(`/api/review/requests/${encodeURIComponent(id)}/notification`, {
+        method: "POST",
+      });
+      // 409: it was sent meanwhile or the request moved on, so reload the authoritative state.
+      if (response.ok || response.status === 409) setState(await fetchRequest(id));
+      else setNotificationError("The notification could not be sent. Please try again.");
+    } catch {
+      setNotificationError("The notification could not be sent. Please try again.");
+    } finally {
+      setPending(false);
+    }
+  }
+
   return (
     <section className="min-h-0 p-4 lg:overflow-y-auto">
       {id && (
@@ -399,6 +419,29 @@ export function ReviewRequest({ id }: { id?: string }) {
             </Alert>
           ) : (
             <>
+              {state.request.status === "verified" &&
+                state.request.reviewerNotificationState !== "sent" && (
+                  <Alert>
+                    <CircleAlertIcon />
+                    <AlertTitle>Reviewer notification not sent</AlertTitle>
+                    <AlertDescription>
+                      {notificationError ??
+                        "Reviewers were not told about this request. It stays in the queue and can be reviewed now."}
+                    </AlertDescription>
+                    <AlertAction>
+                      <Button
+                        disabled={pending}
+                        onClick={() => void retryReviewerNotification()}
+                        size="sm"
+                        type="button"
+                        variant="outline"
+                      >
+                        {pending && <Spinner data-icon="inline-start" />}
+                        Retry notification
+                      </Button>
+                    </AlertAction>
+                  </Alert>
+                )}
               <form noValidate onSubmit={correct}>
                 <FieldSet className="min-w-0" disabled={pending || !editing}>
                   <FieldGroup className="sm:grid sm:grid-cols-[repeat(2,minmax(0,1fr))]">
