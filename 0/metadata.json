@@ -1,0 +1,58 @@
+{
+  "cli_version": "0.10.6",
+  "checkpoint_id": "01M48MYMNFNVVRDDN6054G7F53",
+  "session_id": "ses_eef9694c8ffe03JG7CMuZst7VX",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-06T13:02:55.449638Z",
+  "branch": "issue-7/api",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/app/api/review/requests/[id]/acceptance/route.ts",
+    "src/app/api/review/requests/[id]/plan/route.ts",
+    "src/app/api/review/requests/[id]/route.ts"
+  ],
+  "agent": "OpenCode",
+  "model": "anthropic.claude-sonnet-5-5",
+  "turn_id": "bed385ba327a",
+  "checkpoint_transcript_start": 8,
+  "transcript_lines_at_start": 8,
+  "compact_transcript_start": 8,
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "session_metrics": {
+    "turn_count": 1
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-10-06T13:02:55.428673Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 58,
+    "human_modified": 10,
+    "human_removed": 0,
+    "total_committed": 58,
+    "total_lines_changed": 68,
+    "agent_percentage": 0,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 95,
+      "user_lines_removed": 87,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".opencode/plugins/entire.ts": 91,
+        "test-results/.last-run.json": 4
+      },
+      "user_removed_per_file": {
+        ".opencode/plugins/entire.ts": 87
+      }
+    }
+  ]
+}
