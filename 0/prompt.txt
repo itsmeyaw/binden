@@ -1,0 +1,1 @@
+Now I have access to Google workspace, we can use this for authentication directly instead of using simulation. Update the ticket first then present a full plan.
