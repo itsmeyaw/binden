@@ -5,8 +5,19 @@ import { useEffect, useState } from "react";
 import { ArrowLeftIcon, CircleAlertIcon, InfoIcon, PencilIcon } from "lucide-react";
 
 import { ReviewAccess, type ReviewOutcome } from "@/components/review-access";
-import { type Plan, ReviewPlan, type Role } from "@/components/review-plan";
+import { type Plan, ReviewPlan, roleLabels, type Role } from "@/components/review-plan";
+import { type Progress, ReviewProgress } from "@/components/review-progress";
 import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldGroup, FieldLabel, FieldSet } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -32,7 +43,7 @@ type SignupRequest = {
   workspaceEmailSaved: boolean;
   workspaceEmailTaken: boolean | null;
   workspaceDomain: string | null;
-  status: "verified" | "rejection_pending_notification";
+  status: "verified" | "rejection_pending_notification" | Progress["status"];
   rejectionReason: string | null;
   createdAt: string;
 };
@@ -40,7 +51,7 @@ type SignupRequest = {
 type State =
   | { status: "loading" }
   | { status: "unselected" }
-  | { status: "ready"; request: SignupRequest }
+  | { status: "ready"; request: SignupRequest; progress?: Progress }
   | { status: "missing" }
   | { status: ReviewOutcome };
 
@@ -69,10 +80,11 @@ async function fetchRequest(id: string): Promise<State> {
     const result = (await response.json()) as {
       outcome?: ReviewOutcome;
       request?: SignupRequest;
+      progress?: Progress;
     };
     if (response.status === 404) return { status: "missing" };
     if (!response.ok || !result.request) return { status: result.outcome ?? "unavailable" };
-    return { status: "ready", request: result.request };
+    return { status: "ready", request: result.request, progress: result.progress };
   } catch {
     return { status: "unavailable" };
   }
@@ -105,6 +117,8 @@ export function ReviewRequest({ id }: { id?: string }) {
   const [state, setState] = useState<State>({ status: id ? "loading" : "unselected" });
   const [editing, setEditing] = useState(false);
   const [rejecting, setRejecting] = useState(false);
+  const [accepting, setAccepting] = useState(false);
+  const [acceptError, setAcceptError] = useState<string>();
   const [pending, setPending] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
   const [emailEdited, setEmailEdited] = useState(false);
@@ -209,6 +223,64 @@ export function ReviewRequest({ id }: { id?: string }) {
     }
   }
 
+  async function accept() {
+    if (!id || state.status !== "ready" || planState.status !== "ready") return;
+    setPending(true);
+    setAcceptError(undefined);
+    try {
+      // The proposal shown for review becomes the recorded choice.
+      if (!state.request.workspaceEmailSaved) {
+        const saved = await fetchPlan(id, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            workspaceEmail: state.request.workspaceEmail,
+            groups: Object.entries(roles).map(([groupId, role]) => ({ id: groupId, role })),
+          }),
+        });
+        if (!saved.ok) {
+          setAcceptError(
+            saved.result.errors?.workspaceEmail ??
+              saved.result.errors?.groups ??
+              "The plan could not be saved. Please try again.",
+          );
+          return;
+        }
+      }
+      const response = await fetch(`/api/review/requests/${encodeURIComponent(id)}/acceptance`, {
+        method: "POST",
+      });
+      const result = (await response.json()) as {
+        errors?: Errors;
+        error?: string;
+        progress?: Progress;
+      };
+      if (response.ok && result.progress) {
+        setState({
+          status: "ready",
+          request: { ...state.request, status: result.progress.status },
+          progress: result.progress,
+        });
+        setAccepting(false);
+        return;
+      }
+      if (response.status === 409 && result.error) {
+        setAccepting(false);
+        setState({ status: "missing" });
+        return;
+      }
+      setAcceptError(
+        result.errors?.workspaceEmail ??
+          result.errors?.groups ??
+          "The request could not be accepted. Please try again.",
+      );
+    } catch {
+      setAcceptError("The request could not be accepted. Please try again.");
+    } finally {
+      setPending(false);
+    }
+  }
+
   async function reject(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!id) return;
@@ -288,7 +360,13 @@ export function ReviewRequest({ id }: { id?: string }) {
           This signup request is no longer available for review.
         </p>
       )}
-      {state.status === "ready" && (
+      {state.status === "ready" && state.progress && (
+        <ReviewProgress
+          name={`${state.request.givenName} ${state.request.familyName}`}
+          progress={state.progress}
+        />
+      )}
+      {state.status === "ready" && !state.progress && (
         <div className="flex flex-col gap-5">
           {state.request.status === "rejection_pending_notification" ? (
             <Alert variant="destructive">
@@ -476,6 +554,24 @@ export function ReviewRequest({ id }: { id?: string }) {
                     </Button>
                   )}
                   {!editing && !rejecting && (
+                    <Button
+                      disabled={
+                        pending ||
+                        planState.status !== "ready" ||
+                        state.request.workspaceEmailTaken === true ||
+                        !state.request.workspaceEmail ||
+                        planState.plan.selected.some((group) => !group.manageable)
+                      }
+                      onClick={() => {
+                        setAcceptError(undefined);
+                        setAccepting(true);
+                      }}
+                      type="button"
+                    >
+                      Accept request
+                    </Button>
+                  )}
+                  {!editing && !rejecting && (
                     <Button onClick={() => setRejecting(true)} type="button" variant="destructive">
                       Reject request
                     </Button>
@@ -520,6 +616,51 @@ export function ReviewRequest({ id }: { id?: string }) {
         state.status !== "unselected" && (
           <ReviewAccess outcome={state.status} retry={() => void retry()} />
         )}
+      {state.status === "ready" && planState.status === "ready" && (
+        <AlertDialog onOpenChange={(open) => !pending && setAccepting(open)} open={accepting}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Accept this signup request?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Acceptance authorizes provisioning of this Workspace account. It is not account
+                handover: first-login instructions are sent separately.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <dl className="flex flex-col gap-2 text-sm">
+              <div>
+                <dt className="text-muted-foreground">Workspace email</dt>
+                <dd>{state.request.workspaceEmail}</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground">Initial group memberships</dt>
+                {Object.keys(roles).length === 0 ? (
+                  <dd>None</dd>
+                ) : (
+                  planState.plan.groups
+                    .filter((group) => group.id in roles)
+                    .map((group) => (
+                      <dd key={group.id}>
+                        {group.name} · {roleLabels[roles[group.id]]}
+                      </dd>
+                    ))
+                )}
+              </div>
+            </dl>
+            {acceptError && (
+              <p className="text-sm text-destructive" role="alert">
+                {acceptError}
+              </p>
+            )}
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={pending}>Cancel</AlertDialogCancel>
+              <AlertDialogAction disabled={pending} onClick={() => void accept()}>
+                {pending && <Spinner data-icon="inline-start" />}
+                Confirm acceptance
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
     </section>
   );
 }
