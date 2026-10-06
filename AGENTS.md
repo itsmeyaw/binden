@@ -15,7 +15,7 @@
   7. After all changes are implemented, submit the stack to github.
   8. Update the issue in the issue tracker by adding summary of. implementation and related PR.
 - Database use drizzle ORM.
-- Commit in small functional changes.
+- Commit in small incremental changes.
 
 <!-- BEGIN:nextjs-agent-rules -->
 
