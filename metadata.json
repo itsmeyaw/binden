@@ -3,7 +3,7 @@
   "checkpoint_id": "01M48MS6HFQ7N35QKWEDW34BE7",
   "strategy": "manual-commit",
   "branch": "issue-7/schema",
-  "checkpoints_count": 1,
+  "checkpoints_count": 2,
   "files_touched": [
     "drizzle/20261006084906_drop_contact_email_confirmed/snapshot.json",
     "drizzle/20261006125948_accept_provisioning_state/migration.sql",
@@ -16,6 +16,13 @@
       "transcript": "/0/full.jsonl",
       "compact_transcript": "/0/transcript.jsonl",
       "content_hash": "/0/content_hash.txt",
+      "prompt": ""
+    },
+    {
+      "metadata": "/1/metadata.json",
+      "transcript": "/1/full.jsonl",
+      "compact_transcript": "/1/transcript.jsonl",
+      "content_hash": "/1/content_hash.txt",
       "prompt": ""
     }
   ],
