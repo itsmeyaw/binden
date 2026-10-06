@@ -34,7 +34,7 @@ test.describe("verified signup request review", () => {
         (id, given_name, family_name, contact_email, phone, connection, status, verification_token_hash, verification_expires_at)
        values
         ($1, 'Verified', 'Applicant', $2, '+49 89 123', 'Community volunteer', 'verified', 'unused', now() + interval '1 day'),
-        ($3, 'Hidden', 'Applicant', $4, null, null, 'provisioning', 'unused', now() + interval '1 day')`,
+        ($3, 'Hidden', 'Applicant', $4, null, null, 'pending_verification', 'unused', now() + interval '1 day')`,
       [verifiedId, `verified-${suffix}@example.test`, hiddenId, `hidden-${suffix}@example.test`],
     );
 

@@ -1,6 +1,7 @@
 import type { getReviewAccess } from "@/lib/auth";
 import { isWorkspaceEmailAvailable } from "@/lib/directory";
 import { suggestWorkspaceEmail } from "@/lib/review";
+import { WorkspaceUnavailable } from "@/lib/workspace";
 
 export const workspaceEmailCollision =
   "That Workspace email is already in use. Choose a different address.";
@@ -21,6 +22,16 @@ export function deniedResponse(status: Awaited<ReturnType<typeof getReviewAccess
     default:
       return undefined;
   }
+}
+
+// Maps a failed Google/Directory call to its reconnect or unavailable outcome.
+export function failure(error: unknown) {
+  if (error instanceof WorkspaceUnavailable)
+    return json(
+      { outcome: error.reconnect ? "reconnect" : "unavailable" },
+      error.reconnect ? 401 : 503,
+    );
+  return json({ outcome: "unavailable" }, 503);
 }
 
 // Drizzle wraps driver errors, so the Postgres code may be on `cause`.
