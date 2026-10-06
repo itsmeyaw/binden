@@ -1,5 +1,14 @@
 import { sql } from "drizzle-orm";
-import { boolean, index, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  index,
+  pgTable,
+  primaryKey,
+  text,
+  timestamp,
+  uniqueIndex,
+  uuid,
+} from "drizzle-orm/pg-core";
 
 export const user = pgTable("auth_user", {
   id: text().primaryKey(),
@@ -87,6 +96,7 @@ export const signupRequest = pgTable(
     status: text().notNull().default("pending_verification"),
     rejectionReason: text("rejection_reason"),
     rejectedAt: timestamp("rejected_at", { withTimezone: true }),
+    workspaceEmail: text("workspace_email"),
     verificationTokenHash: text("verification_token_hash").notNull(),
     verificationExpiresAt: timestamp("verification_expires_at", { withTimezone: true }).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -97,7 +107,26 @@ export const signupRequest = pgTable(
       .where(
         sql`${table.status} in ('pending_verification', 'verified', 'under_review', 'accepted', 'provisioning', 'awaiting_handover')`,
       ),
+    uniqueIndex("active_signup_request_workspace_email_idx")
+      .on(sql`lower(${table.workspaceEmail})`)
+      .where(
+        sql`${table.workspaceEmail} is not null and ${table.status} in ('verified', 'under_review', 'accepted', 'provisioning', 'awaiting_handover')`,
+      ),
   ],
+);
+
+// Selected groups are stored by immutable Google group id so provisioning can resume.
+export const signupRequestGroup = pgTable(
+  "signup_request_group",
+  {
+    signupRequestId: uuid("signup_request_id")
+      .notNull()
+      .references(() => signupRequest.id, { onDelete: "cascade" }),
+    groupId: text("group_id").notNull(),
+    groupEmail: text("group_email").notNull(),
+    role: text().notNull().default("member"),
+  },
+  (table) => [primaryKey({ columns: [table.signupRequestId, table.groupId] })],
 );
 
 export const mailMessage = pgTable("mail_message", {

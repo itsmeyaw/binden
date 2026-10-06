@@ -8,19 +8,40 @@ const optionalText = (maxLength: number, message: string) =>
     .optional()
     .transform((value) => value || null);
 
-const correctionSchema = z.object({
-  givenName: z.string().trim().min(1, "Enter the given name.").max(100, "Enter the given name."),
-  familyName: z.string().trim().min(1, "Enter the family name.").max(100, "Enter the family name."),
-  contactEmail: z
+const workspaceEmailSchema = (domain: string) =>
+  z
     .string()
     .trim()
     .toLowerCase()
-    .max(254, "Enter a valid contact email.")
-    .email("Enter a valid contact email."),
-  contactEmailConfirmedByAdmin: z.boolean(),
-  phone: optionalText(50, "Enter a phone number of 50 characters or fewer."),
-  connection: optionalText(1000, "Keep the connection explanation to 1,000 characters or fewer."),
-});
+    .max(254, "Enter a valid Workspace email.")
+    .email("Enter a valid Workspace email.")
+    .refine((email) => email.endsWith(`@${domain.toLowerCase()}`), `Use an address at ${domain}.`);
+
+const correctionSchema = (domain?: string) =>
+  z.object({
+    givenName: z.string().trim().min(1, "Enter the given name.").max(100, "Enter the given name."),
+    familyName: z
+      .string()
+      .trim()
+      .min(1, "Enter the family name.")
+      .max(100, "Enter the family name."),
+    contactEmail: z
+      .string()
+      .trim()
+      .toLowerCase()
+      .max(254, "Enter a valid contact email.")
+      .email("Enter a valid contact email."),
+    contactEmailConfirmedByAdmin: z.boolean(),
+    phone: optionalText(50, "Enter a phone number of 50 characters or fewer."),
+    connection: optionalText(1000, "Keep the connection explanation to 1,000 characters or fewer."),
+    // Omitted leaves the planned address alone; blank clears it.
+    workspaceEmail: z.preprocess(
+      (value) => (typeof value === "string" && !value.trim() ? null : value),
+      workspaceEmailSchema(domain ?? "")
+        .nullable()
+        .optional(),
+    ),
+  });
 
 const rejectionSchema = z.object({
   reason: z
@@ -30,7 +51,26 @@ const rejectionSchema = z.object({
     .max(1000, "Keep the rejection reason to 1,000 characters or fewer."),
 });
 
-type Errors = Partial<Record<keyof z.output<typeof correctionSchema> | "reason", string>>;
+export const groupRoles = ["member", "manager", "owner"] as const;
+
+const planSchema = (domain: string) =>
+  z.object({
+    workspaceEmail: workspaceEmailSchema(domain),
+    groups: z
+      .array(
+        z.object({
+          id: z.string().min(1).max(255),
+          role: z.enum(groupRoles).default("member"),
+        }),
+      )
+      .max(100, "Select 100 groups or fewer.")
+      .refine((groups) => new Set(groups.map((group) => group.id)).size === groups.length, {
+        message: "Select each group only once.",
+      })
+      .default([]),
+  });
+
+type Errors = Partial<Record<string, string>>;
 
 function parse<T extends z.ZodType>(
   schema: T,
@@ -41,16 +81,19 @@ function parse<T extends z.ZodType>(
   const errors: Errors = {};
   for (const issue of result.error.issues) {
     const field = issue.path[0];
-    if (typeof field === "string" && !errors[field as keyof Errors])
-      errors[field as keyof Errors] = issue.message;
+    if (typeof field === "string" && !errors[field]) errors[field] = issue.message;
   }
   return { data: undefined, errors };
 }
 
-export function parseReviewCorrectionInput(value: unknown) {
-  return parse(correctionSchema, value);
+export function parseReviewCorrectionInput(value: unknown, domain?: string) {
+  return parse(correctionSchema(domain), value);
 }
 
 export function parseRejectionInput(value: unknown) {
   return parse(rejectionSchema, value);
+}
+
+export function parsePlanInput(value: unknown, domain: string) {
+  return parse(planSchema(domain), value);
 }

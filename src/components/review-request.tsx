@@ -2,17 +2,32 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ArrowLeftIcon, CircleAlertIcon, PencilIcon } from "lucide-react";
+import { ArrowLeftIcon, CircleAlertIcon, InfoIcon, PencilIcon } from "lucide-react";
 
 import { ReviewAccess, type ReviewOutcome } from "@/components/review-access";
+import { ReviewPlan } from "@/components/review-plan";
 import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Field, FieldError, FieldGroup, FieldLabel, FieldSet } from "@/components/ui/field";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldSet,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+  InputGroupText,
+} from "@/components/ui/input-group";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 type SignupRequest = {
   id: string;
@@ -22,6 +37,10 @@ type SignupRequest = {
   contactEmailConfirmedByAdmin: boolean;
   phone: string | null;
   connection: string | null;
+  workspaceEmail: string;
+  workspaceEmailSaved: boolean;
+  workspaceEmailTaken: boolean | null;
+  workspaceDomain: string | null;
   status: "verified" | "rejection_pending_notification";
   rejectionReason: string | null;
   createdAt: string;
@@ -34,8 +53,20 @@ type State =
   | { status: "missing" }
   | { status: ReviewOutcome };
 
+const workspaceEmailCollision =
+  "That Workspace email is already in use. Choose a different address.";
+
 type Errors = Partial<
-  Record<"givenName" | "familyName" | "contactEmail" | "phone" | "connection" | "reason", string>
+  Record<
+    | "givenName"
+    | "familyName"
+    | "contactEmail"
+    | "workspaceEmail"
+    | "phone"
+    | "connection"
+    | "reason",
+    string
+  >
 >;
 
 async function fetchRequest(id: string): Promise<State> {
@@ -61,6 +92,7 @@ export function ReviewRequest({ id }: { id?: string }) {
   const [rejecting, setRejecting] = useState(false);
   const [pending, setPending] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
+  const [emailEdited, setEmailEdited] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -86,6 +118,9 @@ export function ReviewRequest({ id }: { id?: string }) {
     setPending(true);
     setErrors({});
     const values = new FormData(event.currentTarget);
+    const { workspaceDomain } = state.request;
+    const local = String(values.get("workspaceEmail")).trim();
+    const workspaceEmail = local && workspaceDomain ? `${local}@${workspaceDomain}` : local;
     try {
       const response = await fetch(`/api/review/requests/${encodeURIComponent(id)}`, {
         method: "PATCH",
@@ -97,6 +132,9 @@ export function ReviewRequest({ id }: { id?: string }) {
           contactEmailConfirmedByAdmin: values.get("contactEmailConfirmedByAdmin") === "on",
           phone: values.get("phone"),
           connection: values.get("connection"),
+          // Unchanged proposals are not saved, so a corrected name can still refresh them.
+          workspaceEmail:
+            workspaceEmail === state.request.workspaceEmail ? undefined : workspaceEmail,
         }),
       });
       const result = (await response.json()) as { errors?: Errors; request?: SignupRequest };
@@ -105,6 +143,7 @@ export function ReviewRequest({ id }: { id?: string }) {
         return;
       }
       if (result.request) setState({ status: "ready", request: result.request });
+      setEmailEdited(false);
       setEditing(false);
     } catch {
       setErrors({ contactEmail: "The correction could not be saved. Please try again." });
@@ -253,6 +292,63 @@ export function ReviewRequest({ id }: { id?: string }) {
                       />
                       <FieldError>{errors.contactEmail}</FieldError>
                     </Field>
+                    <Field
+                      data-invalid={Boolean(
+                        errors.workspaceEmail ||
+                        (state.request.workspaceEmailTaken && !emailEdited),
+                      )}
+                    >
+                      <FieldLabel htmlFor="workspace-email">
+                        Workspace email
+                        {!state.request.workspaceEmailSaved && (
+                          <Tooltip>
+                            <TooltipTrigger
+                              render={
+                                <span
+                                  aria-label="About the proposed address"
+                                  // A real button would be disabled along with the fieldset.
+                                  // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
+                                  role="button"
+                                  tabIndex={0}
+                                />
+                              }
+                            >
+                              <InfoIcon className="size-3.5 text-muted-foreground" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              Proposed from the applicant&apos;s name. Correct details to change it.
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
+                      </FieldLabel>
+                      <InputGroup>
+                        <InputGroupInput
+                          aria-invalid={Boolean(
+                            errors.workspaceEmail ||
+                            (state.request.workspaceEmailTaken && !emailEdited),
+                          )}
+                          defaultValue={state.request.workspaceEmail.replace(/@.*$/, "")}
+                          id="workspace-email"
+                          key={state.request.workspaceEmail}
+                          name="workspaceEmail"
+                          onChange={() => setEmailEdited(true)}
+                        />
+                        {state.request.workspaceDomain && (
+                          <InputGroupAddon align="inline-end">
+                            <InputGroupText>@{state.request.workspaceDomain}</InputGroupText>
+                          </InputGroupAddon>
+                        )}
+                      </InputGroup>
+                      {state.request.workspaceEmailSaved && (
+                        <FieldDescription>Planned account address.</FieldDescription>
+                      )}
+                      <FieldError>
+                        {errors.workspaceEmail ??
+                          (state.request.workspaceEmailTaken && !emailEdited
+                            ? workspaceEmailCollision
+                            : undefined)}
+                      </FieldError>
+                    </Field>
                     <Field>
                       <FieldLabel htmlFor="phone">Phone number</FieldLabel>
                       <Input
@@ -312,6 +408,13 @@ export function ReviewRequest({ id }: { id?: string }) {
                   )}
                 </div>
               </form>
+              <Separator />
+              <ReviewPlan
+                emailSaved={state.request.workspaceEmailSaved}
+                id={state.request.id}
+                key={state.request.id}
+                workspaceEmail={state.request.workspaceEmail}
+              />
               {rejecting && <Separator />}
               {rejecting && (
                 <form noValidate onSubmit={reject}>
