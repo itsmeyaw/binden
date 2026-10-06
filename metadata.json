@@ -1,0 +1,31 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M49B1AJGQAK4C6SRT7H395TH",
+  "strategy": "manual-commit",
+  "branch": "issue-9/schema",
+  "checkpoints_count": 2,
+  "files_touched": [
+    ".env.example",
+    "drizzle/20261006084906_drop_contact_email_confirmed/snapshot.json",
+    "drizzle/20261006175455_revise_provisioning_assignments/snapshot.json",
+    "drizzle/20261006192845_handover_confirmation/migration.sql",
+    "drizzle/20261006192845_handover_confirmation/snapshot.json",
+    "src/lib/schema.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": "/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 24,
+    "cache_creation_tokens": 286816,
+    "cache_read_tokens": 766693,
+    "output_tokens": 12795,
+    "api_call_count": 10
+  }
+}

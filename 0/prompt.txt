@@ -1,0 +1,5 @@
+Implement the issue #9 from the issue tracker
+
+---
+
+What does handover_confirmed_by_directory_id do? Is it the one of the reviewer role? Did we also recorded who accepted a request?
