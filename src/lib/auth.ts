@@ -16,6 +16,11 @@ import {
   WorkspaceUnavailable,
 } from "@/lib/workspace";
 
+const requiredScopes = [
+  "https://www.googleapis.com/auth/admin.directory.user",
+  "https://www.googleapis.com/auth/admin.directory.group",
+  "https://www.googleapis.com/auth/admin.directory.rolemanagement.readonly",
+] as const;
 const googleKeys = createRemoteJWKSet(new URL("https://www.googleapis.com/oauth2/v3/certs"));
 const config = z
   .object({
@@ -38,10 +43,7 @@ export const auth = betterAuth({
       clientId: config.GOOGLE_CLIENT_ID,
       clientSecret: config.GOOGLE_CLIENT_SECRET,
       hd: config.GOOGLE_WORKSPACE_DOMAIN,
-      scope: [
-        "https://www.googleapis.com/auth/admin.directory.user.readonly",
-        "https://www.googleapis.com/auth/admin.directory.rolemanagement.readonly",
-      ],
+      scope: [...requiredScopes],
       accessType: "offline",
       prompt: "select_account consent",
       includeGrantedScopes: false,
@@ -102,6 +104,10 @@ export async function getReviewAccess(headers: Headers) {
         and(eq(schema.account.userId, session.user.id), eq(schema.account.providerId, "google")),
       );
     if (!account) throw new WorkspaceUnavailable(true);
+    // Grants made before the Directory scopes were widened must be re-consented.
+    const granted = (account.scope ?? "").split(/[,\s]+/);
+    if (!requiredScopes.every((scope) => granted.includes(scope)))
+      throw new WorkspaceUnavailable(true);
     stage = "access-token";
     const token = await auth.api.getAccessToken({ headers, body: { accountId: account.id } });
     if (
@@ -114,7 +120,7 @@ export async function getReviewAccess(headers: Headers) {
     stage = "reviewer-role";
     if (!(await hasReviewerRole(token.accessToken, profile.id, config.GOOGLE_REVIEWER_ROLE_ID)))
       return { status: "denied" } as const;
-    return { status: "available", profile } as const;
+    return { status: "available", profile, accessToken: token.accessToken } as const;
   } catch (error) {
     const status =
       error instanceof WorkspaceUnavailable && error.reconnect ? "reconnect" : "unavailable";

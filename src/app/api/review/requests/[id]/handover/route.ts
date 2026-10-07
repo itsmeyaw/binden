@@ -24,7 +24,7 @@ export async function POST(
         { error: "Handover can be confirmed once every selected membership has succeeded." },
         409,
       );
-    const progress = await getProvisioningProgress(id);
+    const progress = await getProvisioningProgress(id, access);
     if (!progress) return json({ error: "This signup request is no longer available." }, 409);
     return json({ progress });
   } catch (error) {

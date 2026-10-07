@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { getReviewAccess } from "@/lib/auth";
 import {
+  type Actor,
   isWorkspaceEmailAvailable,
   listManageableGroups,
   type ManageableGroup,
@@ -22,6 +23,7 @@ import {
 import { parsePlanInput } from "@/lib/review-input";
 
 async function planResponse(
+  actor: Actor,
   signup: { givenName: string; familyName: string },
   id: string,
   domain: string,
@@ -34,7 +36,7 @@ async function planResponse(
   return {
     workspaceEmail,
     saved: plan.workspaceEmail !== null,
-    unavailable: workspaceEmail !== "" && !(await isWorkspaceEmailAvailable(workspaceEmail)),
+    unavailable: workspaceEmail !== "" && !(await isWorkspaceEmailAvailable(actor, workspaceEmail)),
     groups,
     selected: plan.groups.map((group) => ({ ...group, manageable: manageable.has(group.groupId) })),
   };
@@ -43,7 +45,8 @@ async function planResponse(
 async function load(request: Request, context: RouteContext<"/api/review/requests/[id]/plan">) {
   const access = await getReviewAccess(request.headers);
   const denied = deniedResponse(access.status);
-  if (denied) return denied;
+  if (denied || access.status !== "available")
+    return denied ?? json({ outcome: "unavailable" }, 503);
   const { id } = await context.params;
   const domain = process.env.GOOGLE_WORKSPACE_DOMAIN;
   if (!z.uuid().safeParse(id).success) return json({ error: "Request not found." }, 404);
@@ -52,7 +55,7 @@ async function load(request: Request, context: RouteContext<"/api/review/request
   if (!signup) return json({ error: "Request not found." }, 404);
   if (signup.status !== "verified")
     return json({ error: "This signup request is no longer available." }, 409);
-  return { id, domain, signup };
+  return { id, domain, signup, actor: access };
 }
 
 export async function GET(
@@ -62,8 +65,8 @@ export async function GET(
   try {
     const loaded = await load(request, context);
     if (loaded instanceof Response) return loaded;
-    const { id, domain, signup } = loaded;
-    return json(await planResponse(signup, id, domain, await listManageableGroups()));
+    const { id, domain, signup, actor } = loaded;
+    return json(await planResponse(actor, signup, id, domain, await listManageableGroups(actor)));
   } catch (error) {
     return failure(error);
   }
@@ -82,11 +85,11 @@ export async function PUT(
   try {
     const loaded = await load(request, context);
     if (loaded instanceof Response) return loaded;
-    const { id, domain, signup } = loaded;
+    const { id, domain, signup, actor } = loaded;
     const parsed = parsePlanInput(body, domain);
     if (!parsed.data) return json({ errors: parsed.errors }, 422);
 
-    const choices = await listManageableGroups();
+    const choices = await listManageableGroups(actor);
     const byId = new Map(choices.map((group) => [group.id, group]));
     const groups = parsed.data.groups.map((group) => ({
       group: byId.get(group.id),
@@ -95,7 +98,7 @@ export async function PUT(
     if (groups.some(({ group }) => !group))
       return json({ errors: { groups: "Choose only groups you can manage." } }, 422);
     // Directory is checked on every save, so a stale earlier answer is never trusted.
-    if (!(await isWorkspaceEmailAvailable(parsed.data.workspaceEmail)))
+    if (!(await isWorkspaceEmailAvailable(actor, parsed.data.workspaceEmail)))
       return json({ errors: { workspaceEmail: collision } }, 409);
 
     let saved: boolean;
@@ -113,7 +116,7 @@ export async function PUT(
       throw error;
     }
     if (!saved) return json({ error: "This signup request is no longer available." }, 409);
-    return json(await planResponse(signup, id, domain, choices));
+    return json(await planResponse(actor, signup, id, domain, choices));
   } catch (error) {
     return failure(error);
   }

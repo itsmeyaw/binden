@@ -38,12 +38,14 @@ export function validateIdentity(input: unknown) {
   return identity;
 }
 
-async function googleGet(url: string, accessToken: string) {
+// With `allowMissing`, a 404 is an answer ("not there") rather than a failure.
+export async function googleGet(url: string | URL, accessToken: string, allowMissing = false) {
   const response = await fetch(url, {
     headers: { Authorization: `Bearer ${accessToken}` },
     cache: "no-store",
     signal: AbortSignal.timeout(10_000),
   });
+  if (allowMissing && response.status === 404) return null;
   if (!response.ok) {
     await logGoogleFailure(url, response);
     throw new WorkspaceUnavailable(response.status === 401);
