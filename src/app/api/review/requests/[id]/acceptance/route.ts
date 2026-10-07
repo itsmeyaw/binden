@@ -27,7 +27,7 @@ export async function POST(
 
   try {
     // A repeated accept skips validation (its own address is "taken" by now) and just reports.
-    if (!(await getProvisioningProgress(id))) {
+    if (!(await getProvisioningProgress(id, access))) {
       const signup = await getReviewableSignupRequest(id);
       if (!signup) return json({ error: "Request not found." }, 404);
       if (signup.status !== "verified")
@@ -40,13 +40,13 @@ export async function POST(
 
       // Directory answers are re-checked now; saved plans may be stale.
       const plan = await getSignupPlan(id);
-      const manageable = new Set((await listManageableGroups()).map((group) => group.id));
+      const manageable = new Set((await listManageableGroups(access)).map((group) => group.id));
       if (plan.groups.some((group) => !manageable.has(group.groupId)))
         return json(
           { errors: { groups: "Remove groups you can no longer manage before accepting." } },
           422,
         );
-      if (!(await isWorkspaceEmailAvailable(signup.workspaceEmail)))
+      if (!(await isWorkspaceEmailAvailable(access, signup.workspaceEmail)))
         return json({ errors: { workspaceEmail: collision } }, 409);
 
       // Losing a race is fine: the winner's outcome is reported below.
@@ -54,7 +54,7 @@ export async function POST(
     }
     // No-op unless the request is still `accepted`, so a crash between the steps self-heals.
     await provisionAcceptedRequest(id);
-    const progress = await getProvisioningProgress(id);
+    const progress = await getProvisioningProgress(id, access);
     if (!progress) return json({ error: "This signup request is no longer available." }, 409);
     return json({ progress });
   } catch (error) {

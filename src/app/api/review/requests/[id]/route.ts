@@ -16,16 +16,16 @@ import { parseReviewCorrectionInput } from "@/lib/review-input";
 export async function GET(request: Request, context: RouteContext<"/api/review/requests/[id]">) {
   const access = await getReviewAccess(request.headers);
   const denied = deniedResponse(access.status);
-  if (denied) return denied;
+  if (denied || access.status !== "available") return denied;
   const { id } = await context.params;
   if (!z.uuid().safeParse(id).success) return json({ error: "Request not found." }, 404);
   try {
     const signup = await getReviewableSignupRequest(id);
     if (!signup) return json({ error: "Request not found." }, 404);
-    const progress = await getProvisioningProgress(id);
+    const progress = await getProvisioningProgress(id, access);
     // The address is taken by this very request once it is accepted, so it is not re-checked.
     if (progress) return json({ request: signup, progress });
-    return json({ request: await withWorkspaceEmail(signup) });
+    return json({ request: await withWorkspaceEmail(access, signup) });
   } catch {
     return json({ outcome: "unavailable" }, 503);
   }
@@ -34,7 +34,7 @@ export async function GET(request: Request, context: RouteContext<"/api/review/r
 export async function PATCH(request: Request, context: RouteContext<"/api/review/requests/[id]">) {
   const access = await getReviewAccess(request.headers);
   const denied = deniedResponse(access.status);
-  if (denied) return denied;
+  if (denied || access.status !== "available") return denied;
   const { id } = await context.params;
   if (!z.uuid().safeParse(id).success) return json({ error: "Request not found." }, 404);
 
@@ -54,12 +54,12 @@ export async function PATCH(request: Request, context: RouteContext<"/api/review
     const { workspaceEmail } = parsed.data;
     // A clash is checked on every change, so a stale earlier answer is never trusted.
     if (workspaceEmail && workspaceEmail !== current.workspaceEmail) {
-      if (!(await isWorkspaceEmailAvailable(workspaceEmail)))
+      if (!(await isWorkspaceEmailAvailable(access, workspaceEmail)))
         return json({ errors: { workspaceEmail: collision } }, 409);
     }
     const signup = await correctVerifiedSignupRequest(id, parsed.data);
     if (!signup) return json({ error: "This signup request is no longer available." }, 409);
-    return json({ request: await withWorkspaceEmail(signup) });
+    return json({ request: await withWorkspaceEmail(access, signup) });
   } catch (error) {
     if (isUniqueViolation(error)) {
       // Either active-request unique index may have fired.

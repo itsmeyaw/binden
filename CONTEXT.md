@@ -29,6 +29,12 @@ _Avoid_: Applicant
 A Workspace user whose Google Workspace administrative privileges authorize the relevant management action.
 _Avoid_: App administrator
 
+**Acting administrator**:
+The signed-in Administrator whose own OAuth grant makes every Directory call. No shared or stronger credential is ever used, and a denied call is reported rather than retried.
+
+**Manageable group**:
+A Group the acting administrator can write to. Google ties group writes to admin role privileges rather than to individual groups, so this is every Group for a super administrator or a holder of a role with the Groups privilege, and none otherwise.
+
 **Contact email**:
 An email address used to contact a person, distinct from their managed Workspace email address.
 
