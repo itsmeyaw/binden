@@ -1,0 +1,55 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M4P1DTKYFN9A8FRB410DE8WW",
+  "session_id": "ses_eed37da4effesJNi7PI4Z5mPkU",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-11T17:51:01.846153Z",
+  "branch": "main",
+  "checkpoints_count": 2,
+  "save_step_count": 1,
+  "files_touched": [
+    "test-results/.last-run.json"
+  ],
+  "agent": "OpenCode",
+  "model": "anthropic.claude-sonnet-5-5",
+  "turn_id": "ff59465bf302",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 4,
+    "cache_creation_tokens": 69982,
+    "cache_read_tokens": 0,
+    "output_tokens": 83,
+    "api_call_count": 2
+  },
+  "session_metrics": {
+    "turn_count": 2
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-10-11T17:51:01.842099Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 2329,
+    "human_modified": 91,
+    "human_removed": 0,
+    "total_committed": 2329,
+    "total_lines_changed": 2743,
+    "agent_percentage": 0,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 95,
+      "user_lines_removed": 87,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".opencode/plugins/entire.ts": 91,
+        "test-results/.last-run.json": 4
+      },
+      "user_removed_per_file": {
+        ".opencode/plugins/entire.ts": 87
+      }
+    }
+  ]
+}
