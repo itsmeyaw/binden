@@ -3,7 +3,7 @@
   "checkpoint_id": "01M53EY9WC3RT25REBNQ52BM8A",
   "strategy": "manual-commit",
   "branch": "auto-verify/signup",
-  "checkpoints_count": 3,
+  "checkpoints_count": 4,
   "files_touched": [
     "CONTEXT.md",
     "src/app/api/signup/route.ts",
@@ -28,6 +28,13 @@
       "transcript": "/1/full.jsonl",
       "compact_transcript": "/1/transcript.jsonl",
       "content_hash": "/1/content_hash.txt",
+      "prompt": ""
+    },
+    {
+      "metadata": "/2/metadata.json",
+      "transcript": "/2/full.jsonl",
+      "compact_transcript": "/2/transcript.jsonl",
+      "content_hash": "/2/content_hash.txt",
       "prompt": ""
     }
   ],
