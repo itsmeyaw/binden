@@ -9,7 +9,12 @@ export default function Loading() {
           Verified requests ready for an administrator&apos;s review.
         </p>
       </div>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <Skeleton className="h-8 w-full sm:max-w-xs" />
+        <Skeleton className="h-8 w-48" />
+      </div>
+      <div className="flex flex-col gap-3 rounded-lg border p-4">
+        <Skeleton className="h-10 w-full" />
         <Skeleton className="h-10 w-full" />
         <Skeleton className="h-10 w-full" />
         <Skeleton className="h-10 w-full" />
