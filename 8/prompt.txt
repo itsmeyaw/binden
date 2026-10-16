@@ -1,0 +1,1 @@
+If I remember correctly, there is a way to trigger email reset for the google workspace member and require them to change their own password via Oauth access token of an admin. How I can do that.

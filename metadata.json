@@ -3,7 +3,7 @@
   "checkpoint_id": "01M53DSFDX6W4D5FXW5D7R861G",
   "strategy": "manual-commit",
   "branch": "main",
-  "checkpoints_count": 14,
+  "checkpoints_count": 16,
   "files_touched": [
     "src/lib/auth.ts"
   ],
@@ -63,13 +63,20 @@
       "compact_transcript": "/7/transcript.jsonl",
       "content_hash": "/7/content_hash.txt",
       "prompt": "/7/prompt.txt"
+    },
+    {
+      "metadata": "/8/metadata.json",
+      "transcript": "/8/full.jsonl",
+      "compact_transcript": "/8/transcript.jsonl",
+      "content_hash": "/8/content_hash.txt",
+      "prompt": "/8/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 76,
-    "cache_creation_tokens": 149124,
-    "cache_read_tokens": 3144139,
-    "output_tokens": 12579,
-    "api_call_count": 35
+    "input_tokens": 144,
+    "cache_creation_tokens": 663692,
+    "cache_read_tokens": 6497489,
+    "output_tokens": 32574,
+    "api_call_count": 67
   }
 }
