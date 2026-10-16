@@ -3,7 +3,7 @@
   "checkpoint_id": "01M53HZHR88EBT9ANG9WJNBYVR",
   "strategy": "manual-commit",
   "branch": "fix/group-membership",
-  "checkpoints_count": 6,
+  "checkpoints_count": 7,
   "files_touched": [
     "tests/fake-directory.ts",
     "tests/provisioning.ts"
@@ -49,6 +49,13 @@
       "transcript": "/5/full.jsonl",
       "compact_transcript": "/5/transcript.jsonl",
       "content_hash": "/5/content_hash.txt",
+      "prompt": ""
+    },
+    {
+      "metadata": "/6/metadata.json",
+      "transcript": "/6/full.jsonl",
+      "compact_transcript": "/6/transcript.jsonl",
+      "content_hash": "/6/content_hash.txt",
       "prompt": ""
     }
   ],
