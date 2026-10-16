@@ -341,7 +341,12 @@ export function ReviewRequest({ id }: { id: string }) {
 
   return (
     <section className="min-h-0 p-4 lg:overflow-y-auto">
-      <Button className="mb-4" type="button" variant="ghost" render={<Link href="/review" />}>
+      <Button
+        className="mb-4"
+        nativeButton={false}
+        variant="ghost"
+        render={<Link href="/review" />}
+      >
         <ArrowLeftIcon /> Back to requests
       </Button>
       {state.status === "loading" && (

@@ -39,7 +39,7 @@ type SignupRequest = {
   givenName: string;
   familyName: string;
   contactEmail: string;
-  workspaceEmail: string;
+  workspaceEmail: string | null;
   status:
     | "verified"
     | "rejection_pending_notification"
@@ -115,11 +115,11 @@ export function ReviewQueue() {
     if (statusFilter !== "all" && request.status !== statusFilter) return false;
     if (!query) return true;
     const fullName = `${request.givenName} ${request.familyName}`;
-    return [fullName, request.contactEmail, request.workspaceEmail].some((value) =>
+    return [fullName, request.contactEmail, request.workspaceEmail ?? ""].some((value) =>
       value.toLowerCase().includes(query),
     );
   });
-  const filtering = search !== "" || statusFilter !== "all";
+  const filtering = query !== "" || statusFilter !== "all";
   const presentStatuses = (Object.keys(labels) as SignupRequest["status"][]).filter((status) =>
     requests.some((request) => request.status === status),
   );
