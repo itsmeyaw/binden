@@ -1,0 +1,1 @@
+Improve the UI/UX for dashboard, login, signup, and especially the sign up request screen. The base should still be shadcn. Make the table for signup request to be searchable and filterable. Orchestrate simple-implementation agents for coding.
