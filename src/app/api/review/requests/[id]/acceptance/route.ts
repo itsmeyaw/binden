@@ -53,7 +53,7 @@ export async function POST(
       await acceptSignupRequest(id, access.profile.id);
     }
     // No-op unless the request is still `accepted`, so a crash between the steps self-heals.
-    await provisionAcceptedRequest(id);
+    await provisionAcceptedRequest(id, access);
     const progress = await getProvisioningProgress(id, access);
     if (!progress) return json({ error: "This signup request is no longer available." }, 409);
     return json({ progress });

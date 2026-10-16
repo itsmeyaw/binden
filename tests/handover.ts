@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 
+import { actor } from "./fake-directory";
+
 try {
   process.loadEnvFile(".env.local");
 } catch {
@@ -85,7 +87,7 @@ async function main() {
     // Handover is blocked until provisioning has finished every selected membership.
     const partial = await seed("verified", ["sim-events", "sim-flaky"]);
     await acceptSignupRequest(partial, "admin-1");
-    await provisionAcceptedRequest(partial);
+    await provisionAcceptedRequest(partial, actor);
     assert.equal((await row(partial)).status, "provisioning");
     assert.equal(await confirmHandover(partial, "admin-2"), "blocked");
     assert.equal((await row(partial)).handoverConfirmedAt, null);
@@ -94,7 +96,7 @@ async function main() {
     // Confirmation is recorded once; concurrent and repeated confirmations do not duplicate it.
     const ok = await seed("verified", ["sim-events"]);
     await acceptSignupRequest(ok, "admin-1");
-    await provisionAcceptedRequest(ok);
+    await provisionAcceptedRequest(ok, actor);
     assert.equal((await row(ok)).status, "awaiting_handover");
     const results = await Promise.all([
       confirmHandover(ok, "admin-2"),
@@ -118,7 +120,7 @@ async function main() {
     // A membership that is no longer added blocks a not-yet-confirmed handover.
     const regress = await seed("verified", ["sim-events"]);
     await acceptSignupRequest(regress, "admin-1");
-    await provisionAcceptedRequest(regress);
+    await provisionAcceptedRequest(regress, actor);
     await db
       .update(signupRequestGroup)
       .set({ state: "failed" })

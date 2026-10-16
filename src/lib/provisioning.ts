@@ -39,18 +39,28 @@ export async function acceptSignupRequest(id: string, approverDirectoryId: strin
 // Only the caller that moves accepted -> provisioning creates the account, and `attempting`
 // is persisted in that same statement, so an interrupted create is never silently repeated.
 // ponytail: runs inline in the accept request; an uncertain create waits for reconciliation (#11).
-export async function provisionAcceptedRequest(id: string) {
+export async function provisionAcceptedRequest(id: string, actor: Actor) {
   const db = getDb();
   const [claimed] = await db
     .update(signupRequest)
     .set({ status: "provisioning", accountCreateState: "attempting" })
     .where(and(eq(signupRequest.id, id), eq(signupRequest.status, "accepted")))
-    .returning({ workspaceEmail: signupRequest.workspaceEmail });
+    .returning({
+      workspaceEmail: signupRequest.workspaceEmail,
+      givenName: signupRequest.givenName,
+      familyName: signupRequest.familyName,
+    });
   if (!claimed?.workspaceEmail) return;
 
   let userId: string;
   try {
-    userId = (await createWorkspaceUser(claimed.workspaceEmail)).id;
+    userId = (
+      await createWorkspaceUser(actor, {
+        email: claimed.workspaceEmail,
+        givenName: claimed.givenName,
+        familyName: claimed.familyName,
+      })
+    ).id;
   } catch {
     // Any failure may have reached Google: keep it for reconciliation, do not repeat it.
     await db

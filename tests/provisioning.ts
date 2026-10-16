@@ -54,7 +54,7 @@ async function main() {
   // Mirrors the route: accept, then provision; both are safe to repeat and to race.
   const accept = async (id: string) => {
     await acceptSignupRequest(id, "admin-1");
-    await provisionAcceptedRequest(id);
+    await provisionAcceptedRequest(id, actor);
   };
 
   try {
@@ -150,6 +150,23 @@ async function main() {
     assert.equal(await retryProvisioning(uncertain), "uncertain");
     assert.equal((await getProvisioningProgress(uncertain, actor))?.groups[0].state, "pending");
     assert.equal(await retryProvisioning(ok), "unavailable");
+
+    // Without simulation the account is created through the Directory with the seeded names.
+    const real = await seed("real", []);
+    delete env.GOOGLE_SIMULATION;
+    try {
+      await accept(real);
+    } finally {
+      env.GOOGLE_SIMULATION = "true";
+    }
+    const [created] = await db.select().from(signupRequest).where(eq(signupRequest.id, real));
+    assert.equal(created.googleUserId, `new-${created.workspaceEmail}`);
+    assert.equal(created.accountCreateState, "created");
+    assert.equal((await getProvisioningProgress(real, actor))?.status, "awaiting_handover");
+    const insert = directory.writes.find(
+      (write) => write.body.primaryEmail === created.workspaceEmail,
+    );
+    assert.deepEqual(insert?.body.name, { givenName: "Test", familyName: "Person" });
   } finally {
     directory.restore();
     for (const id of ids) await db.delete(signupRequest).where(eq(signupRequest.id, id));

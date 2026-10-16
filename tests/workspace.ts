@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 
 import { sendMailAsActor } from "../src/lib/gmail";
+import { createWorkspaceUser, resetWorkspacePassword } from "../src/lib/directory";
 import { hasReviewerRole, readWorkspaceProfile, WorkspaceUnavailable } from "../src/lib/workspace";
 import { actor, fakeDirectory } from "./fake-directory";
 
@@ -132,9 +133,76 @@ async function testMailAsActor() {
   }
 }
 
+async function testDirectoryWrites() {
+  const env = process.env as Record<string, string | undefined>;
+  const simulation = env.GOOGLE_SIMULATION;
+  const domain = env.GOOGLE_WORKSPACE_DOMAIN;
+  delete env.GOOGLE_SIMULATION;
+  const directory = fakeDirectory({ users: ["ada@example.org"] });
+  try {
+    const created = await createWorkspaceUser(actor, {
+      email: "new.person@example.org",
+      givenName: "New",
+      familyName: "Person",
+    });
+    assert.deepEqual(created, { id: "new-new.person@example.org" });
+    const [{ method, path, body }] = directory.writes.slice(-1);
+    assert.equal(method, "POST");
+    assert.equal(path, "users");
+    const password = String(body.password);
+    assert.equal(password.length, 43);
+    assert.deepEqual(body, {
+      primaryEmail: "new.person@example.org",
+      name: { givenName: "New", familyName: "Person" },
+      password,
+      changePasswordAtNextLogin: true,
+    });
+    assert.doesNotMatch(JSON.stringify(created), new RegExp(password));
+
+    await assert.rejects(
+      createWorkspaceUser(actor, { email: "ada@example.org", givenName: "A", familyName: "B" }),
+      WorkspaceUnavailable,
+    );
+
+    const reset = await resetWorkspacePassword(actor, "ada@example.org");
+    assert.equal(reset.length, 16);
+    assert.deepEqual(directory.writes.at(-1), {
+      method: "PATCH",
+      path: "users/ada@example.org",
+      body: { password: reset, changePasswordAtNextLogin: true },
+    });
+    await assert.rejects(
+      resetWorkspacePassword(actor, "missing@example.org"),
+      WorkspaceUnavailable,
+    );
+
+    // Simulation keeps the old behaviour: no Directory calls, same identifiers.
+    const writes = directory.writes.length;
+    env.GOOGLE_SIMULATION = "true";
+    env.GOOGLE_WORKSPACE_DOMAIN = "example.org";
+    assert.deepEqual(
+      await createWorkspaceUser(actor, {
+        email: "sim@example.org",
+        givenName: "S",
+        familyName: "I",
+      }),
+      { id: "sim-user-sim@example.org" },
+    );
+    assert.equal(typeof (await resetWorkspacePassword(actor, "sim@example.org")), "string");
+    assert.equal(directory.writes.length, writes);
+  } finally {
+    directory.restore();
+    if (simulation === undefined) delete env.GOOGLE_SIMULATION;
+    else env.GOOGLE_SIMULATION = simulation;
+    if (domain === undefined) delete env.GOOGLE_WORKSPACE_DOMAIN;
+    else env.GOOGLE_WORKSPACE_DOMAIN = domain;
+  }
+}
+
 testWorkspaceFailures()
   .then(testReviewerRoleLookup)
   .then(testMailAsActor)
+  .then(testDirectoryWrites)
   .catch((error: unknown) => {
     throw error;
   });
