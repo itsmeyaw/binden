@@ -88,8 +88,6 @@ export async function listManageableGroups(actor: Actor): Promise<ManageableGrou
   return groups.sort((a, b) => a.name.localeCompare(b.name));
 }
 
-// ponytail: group membership writes stay simulated until a later change; without GOOGLE_SIMULATION
-// they report the Workspace unavailable.
 function simulatedDomain() {
   const domain = process.env.GOOGLE_WORKSPACE_DOMAIN;
   if (process.env.GOOGLE_SIMULATION !== "true" || process.env.NODE_ENV === "production" || !domain)
@@ -146,12 +144,23 @@ export async function resetWorkspacePassword(actor: Actor, userKey: string): Pro
 const attempted = new Set<string>();
 
 // `sim-gone` is not listed as manageable (deleted or no longer manageable) and always fails.
-export async function addGroupMember(groupId: string, userId: string, _role: string) {
-  simulatedDomain();
-  if (groupId === "sim-flaky" || groupId === "sim-gone")
-    throw new Error("Group membership rejected");
-  if (groupId === "sim-recovering" && !attempted.has(`${userId}:${groupId}`)) {
-    attempted.add(`${userId}:${groupId}`);
-    throw new Error("Group membership rejected");
+export async function addGroupMember(actor: Actor, groupId: string, userId: string, role: string) {
+  if (process.env.GOOGLE_SIMULATION === "true") {
+    simulatedDomain();
+    if (groupId === "sim-flaky" || groupId === "sim-gone")
+      throw new Error("Group membership rejected");
+    if (groupId === "sim-recovering" && !attempted.has(`${userId}:${groupId}`)) {
+      attempted.add(`${userId}:${groupId}`);
+      throw new Error("Group membership rejected");
+    }
+    return;
   }
+  // A 409 means the user is already a member, which counts as added.
+  await googleSend(
+    `${directory}/groups/${encodeURIComponent(groupId)}/members`,
+    actor.accessToken,
+    "POST",
+    { id: userId, role: role.toUpperCase() },
+    true,
+  );
 }

@@ -40,6 +40,8 @@ export function fakeDirectory(options: Options = {}) {
   // Directory writes, in order; bodies include passwords, so tests only.
   const writes: { method: string; path: string; body: Record<string, unknown> }[] = [];
   const known = new Set(users.map((email) => email.toLowerCase()));
+  // Memberships added through the Directory as `group:user`; a repeat answers 409 like Google.
+  const members = new Set<string>();
   const page = <T>(all: T[], url: URL, key: string) => {
     const start = Number(url.searchParams.get("pageToken") ?? 0);
     const next = start + pageSize;
@@ -68,7 +70,7 @@ export function fakeDirectory(options: Options = {}) {
       return Response.json({}, { status: 401 });
     if (status) return Response.json({ error: { message: "denied" } }, { status });
     const path = decodeURIComponent(url.pathname.replace("/admin/directory/v1/", ""));
-    const [kind, key] = path.split("/");
+    const [kind, key, sub] = path.split("/");
     if (kind === "users" && !key && init?.method === "POST") {
       const body = JSON.parse(String(init.body));
       writes.push({ method: "POST", path, body });
@@ -96,6 +98,15 @@ export function fakeDirectory(options: Options = {}) {
     if (path.startsWith("customer/my_customer/roles/")) {
       const role = roles[path.split("/")[3]];
       return role ? Response.json(role) : notFound();
+    }
+    if (kind === "groups" && sub === "members" && init?.method === "POST") {
+      const body = JSON.parse(String(init.body));
+      writes.push({ method: "POST", path, body });
+      const member = `${key}:${String(body.id)}`;
+      if (members.has(member))
+        return Response.json({ error: { message: "Member already exists" } }, { status: 409 });
+      members.add(member);
+      return Response.json({ id: body.id, role: body.role });
     }
     if (kind === "groups" && key)
       return groups.some((group) => group.email === key) ? Response.json({ id: "g" }) : notFound();

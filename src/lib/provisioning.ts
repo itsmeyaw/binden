@@ -75,15 +75,15 @@ export async function provisionAcceptedRequest(id: string, actor: Actor) {
     .set({ accountCreateState: "created", googleUserId: userId })
     .where(eq(signupRequest.id, id));
 
-  await addUnfinishedMemberships(id, userId);
+  await addUnfinishedMemberships(id, userId, actor);
   await completeIfAllAdded(id);
   await sendHandoverBestEffort(id, actor);
 }
 
 // Touches only `pending` and `failed` groups, so successful memberships are never re-sent.
-// ponytail: overlapping retries can both try one unfinished group; the real Directory call (#11)
-// must treat "already a member" as success.
-async function addUnfinishedMemberships(id: string, userId: string) {
+// ponytail: overlapping retries can both try one unfinished group; the Directory call treats
+// "already a member" as success.
+async function addUnfinishedMemberships(id: string, userId: string, actor: Actor) {
   const db = getDb();
   const groups = await db
     .select()
@@ -97,7 +97,7 @@ async function addUnfinishedMemberships(id: string, userId: string) {
   for (const group of groups) {
     let state = "added";
     try {
-      await addGroupMember(group.groupId, userId, group.role);
+      await addGroupMember(actor, group.groupId, userId, group.role);
     } catch {
       state = "failed";
     }
@@ -154,7 +154,7 @@ export async function retryProvisioning(
     .where(eq(signupRequest.id, id));
   if (request?.status !== "provisioning") return "unavailable";
   if (request.state !== "created" || !request.googleUserId) return "uncertain";
-  await addUnfinishedMemberships(id, request.googleUserId);
+  await addUnfinishedMemberships(id, request.googleUserId, actor);
   await completeIfAllAdded(id);
   await sendHandoverBestEffort(id, actor);
   return "retried";
