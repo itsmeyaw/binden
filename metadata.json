@@ -3,7 +3,7 @@
   "checkpoint_id": "01M53GRSGGBGTH002JXHFZRH35",
   "strategy": "manual-commit",
   "branch": "ui/request-sheet",
-  "checkpoints_count": 9,
+  "checkpoints_count": 10,
   "files_touched": [
     "src/components/review-queue.tsx",
     "tests/review.spec.ts"
@@ -63,6 +63,13 @@
       "transcript": "/7/full.jsonl",
       "compact_transcript": "/7/transcript.jsonl",
       "content_hash": "/7/content_hash.txt",
+      "prompt": ""
+    },
+    {
+      "metadata": "/8/metadata.json",
+      "transcript": "/8/full.jsonl",
+      "compact_transcript": "/8/transcript.jsonl",
+      "content_hash": "/8/content_hash.txt",
       "prompt": ""
     }
   ],
