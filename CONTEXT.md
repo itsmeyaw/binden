@@ -55,7 +55,7 @@ A Workspace user's proposed contact email or phone changes awaiting approval tog
 _Avoid_: Profile update
 
 **Account handover**:
-Sending first-login instructions to an approved applicant after provisioning is complete, explicitly confirmed by an administrator. Confirmation means the instructions were sent, not that the applicant has signed in.
+Sending the first-login email to an approved applicant once provisioning is complete. The account's password is reset to a temporary password that must be changed at first sign-in, and the email is sent to the applicant's contact email as the acting administrator. Sending does not mean the email was delivered or that the applicant has signed in.
 
 **Suspension**:
 Reversible deactivation of a Workspace account that retains the account and its data.

@@ -1,0 +1,7 @@
+# Automate account handover with a temporary password email
+
+When an administrator accepts a signup request, the application creates the Workspace user with a throwaway password that must be changed at next sign-in. Once every selected membership has succeeded, the application resets that password to a random temporary password, again requiring a change at next sign-in, and emails it to the applicant's verified contact email through Gmail, sent as the acting administrator. This replaces the manual Admin console steps and the "confirm instructions were sent" step. Reset and mail failures leave the request awaiting the email, and an administrator can send it again from the request page.
+
+This supersedes ADR 0001's rejection of emailing a plaintext password for the handover message, and, for this message only, ADR 0002's dedicated-mailbox sender. The acting administrator's `gmail.send` grant sends the email, so the application holds no separate mailbox credential for it.
+
+The trade-off is honest: a temporary password travels in plaintext email. The application limits the exposure by requiring a change at first sign-in, invalidating the earlier password whenever a new one is sent, and never storing or logging the password, which is kept out of mail records and the request row. The residual risk is that someone who can read the applicant's mailbox before first sign-in can use the password. The application does not confirm delivery or sign-in; the email records only that it was sent.
