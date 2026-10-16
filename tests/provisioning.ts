@@ -25,6 +25,7 @@ async function main() {
     retryProvisioning,
     reviseAssignment,
   } = await import("../src/lib/provisioning");
+  const { addGroupMember } = await import("../src/lib/directory");
 
   const directory = fakeDirectory();
   const ids: string[] = [];
@@ -152,21 +153,31 @@ async function main() {
     assert.equal(await retryProvisioning(ok, actor), "unavailable");
 
     // Without simulation the account is created through the Directory with the seeded names.
-    const real = await seed("real", []);
+    const real = await seed("real", ["sim-events"]);
     delete env.GOOGLE_SIMULATION;
     try {
       await accept(real);
+      const [row] = await db.select().from(signupRequest).where(eq(signupRequest.id, real));
+      // A repeated add gets 409 from Google, which counts as added.
+      await addGroupMember(actor, "sim-events", row.googleUserId!, "member");
     } finally {
       env.GOOGLE_SIMULATION = "true";
     }
     const [created] = await db.select().from(signupRequest).where(eq(signupRequest.id, real));
     assert.equal(created.googleUserId, `new-${created.workspaceEmail}`);
     assert.equal(created.accountCreateState, "created");
-    assert.equal((await getProvisioningProgress(real, actor))?.status, "handover_confirmed");
+    progress = await getProvisioningProgress(real, actor);
+    assert.equal(progress?.status, "handover_confirmed");
+    assert.equal(progress?.groups[0].state, "added");
     const insert = directory.writes.find(
       (write) => write.body.primaryEmail === created.workspaceEmail,
     );
     assert.deepEqual(insert?.body.name, { givenName: "Test", familyName: "Person" });
+    const membership = directory.writes.filter(
+      (write) => write.path === "groups/sim-events/members",
+    );
+    assert.equal(membership.length, 2);
+    assert.deepEqual(membership[0].body, { id: created.googleUserId, role: "MEMBER" });
   } finally {
     directory.restore();
     for (const id of ids) await db.delete(signupRequest).where(eq(signupRequest.id, id));
