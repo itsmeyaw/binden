@@ -1,5 +1,1 @@
 I got 503 error in the API when trying to signup in localhost:3000
-
----
-
-Why do I need that?
