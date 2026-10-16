@@ -1,0 +1,42 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M53HYJFGC647AFTGPYXWBYPD",
+  "session_id": "ses_eb939765affeDoAKZgz02ARGJJ",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-16T23:50:23.970057Z",
+  "branch": "fix/group-membership",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/lib/directory.ts",
+    "src/lib/provisioning.ts",
+    "src/lib/workspace.ts"
+  ],
+  "agent": "OpenCode",
+  "model": "anthropic.claude-haiku-5-5",
+  "turn_id": "de48dfbf71cb",
+  "checkpoint_transcript_start": 26,
+  "transcript_lines_at_start": 26,
+  "compact_transcript_start": 26,
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "session_metrics": {
+    "turn_count": 1
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-10-16T23:50:23.949937Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 0,
+    "human_modified": 28,
+    "human_removed": 0,
+    "total_committed": 0,
+    "total_lines_changed": 28,
+    "agent_percentage": 0,
+    "metric_version": 2
+  }
+}
