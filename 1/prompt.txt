@@ -1,0 +1,21 @@
+You are implementing a small UI change in a Next.js 16 + shadcn (style "base-nova", built on @base-ui/react, NOT radix) + Tailwind v4 app.
+
+WORK ONLY in this git worktree: /Users/itsmeyaw/projects/binden/.worktrees/ui-polish (branch `ui/dashboard-shell`, already checked out). Do not touch /Users/itsmeyaw/projects/binden itself. Do not switch branches, do not push.
+
+Rules:
+- Use shadcn components + Tailwind utility classes only. Never write custom CSS. If a shadcn component is missing from src/components/ui, add it with the shadcn CLI. NOTE: `pnpm`/`pnpm exec` refuse to run here because node_modules is a symlink outside the worktree; use `npx shadcn@latest add <name>` or `./node_modules/.bin/shadcn add <name>` instead, and run tools as `./node_modules/.bin/tsc --noEmit`, `./node_modules/.bin/oxlint --deny-warnings .`, `./node_modules/.bin/oxfmt --write .`. If tsc complains about missing PageProps/LayoutProps types, run `./node_modules/.bin/next typegen` first. Make sure the shadcn CLI writes into the worktree's src/components/ui, and that it does not modify package.json/lockfile unexpectedly (base-nova breadcrumb should need no new deps; if it adds one, report it).
+- Minimal, boring code. No new abstractions beyond what's described. Preserve accessible names used by e2e tests (tests/review.spec.ts): heading "Sign up requests" and link "Back to requests" live in other components — do not touch src/components/review-queue.tsx, review-workspace.tsx, review-request.tsx in this task.
+
+TASK: polish the admin dashboard shell at src/app/review/layout.tsx and src/components/review-sidebar.tsx.
+
+1. Sidebar header (review-sidebar.tsx): replace the plain text span with the shadcn sidebar-07-style brand item: SidebarMenu > SidebarMenuItem > SidebarMenuButton size="lg" rendered as a Link to "/review" (`render={<Link href="/review" />}`), containing a `flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground` square with lucide `UsersRoundIcon` (className size-4) — this matches the brand mark in src/components/auth-shell.tsx — and a two-line text block: "PM3 Muenchen e.V." (truncate font-medium) and "Workspace admin" (truncate text-xs). It collapses naturally in icon mode, so drop the `group-data-[collapsible=icon]:hidden` hack.
+   Rename the nav group label from "Workspace" to "Administration", and the menu item label/tooltip from "Signup Review" to "Signup requests". Keep the icon.
+2. Header (layout.tsx): add the shadcn `breadcrumb` component. Replace the h1 "Signup Review" with a breadcrumb. Since the layout is a server component, create a tiny client component in `src/components/review-breadcrumb.tsx` using `usePathname()`:
+   - On "/review": Breadcrumb > BreadcrumbList > BreadcrumbItem > BreadcrumbPage "Signup requests".
+   - On "/review/<id>": BreadcrumbItem > BreadcrumbLink to "/review" "Signup requests" (base-nova BreadcrumbLink likely takes `render={<Link href="/review" />}`; check the generated file), BreadcrumbSeparator, BreadcrumbItem > BreadcrumbPage "Request details".
+   Keep header as `flex h-16 shrink-0 items-center gap-2 px-4` with SidebarTrigger (add `className="-ml-1"`) and the vertical Separator (add `mr-2`), then the breadcrumb. Add `border-b` to the header? No — keep it borderless but give SidebarInset content consistent padding as today.
+3. Do not change anything else.
+
+VERIFY: tsc, oxlint, oxfmt (write, then re-check lint) must pass. Commit in the worktree in 1-2 small commits with concise imperative messages (e.g. "Add breadcrumb to the review header", "Brand the review sidebar"). No Co-Authored-By trailers. Include the generated src/components/ui/breadcrumb.tsx in the commit.
+
+Report back: files changed, commit hashes, anything you could not do.
