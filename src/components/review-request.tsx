@@ -1,8 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ArrowLeftIcon, CircleAlertIcon, InfoIcon, PencilIcon } from "lucide-react";
+import { CircleAlertIcon, InfoIcon, PencilIcon } from "lucide-react";
 
 import { ReviewAccess, type ReviewOutcome } from "@/components/review-access";
 import {
@@ -117,7 +116,7 @@ function rolesOf(plan: Plan) {
   return Object.fromEntries(plan.selected.map((group) => [group.groupId, group.role]));
 }
 
-export function ReviewRequest({ id }: { id: string }) {
+export function ReviewRequest({ id, onChanged }: { id: string; onChanged?: () => void }) {
   const [state, setState] = useState<State>({ status: "loading" });
   const [editing, setEditing] = useState(false);
   const [rejecting, setRejecting] = useState(false);
@@ -220,6 +219,7 @@ export function ReviewRequest({ id }: { id: string }) {
       });
       setEmailEdited(false);
       setEditing(false);
+      onChanged?.();
     } catch {
       setErrors({ contactEmail: "The correction could not be saved. Please try again." });
     } finally {
@@ -266,11 +266,13 @@ export function ReviewRequest({ id }: { id: string }) {
           progress: result.progress,
         });
         setAccepting(false);
+        onChanged?.();
         return;
       }
       if (response.status === 409 && result.error) {
         setAccepting(false);
         setState({ status: "missing" });
+        onChanged?.();
         return;
       }
       setAcceptError(
@@ -300,6 +302,7 @@ export function ReviewRequest({ id }: { id: string }) {
       const result = (await response.json()) as { errors?: Errors; outcome?: string };
       if (response.ok) {
         setState({ status: "missing" });
+        onChanged?.();
         return;
       }
       if (result.outcome === "rejection-notification-pending" && state.status === "ready") {
@@ -312,6 +315,7 @@ export function ReviewRequest({ id }: { id: string }) {
           },
         });
         setRejecting(false);
+        onChanged?.();
         return;
       }
       setErrors(
@@ -333,7 +337,10 @@ export function ReviewRequest({ id }: { id: string }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ retry: true }),
       });
-      if (response.ok) setState({ status: "missing" });
+      if (response.ok) {
+        setState({ status: "missing" });
+        onChanged?.();
+      }
     } finally {
       setPending(false);
     }
@@ -341,14 +348,6 @@ export function ReviewRequest({ id }: { id: string }) {
 
   return (
     <section className="min-h-0 p-4 lg:overflow-y-auto">
-      <Button
-        className="mb-4"
-        nativeButton={false}
-        variant="ghost"
-        render={<Link href="/review" />}
-      >
-        <ArrowLeftIcon /> Back to requests
-      </Button>
       {state.status === "loading" && (
         <div className="flex items-center gap-2 text-muted-foreground">
           <Spinner /> Loading request
