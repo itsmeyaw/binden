@@ -1,4 +1,4 @@
-import { createHash, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 
 import { expect, type Page, test } from "@playwright/test";
 import { Pool } from "pg";
@@ -299,7 +299,6 @@ test.describe("verified signup request review", () => {
     test("resends the first-login email from a request awaiting it, recording only that it was sent", async ({
       page,
     }) => {
-      const group = process.env.E2E_REVIEWER_NOTIFICATION_GROUP;
       const id = await seed("Hand", "Over", `handover.${randomUUID().slice(0, 8)}@${domain}`);
       // A request whose first-login email failed on accept: the account exists, nothing was sent.
       await pool.query(
@@ -329,13 +328,10 @@ test.describe("verified signup request review", () => {
       expect(saved.handover_confirmed_at).toBeTruthy();
       expect(saved.handover_confirmed_by_directory_id).toBeTruthy();
 
-      // Repeating is safe; only a minimal notice to the reviewer group is captured.
+      // Repeating is safe and sends nothing further.
       const again = await page.request.post(`/api/review/requests/${id}/handover`);
       expect((await again.json()).progress.status).toBe("handover_confirmed");
-      const messages = await mailTo(id);
-      expect(messages).toHaveLength(1);
-      if (group) expect(messages[0].to).toBe(group);
-      expect(messages[0].text).not.toMatch(/Hand Over/i);
+      expect(await mailTo(id)).toHaveLength(0);
 
       await page.goto("/review");
       await expect(page.getByRole("link", { name: /Hand Over/ })).toContainText(
@@ -360,54 +356,13 @@ test.describe("verified signup request review", () => {
       expect(response.status()).toBe(409);
       expect((await row(id)).status).toBe("verified");
     });
-
-    test("verification notifies reviewers with a queue link, and a failed notice is retryable", async ({
-      page,
-      request,
-    }) => {
-      const group = process.env.E2E_REVIEWER_NOTIFICATION_GROUP;
-      test.skip(
-        !group,
-        "Set E2E_REVIEWER_NOTIFICATION_GROUP to the server's REVIEWER_NOTIFICATION_GROUP.",
-      );
-      const id = randomUUID();
-      ids.push(id);
-      const token = randomUUID();
-      const hash = createHash("sha256").update(token).digest("hex");
-      await pool.query(
-        `insert into signup_request
-          (id, given_name, family_name, contact_email, status, verification_token_hash, verification_expires_at)
-         values ($1, 'Notify', 'Me', $2, 'pending_verification', $3, now() + interval '1 day')`,
-        [id, `notify-${id}@example.test`, hash],
-      );
-      const verified = await request.get(`/api/verify?token=${token}`);
-      expect((await verified.json()).outcome).toBe("verified");
-      const [notice] = await mailTo(id);
-      expect(notice.to).toBe(group);
-      expect(notice.text).toContain("/review");
-      expect(notice.text).not.toMatch(/Notify Me|example\.test/);
-
-      // Simulate a failed delivery: the request stays reviewable and can be retried.
-      await pool.query("delete from mail_message where signup_request_id = $1", [id]);
-      await pool.query(
-        "update signup_request set reviewer_notification_state = 'failed' where id = $1",
-        [id],
-      );
-      await page.goto(`/review/${id}`);
-      await expect(page.getByText("Reviewer notification not sent")).toBeVisible();
-      await expect(page.getByRole("button", { name: "Accept request" })).toBeEnabled();
-      await page.getByRole("button", { name: "Retry notification" }).click();
-      await expect(page.getByText("Reviewer notification not sent")).toBeHidden();
-      expect(await mailTo(id)).toHaveLength(1);
-    });
   });
 
-  test("handover and notification routes refuse signed-out callers", async ({ playwright }) => {
+  test("the handover route refuses signed-out callers", async ({ playwright }) => {
     const anonymous = await playwright.request.newContext({ baseURL: process.env.E2E_BASE_URL });
     const id = randomUUID();
     const handover = await anonymous.post(`/api/review/requests/${id}/handover`);
-    const notification = await anonymous.post(`/api/review/requests/${id}/notification`);
-    expect([handover.status(), notification.status()]).toEqual([401, 401]);
+    expect(handover.status()).toBe(401);
     await anonymous.dispose();
   });
 
