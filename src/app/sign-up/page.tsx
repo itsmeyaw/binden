@@ -1,7 +1,8 @@
+import Link from "next/link";
+
 import { AuthShell } from "@/components/auth-shell";
 import { SignupForm } from "@/components/signup-form";
 import { FieldDescription } from "@/components/ui/field";
-import Link from "next/link";
 
 export default function SignUpPage() {
   return (
