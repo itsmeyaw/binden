@@ -40,6 +40,7 @@ An email address used to contact a person, distinct from their managed Workspace
 
 **Applicant-verified contact email**:
 A contact email whose ownership the applicant has demonstrated during signup.
+_Deferred_: verification is not implemented yet, so every signup request is treated as verified on submission.
 
 **Administrator-confirmed contact email**:
 A corrected signup-request contact email confirmed by an authorized administrator without requiring the applicant to verify the replacement address.

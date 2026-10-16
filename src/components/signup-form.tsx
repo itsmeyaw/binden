@@ -98,8 +98,7 @@ export function SignupForm() {
       <CardHeader>
         <CardTitle>Request a Workspace account</CardTitle>
         <CardDescription>
-          Tell us how to contact you. We will send a verification link before your request is
-          reviewed.
+          Tell us how to contact you. An administrator will review your request.
         </CardDescription>
       </CardHeader>
       <CardContent>

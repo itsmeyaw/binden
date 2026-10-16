@@ -12,7 +12,6 @@ import {
 } from "@/lib/directory";
 import { getDb } from "@/lib/db";
 import { sendMailAsActor } from "@/lib/gmail";
-import { captureReviewerMail } from "@/lib/review";
 import { signupRequest, signupRequestGroup, signupRequestRevision } from "@/lib/schema";
 
 const provisioningStatuses = [
@@ -284,18 +283,7 @@ export async function sendHandover(
       .where(eq(signupRequest.id, id));
     return true;
   });
-  if (sent) {
-    try {
-      await captureReviewerMail(
-        id,
-        "Workspace account handover confirmed",
-        "A first-login email with a temporary password was sent to the applicant.",
-      );
-    } catch {
-      // ponytail: the send stands; this notice is not retried.
-    }
-    return "sent";
-  }
+  if (sent) return "sent";
   const [request] = await db
     .select({ status: signupRequest.status })
     .from(signupRequest)

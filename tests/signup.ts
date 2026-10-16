@@ -1,12 +1,9 @@
 import assert from "node:assert/strict";
 
 import { createSignupHandler } from "../src/app/api/signup/route";
-import { createResendHandler } from "../src/app/api/verify/resend/route";
-import { createVerificationHandler } from "../src/app/api/verify/route";
 import { getDb } from "../src/lib/db";
 import { parseSignupInput } from "../src/lib/signup";
 import { verifyTurnstile } from "../src/lib/turnstile";
-import { parseResendInput } from "../src/lib/verification";
 
 const validInput = {
   givenName: " Ada ",
@@ -50,113 +47,6 @@ async function testTurnstile() {
   globalThis.fetch = originalFetch;
 }
 
-function verificationDatabase(
-  verified: ReadonlyArray<Record<string, unknown>>,
-  existing: ReadonlyArray<Record<string, unknown>> = [],
-) {
-  return {
-    update: () => ({
-      set: () => ({
-        where: () => ({ returning: async () => verified }),
-      }),
-    }),
-    select: () => ({
-      from: () => ({
-        where: () => ({ limit: async () => existing }),
-      }),
-    }),
-  } as unknown as ReturnType<typeof getDb>;
-}
-
-async function testVerificationEndpoint() {
-  const request = new Request("http://localhost/api/verify?token=token");
-  const successful = createVerificationHandler({
-    getDb: () => verificationDatabase([{ id: "request" }]),
-  });
-  assert.equal((await successful(request)).status, 200);
-  assert.deepEqual(await (await successful(request)).json(), { outcome: "verified" });
-
-  for (const [outcome, existing] of [
-    ["used", [{ status: "verified", verificationExpiresAt: new Date(Date.now() + 1_000) }]],
-    ["used", [{ status: "under_review", verificationExpiresAt: new Date(Date.now() + 1_000) }]],
-    ["expired", [{ status: "pending_verification", verificationExpiresAt: new Date(0) }]],
-    ["invalid", []],
-  ] as const) {
-    const handler = createVerificationHandler({ getDb: () => verificationDatabase([], existing) });
-    assert.deepEqual(await (await handler(request)).json(), { outcome });
-  }
-}
-
-function resendDatabase(updated: Array<{ id: string; contactEmail: string }>) {
-  const writes: Array<Record<string, unknown>> = [];
-  const transaction = async (callback: (tx: typeof transactionDb) => Promise<void>) =>
-    callback(transactionDb);
-  const transactionDb = {
-    update: () => ({
-      set: (value: Record<string, unknown>) => ({
-        where: () => ({
-          returning: async () => {
-            writes.push(value);
-            return updated;
-          },
-        }),
-      }),
-    }),
-    insert: () => ({
-      values: async (value: Record<string, unknown>) => writes.push(value),
-    }),
-  };
-  return { database: { transaction } as unknown as ReturnType<typeof getDb>, writes };
-}
-
-async function testResendEndpoint() {
-  process.env.MAIL_CAPTURE = "true";
-  process.env.APP_URL = "http://localhost:3000";
-  assert.equal(
-    parseResendInput({ contactEmail: " ADA@EXAMPLE.COM ", turnstileToken: "token" }).data
-      ?.contactEmail,
-    "ada@example.com",
-  );
-
-  const blocked = resendDatabase([{ id: "request", contactEmail: "ada@example.com" }]);
-  const blockedHandler = createResendHandler({
-    getDb: () => blocked.database,
-    verifyTurnstile: async () => false,
-  });
-  assert.equal(
-    (
-      await blockedHandler(
-        new Request("http://localhost/api/verify/resend", {
-          method: "POST",
-          body: JSON.stringify({ contactEmail: "ada@example.com", turnstileToken: "token" }),
-        }),
-      )
-    ).status,
-    403,
-  );
-  assert.equal(blocked.writes.length, 0);
-
-  const accepted = resendDatabase([{ id: "request", contactEmail: "ada@example.com" }]);
-  const acceptedHandler = createResendHandler({
-    getDb: () => accepted.database,
-    verifyTurnstile: async (_token, _request, action) => action === "resend",
-  });
-  assert.equal(
-    (
-      await acceptedHandler(
-        new Request("http://localhost/api/verify/resend", {
-          method: "POST",
-          body: JSON.stringify({ contactEmail: "ada@example.com", turnstileToken: "token" }),
-        }),
-      )
-    ).status,
-    200,
-  );
-  assert.equal(accepted.writes.length, 2);
-  assert.deepEqual(Object.keys(accepted.writes[0]), ["verificationTokenHash"]);
-  assert.match(accepted.writes[1].text as string, /http:\/\/localhost:3000\/verify\?token=/);
-}
-
 function request(body = validInput) {
   return new Request("http://localhost/api/signup", {
     method: "POST",
@@ -165,37 +55,20 @@ function request(body = validInput) {
   });
 }
 
-function testDatabase(batchError?: unknown) {
-  const writes: Array<Array<{ value: Record<string, unknown> }>> = [];
-  let deletions = 0;
-  const transactionDb = {
-    insert: () => ({
-      values: async (value: Record<string, unknown>) => writes.at(-1)!.push({ value }),
-    }),
-  };
+function testDatabase(error?: unknown) {
+  const writes: Array<Record<string, unknown>> = [];
   const database = {
-    delete: () => ({
-      where: async () => {
-        deletions += 1;
+    insert: () => ({
+      values: async (value: Record<string, unknown>) => {
+        if (error) throw error;
+        writes.push(value);
       },
     }),
-    transaction: async (callback: (tx: typeof transactionDb) => Promise<void>) => {
-      if (batchError) throw batchError;
-      writes.push([]);
-      await callback(transactionDb);
-    },
   };
-  return {
-    database: database as unknown as ReturnType<typeof getDb>,
-    deletions: () => deletions,
-    writes,
-  };
+  return { database: database as unknown as ReturnType<typeof getDb>, writes };
 }
 
 async function testSignupEndpoint() {
-  process.env.MAIL_CAPTURE = "true";
-  process.env.APP_URL = "http://localhost:3000";
-
   const blocked = testDatabase();
   const blockedHandler = createSignupHandler({
     getDb: () => blocked.database,
@@ -211,13 +84,8 @@ async function testSignupEndpoint() {
   });
   assert.equal((await acceptedHandler(request())).status, 201);
   assert.equal(accepted.writes.length, 1);
-  assert.equal(accepted.deletions(), 1);
-  assert.equal(accepted.writes[0][0].value.contactEmail, "ada@example.com");
-  assert.equal(accepted.writes[0][1].value.to, "ada@example.com");
-  assert.match(
-    accepted.writes[0][1].value.text as string,
-    /http:\/\/localhost:3000\/verify\?token=/,
-  );
+  assert.equal(accepted.writes[0].contactEmail, "ada@example.com");
+  assert.equal(accepted.writes[0].status, "verified");
 
   const duplicate = testDatabase(Object.assign(new Error("duplicate"), { code: "23505" }));
   const duplicateHandler = createSignupHandler({
@@ -230,8 +98,6 @@ async function testSignupEndpoint() {
 
 testTurnstile()
   .then(testSignupEndpoint)
-  .then(testVerificationEndpoint)
-  .then(testResendEndpoint)
   .catch((error: unknown) => {
     throw error;
   });
