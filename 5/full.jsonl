@@ -1,0 +1,132 @@
+{
+  "info": {
+    "id": "ses_eb9445017ffeOeqcBUa7NiS2Dj",
+    "slug": "jolly-star",
+    "projectID": "28efaf3c63c31d4caa53f01b1bf0333a974090a1",
+    "directory": "/Users/itsmeyaw/projects/binden",
+    "path": "",
+    "title": "AGENTS.md file opened with minimal input",
+    "agent": "build",
+    "model": {
+      "id": "anthropic.claude-opus-5-5",
+      "providerID": "amazon-bedrock",
+      "variant": "medium"
+    },
+    "version": "1.18.34",
+    "summary": {
+      "additions": 0,
+      "deletions": 0,
+      "files": 0
+    },
+    "cost": 0,
+    "tokens": {
+      "input": 0,
+      "output": 0,
+      "reasoning": 0,
+      "cache": {
+        "read": 0,
+        "write": 0
+      }
+    },
+    "time": {
+      "created": 1792188067816,
+      "updated": 1792188068308
+    }
+  },
+  "messages": [
+    {
+      "info": {
+        "role": "user",
+        "time": {
+          "created": 1792188067842
+        },
+        "agent": "build",
+        "model": {
+          "providerID": "amazon-bedrock",
+          "modelID": "anthropic.claude-opus-5-5",
+          "variant": "medium"
+        },
+        "summary": {
+          "diffs": []
+        },
+        "id": "msg_146bbb0020016ZlstQ2cVhE9Nq",
+        "sessionID": "ses_eb9445017ffeOeqcBUa7NiS2Dj"
+      },
+      "parts": [
+        {
+          "type": "text",
+          "text": "<system-reminder>Note: The user opened the file \"/Users/itsmeyaw/projects/binden/AGENTS.md\". This may or may not be relevant to the current task.</system-reminder>\n",
+          "synthetic": true,
+          "metadata": {
+            "kind": "editor_context",
+            "source": "websocket",
+            "filePath": "/Users/itsmeyaw/projects/binden/AGENTS.md",
+            "ranges": [
+              {
+                "text": "",
+                "selection": {
+                  "start": {
+                    "line": 19,
+                    "character": 32
+                  },
+                  "end": {
+                    "line": 19,
+                    "character": 32
+                  }
+                }
+              }
+            ]
+          },
+          "id": "prt_146bbb004001coxgU3W1TOPKQl",
+          "sessionID": "ses_eb9445017ffeOeqcBUa7NiS2Dj",
+          "messageID": "msg_146bbb0020016ZlstQ2cVhE9Nq"
+        },
+        {
+          "type": "text",
+          "text": "o",
+          "id": "prt_146bbb004002KWw0t4HRXyj3n8",
+          "sessionID": "ses_eb9445017ffeOeqcBUa7NiS2Dj",
+          "messageID": "msg_146bbb0020016ZlstQ2cVhE9Nq"
+        }
+      ]
+    },
+    {
+      "info": {
+        "parentID": "msg_146bbb0020016ZlstQ2cVhE9Nq",
+        "role": "assistant",
+        "mode": "build",
+        "agent": "build",
+        "variant": "medium",
+        "path": {
+          "cwd": "/Users/itsmeyaw/projects/binden",
+          "root": "/Users/itsmeyaw/projects/binden"
+        },
+        "cost": 0,
+        "tokens": {
+          "input": 0,
+          "output": 0,
+          "reasoning": 0,
+          "cache": {
+            "read": 0,
+            "write": 0
+          }
+        },
+        "modelID": "anthropic.claude-opus-5-5",
+        "providerID": "amazon-bedrock",
+        "time": {
+          "created": 1792188068163,
+          "completed": 1792188071078
+        },
+        "error": {
+          "name": "MessageAbortedError",
+          "data": {
+            "message": "Aborted"
+          }
+        },
+        "id": "msg_146bbb143001eOIPLthWY6qwVa",
+        "sessionID": "ses_eb9445017ffeOeqcBUa7NiS2Dj"
+      },
+      "parts": []
+    }
+  ]
+}
