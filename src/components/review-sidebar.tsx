@@ -48,10 +48,10 @@ export function ReviewSidebar() {
                 <SidebarMenuButton
                   isActive={pathname.startsWith("/review")}
                   render={<Link href="/review" />}
-                  tooltip="Signup requests"
+                  tooltip="Sign up requests"
                 >
                   <ClipboardCheckIcon />
-                  <span>Signup requests</span>
+                  <span>Sign up requests</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>

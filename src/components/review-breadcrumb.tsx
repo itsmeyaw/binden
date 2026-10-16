@@ -20,12 +20,12 @@ export function ReviewBreadcrumb() {
       <BreadcrumbList>
         {pathname === "/review" ? (
           <BreadcrumbItem>
-            <BreadcrumbPage>Signup requests</BreadcrumbPage>
+            <BreadcrumbPage>Sign up requests</BreadcrumbPage>
           </BreadcrumbItem>
         ) : (
           <>
             <BreadcrumbItem>
-              <BreadcrumbLink render={<Link href="/review" />}>Signup requests</BreadcrumbLink>
+              <BreadcrumbLink render={<Link href="/review" />}>Sign up requests</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
