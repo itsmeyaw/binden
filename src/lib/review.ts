@@ -1,4 +1,4 @@
-import { and, eq, inArray } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 
 import { getDb } from "@/lib/db";
 import { mailMessage, signupRequest, signupRequestGroup } from "@/lib/schema";
@@ -31,7 +31,7 @@ export async function listReviewableSignupRequests(database = getDb) {
     .select(reviewRequestFields)
     .from(signupRequest)
     .where(inArray(signupRequest.status, reviewableStatuses))
-    .orderBy(signupRequest.createdAt);
+    .orderBy(desc(signupRequest.createdAt));
 }
 
 export async function getReviewableSignupRequest(id: string, database = getDb) {
