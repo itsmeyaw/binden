@@ -2,9 +2,19 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { InboxIcon, SearchIcon, SearchXIcon, XIcon } from "lucide-react";
+import {
+  ChevronDownIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ChevronUpIcon,
+  InboxIcon,
+  SearchIcon,
+  SearchXIcon,
+  XIcon,
+} from "lucide-react";
 
 import { ReviewAccess, type ReviewOutcome } from "@/components/review-access";
+import { ReviewRequest } from "@/components/review-request";
 import { statusLabels } from "@/components/review-progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -32,6 +42,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Spinner } from "@/components/ui/spinner";
 
 type SignupRequest = {
@@ -75,6 +92,8 @@ const badgeVariants: Record<
 
 type StatusFilter = SignupRequest["status"] | "all";
 
+const PAGE_SIZE = 10;
+
 async function fetchRequests(): Promise<State> {
   try {
     const response = await fetch("/api/review/requests", { cache: "no-store" });
@@ -93,6 +112,10 @@ export function ReviewQueue() {
   const [state, setState] = useState<State>({ status: "loading" });
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [page, setPage] = useState(0);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  // Kept separate from the selection so the sheet keeps its content while closing.
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -109,6 +132,12 @@ export function ReviewQueue() {
     setState(await fetchRequests());
   }
 
+  // Refetches without the loading state so the open sheet stays mounted.
+  async function refresh() {
+    const next = await fetchRequests();
+    if (next.status === "ready") setState(next);
+  }
+
   const requests = state.status === "ready" ? state.requests : [];
   const query = search.trim().toLowerCase();
   const filtered = requests.filter((request) => {
@@ -120,6 +149,12 @@ export function ReviewQueue() {
     );
   });
   const filtering = query !== "" || statusFilter !== "all";
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount - 1);
+  const pageRequests = filtered.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE);
+  const selectedIndex = filtered.findIndex((request) => request.id === selectedId);
+  const selected = filtered[selectedIndex];
+  const open = sheetOpen && selectedIndex !== -1;
   const presentStatuses = (Object.keys(labels) as SignupRequest["status"][]).filter((status) =>
     requests.some((request) => request.status === status),
   );
@@ -136,7 +171,39 @@ export function ReviewQueue() {
   function reset() {
     setSearch("");
     setStatusFilter("all");
+    setPage(0);
   }
+
+  function select(index: number) {
+    const request = filtered[index];
+    if (!request) return;
+    setSelectedId(request.id);
+    setPage(Math.floor(index / PAGE_SIZE));
+  }
+
+  useEffect(() => {
+    if (!open) return;
+    function onKeyDown(event: KeyboardEvent) {
+      if (
+        event.defaultPrevented ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.altKey ||
+        event.shiftKey
+      )
+        return;
+      const target = event.target;
+      if (
+        target instanceof HTMLElement &&
+        (target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName))
+      )
+        return;
+      if (event.key === "j") select(selectedIndex + 1);
+      else if (event.key === "k") select(selectedIndex - 1);
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  });
 
   return (
     <section className="flex min-h-0 flex-col gap-4">
@@ -167,7 +234,10 @@ export function ReviewQueue() {
               </InputGroupAddon>
               <InputGroupInput
                 aria-label="Search requests"
-                onChange={(event) => setSearch(event.target.value)}
+                onChange={(event) => {
+                  setSearch(event.target.value);
+                  setPage(0);
+                }}
                 placeholder="Search by name or email…"
                 type="search"
                 value={search}
@@ -175,7 +245,10 @@ export function ReviewQueue() {
             </InputGroup>
             <Select
               items={statusItems}
-              onValueChange={(value) => setStatusFilter((value ?? "all") as StatusFilter)}
+              onValueChange={(value) => {
+                setStatusFilter((value ?? "all") as StatusFilter);
+                setPage(0);
+              }}
               value={statusFilter}
             >
               <SelectTrigger aria-label="Filter by status" className="w-48">
@@ -225,12 +298,30 @@ export function ReviewQueue() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filtered.map((request) => (
-                    <TableRow className="relative" key={request.id}>
+                  {pageRequests.map((request) => (
+                    <TableRow
+                      className="relative"
+                      data-state={open && request.id === selectedId ? "selected" : undefined}
+                      key={request.id}
+                    >
                       <TableCell>
                         <Link
                           className="font-medium after:absolute after:inset-0 hover:underline"
                           href={`/review/${request.id}`}
+                          onClick={(event) => {
+                            // Modified and non-primary clicks keep the standalone page behavior.
+                            if (
+                              event.button === 0 &&
+                              !event.metaKey &&
+                              !event.ctrlKey &&
+                              !event.shiftKey &&
+                              !event.altKey
+                            ) {
+                              event.preventDefault();
+                              setSelectedId(request.id);
+                              setSheetOpen(true);
+                            }
+                          }}
                         >
                           {request.givenName} {request.familyName}
                         </Link>
@@ -255,6 +346,77 @@ export function ReviewQueue() {
               </Table>
             </div>
           )}
+          {filtered.length > 0 && pageCount > 1 && (
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-sm text-muted-foreground">
+                Page {currentPage + 1} of {pageCount}
+              </p>
+              <div className="flex gap-2">
+                <Button
+                  aria-label="Previous page"
+                  disabled={currentPage === 0}
+                  onClick={() => setPage(currentPage - 1)}
+                  size="icon-sm"
+                  type="button"
+                  variant="outline"
+                >
+                  <ChevronLeftIcon />
+                </Button>
+                <Button
+                  aria-label="Next page"
+                  disabled={currentPage === pageCount - 1}
+                  onClick={() => setPage(currentPage + 1)}
+                  size="icon-sm"
+                  type="button"
+                  variant="outline"
+                >
+                  <ChevronRightIcon />
+                </Button>
+              </div>
+            </div>
+          )}
+          <Sheet onOpenChange={setSheetOpen} open={open}>
+            <SheetContent className="w-full gap-0 data-[side=right]:w-full data-[side=right]:sm:max-w-2xl">
+              <SheetHeader className="border-b pr-12">
+                <div className="flex items-center gap-2">
+                  <div className="min-w-0 flex-1">
+                    <SheetTitle>
+                      {selected && `${selected.givenName} ${selected.familyName}`}
+                    </SheetTitle>
+                    <SheetDescription>
+                      Request {selectedIndex + 1} of {filtered.length}
+                      <span className="hidden sm:inline"> · J/K to switch</span>
+                    </SheetDescription>
+                  </div>
+                  <Button
+                    aria-label="Previous request"
+                    disabled={selectedIndex <= 0}
+                    onClick={() => select(selectedIndex - 1)}
+                    size="icon-sm"
+                    type="button"
+                    variant="outline"
+                  >
+                    <ChevronUpIcon />
+                  </Button>
+                  <Button
+                    aria-label="Next request"
+                    disabled={selectedIndex === filtered.length - 1}
+                    onClick={() => select(selectedIndex + 1)}
+                    size="icon-sm"
+                    type="button"
+                    variant="outline"
+                  >
+                    <ChevronDownIcon />
+                  </Button>
+                </div>
+              </SheetHeader>
+              <div className="min-h-0 flex-1 overflow-y-auto">
+                {selected && (
+                  <ReviewRequest id={selected.id} key={selected.id} onChanged={refresh} />
+                )}
+              </div>
+            </SheetContent>
+          </Sheet>
         </>
       )}
       {state.status !== "loading" && state.status !== "ready" && (
