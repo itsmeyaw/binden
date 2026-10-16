@@ -1,0 +1,46 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M53F0B9G6932B2H3N59AJDPP",
+  "session_id": "ses_eb93283ddffeY5m6kg3jhz4s0s",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-16T22:58:38.096893Z",
+  "branch": "auto-verify/reviewer-notice",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".env.example",
+    "src/app/api/review/requests/[id]/notification/route.ts",
+    "src/components/review-request.tsx",
+    "src/lib/provisioning.ts",
+    "src/lib/review.ts",
+    "tests/handover.ts",
+    "tests/review.spec.ts"
+  ],
+  "agent": "OpenCode",
+  "model": "openai.gpt-5.6-luna",
+  "turn_id": "512c5c88e12f",
+  "checkpoint_transcript_start": 9,
+  "transcript_lines_at_start": 9,
+  "compact_transcript_start": 9,
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "session_metrics": {
+    "turn_count": 1
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-10-16T22:58:38.07705Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 0,
+    "human_modified": 8,
+    "human_removed": 234,
+    "total_committed": 0,
+    "total_lines_changed": 242,
+    "agent_percentage": 0,
+    "metric_version": 2
+  }
+}
