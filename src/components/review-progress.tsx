@@ -32,8 +32,8 @@ export type Progress = {
 export const statusLabels: Record<Progress["status"], string> = {
   accepted: "Accepted",
   provisioning: "Provisioning",
-  awaiting_handover: "Awaiting handover",
-  handover_confirmed: "Handover confirmed",
+  awaiting_handover: "Email not sent",
+  handover_confirmed: "First-login email sent",
 };
 
 const groupStates = { pending: "Pending", added: "Added", failed: "Failed" } as const;
@@ -150,22 +150,21 @@ export function ReviewProgress({
             <span className="flex items-center gap-2 font-medium">
               Account handover{" "}
               <Badge variant={confirmed ? "secondary" : "outline"}>
-                {confirmed ? "Handover confirmed" : done ? "Awaiting handover" : "Not started"}
+                {confirmed ? "First-login email sent" : done ? "Email not sent" : "Not started"}
               </Badge>
             </span>
             {confirmed ? (
               <span className="text-sm text-muted-foreground">
-                An administrator confirmed on{" "}
+                The first-login email with a temporary password was sent to the applicant&apos;s
+                contact email on{" "}
                 {progress.handoverConfirmedAt
                   ? new Date(progress.handoverConfirmedAt).toLocaleString()
-                  : "an earlier date"}{" "}
-                that first-login instructions were sent. This does not show the message arrived or
-                that the applicant has signed in.
+                  : "an earlier date"}
+                . This does not show the message was delivered or that the applicant has signed in.
               </span>
             ) : done ? (
               <AccountHandover
                 email={progress.workspaceEmail}
-                googleUserId={progress.googleUserId}
                 onProgress={onProgress}
                 requestId={requestId}
               />
