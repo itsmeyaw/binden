@@ -1,12 +1,20 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Link from "next/link";
 import { CheckCircle2Icon, TriangleAlertIcon } from "lucide-react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Field, FieldError, FieldGroup, FieldLabel, FieldSet } from "@/components/ui/field";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldSet,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
@@ -41,6 +49,7 @@ export function SignupForm() {
   const [turnstileToken, setTurnstileToken] = useState("");
   const [pending, setPending] = useState(false);
   const [notice, setNotice] = useState<string>();
+  const [submitted, setSubmitted] = useState(false);
   const challenge = useRef<TurnstileChallengeHandle>(null);
 
   function updateField(name: keyof Fields, value: string) {
@@ -84,6 +93,7 @@ export function SignupForm() {
         return;
       }
       setNotice(result.message);
+      setSubmitted(true);
       setErrors({});
     } catch {
       setNotice("We could not submit your request. Please try again.");
@@ -91,6 +101,30 @@ export function SignupForm() {
     } finally {
       setPending(false);
     }
+  }
+
+  if (submitted) {
+    return (
+      <Card className="w-full">
+        <CardHeader className="justify-items-center text-center">
+          <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <CheckCircle2Icon className="size-6" />
+          </div>
+          <CardTitle>Request received</CardTitle>
+          <CardDescription>{notice}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button
+            className="w-full"
+            nativeButton={false}
+            render={<Link href="/" />}
+            variant="outline"
+          >
+            Back to sign in
+          </Button>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
@@ -103,43 +137,45 @@ export function SignupForm() {
       </CardHeader>
       <CardContent>
         {notice && (
-          <Alert className="mb-6" variant={notice.startsWith("Your") ? "default" : "destructive"}>
-            {notice.startsWith("Your") ? <CheckCircle2Icon /> : <TriangleAlertIcon />}
-            <AlertTitle>
-              {notice.startsWith("Your") ? "Request received" : "Unable to submit"}
-            </AlertTitle>
+          <Alert className="mb-6" variant="destructive">
+            <TriangleAlertIcon />
+            <AlertTitle>Unable to submit</AlertTitle>
             <AlertDescription>{notice}</AlertDescription>
           </Alert>
         )}
         <form noValidate onSubmit={submit}>
           <FieldSet disabled={pending}>
             <FieldGroup>
-              <Field data-invalid={Boolean(errors.givenName)}>
-                <FieldLabel htmlFor="given-name">Given name</FieldLabel>
-                <Input
-                  aria-invalid={Boolean(errors.givenName)}
-                  aria-describedby={errors.givenName ? "given-name-error" : undefined}
-                  autoComplete="given-name"
-                  id="given-name"
-                  onChange={(event) => updateField("givenName", event.target.value)}
-                  required
-                  value={fields.givenName}
-                />
-                <FieldError id="given-name-error">{errors.givenName}</FieldError>
-              </Field>
-              <Field data-invalid={Boolean(errors.familyName)}>
-                <FieldLabel htmlFor="family-name">Family name</FieldLabel>
-                <Input
-                  aria-invalid={Boolean(errors.familyName)}
-                  aria-describedby={errors.familyName ? "family-name-error" : undefined}
-                  autoComplete="family-name"
-                  id="family-name"
-                  onChange={(event) => updateField("familyName", event.target.value)}
-                  required
-                  value={fields.familyName}
-                />
-                <FieldError id="family-name-error">{errors.familyName}</FieldError>
-              </Field>
+              <div className="grid gap-5 sm:grid-cols-2">
+                <Field data-invalid={Boolean(errors.givenName)}>
+                  <FieldLabel htmlFor="given-name">Given name</FieldLabel>
+                  <Input
+                    aria-invalid={Boolean(errors.givenName)}
+                    aria-describedby={errors.givenName ? "given-name-error" : undefined}
+                    autoComplete="given-name"
+                    id="given-name"
+                    placeholder="Ada"
+                    onChange={(event) => updateField("givenName", event.target.value)}
+                    required
+                    value={fields.givenName}
+                  />
+                  <FieldError id="given-name-error">{errors.givenName}</FieldError>
+                </Field>
+                <Field data-invalid={Boolean(errors.familyName)}>
+                  <FieldLabel htmlFor="family-name">Family name</FieldLabel>
+                  <Input
+                    aria-invalid={Boolean(errors.familyName)}
+                    aria-describedby={errors.familyName ? "family-name-error" : undefined}
+                    autoComplete="family-name"
+                    id="family-name"
+                    placeholder="Lovelace"
+                    onChange={(event) => updateField("familyName", event.target.value)}
+                    required
+                    value={fields.familyName}
+                  />
+                  <FieldError id="family-name-error">{errors.familyName}</FieldError>
+                </Field>
+              </div>
               <Field data-invalid={Boolean(errors.contactEmail)}>
                 <FieldLabel htmlFor="contact-email">Contact email</FieldLabel>
                 <Input
@@ -147,12 +183,16 @@ export function SignupForm() {
                   aria-describedby={errors.contactEmail ? "contact-email-error" : undefined}
                   autoComplete="email"
                   id="contact-email"
+                  placeholder="ada@example.com"
                   inputMode="email"
                   onChange={(event) => updateField("contactEmail", event.target.value)}
                   required
                   type="email"
                   value={fields.contactEmail}
                 />
+                <FieldDescription>
+                  We&apos;ll only use this to reach you about your request.
+                </FieldDescription>
                 <FieldError id="contact-email-error">{errors.contactEmail}</FieldError>
               </Field>
               <Field data-invalid={Boolean(errors.phone)}>
@@ -164,6 +204,7 @@ export function SignupForm() {
                   aria-describedby={errors.phone ? "phone-error" : undefined}
                   autoComplete="tel"
                   id="phone"
+                  placeholder="+49 89 1234567"
                   onChange={(event) => updateField("phone", event.target.value)}
                   type="tel"
                   value={fields.phone}
@@ -179,6 +220,7 @@ export function SignupForm() {
                   aria-invalid={Boolean(errors.connection)}
                   aria-describedby={errors.connection ? "connection-error" : undefined}
                   id="connection"
+                  placeholder="e.g. volunteer at the summer festival"
                   onChange={(event) => updateField("connection", event.target.value)}
                   value={fields.connection}
                 />

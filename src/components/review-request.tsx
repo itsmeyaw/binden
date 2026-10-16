@@ -1,8 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ArrowLeftIcon, CircleAlertIcon, InfoIcon, PencilIcon } from "lucide-react";
+import { CircleAlertIcon, InfoIcon, PencilIcon } from "lucide-react";
 
 import { ReviewAccess, type ReviewOutcome } from "@/components/review-access";
 import {
@@ -55,7 +54,6 @@ type SignupRequest = {
 
 type State =
   | { status: "loading" }
-  | { status: "unselected" }
   | { status: "ready"; request: SignupRequest; progress?: Progress }
   | { status: "missing" }
   | { status: ReviewOutcome };
@@ -118,8 +116,8 @@ function rolesOf(plan: Plan) {
   return Object.fromEntries(plan.selected.map((group) => [group.groupId, group.role]));
 }
 
-export function ReviewRequest({ id }: { id?: string }) {
-  const [state, setState] = useState<State>({ status: id ? "loading" : "unselected" });
+export function ReviewRequest({ id, onChanged }: { id: string; onChanged?: () => void }) {
+  const [state, setState] = useState<State>({ status: "loading" });
   const [editing, setEditing] = useState(false);
   const [rejecting, setRejecting] = useState(false);
   const [accepting, setAccepting] = useState(false);
@@ -221,6 +219,7 @@ export function ReviewRequest({ id }: { id?: string }) {
       });
       setEmailEdited(false);
       setEditing(false);
+      onChanged?.();
     } catch {
       setErrors({ contactEmail: "The correction could not be saved. Please try again." });
     } finally {
@@ -267,11 +266,13 @@ export function ReviewRequest({ id }: { id?: string }) {
           progress: result.progress,
         });
         setAccepting(false);
+        onChanged?.();
         return;
       }
       if (response.status === 409 && result.error) {
         setAccepting(false);
         setState({ status: "missing" });
+        onChanged?.();
         return;
       }
       setAcceptError(
@@ -301,6 +302,7 @@ export function ReviewRequest({ id }: { id?: string }) {
       const result = (await response.json()) as { errors?: Errors; outcome?: string };
       if (response.ok) {
         setState({ status: "missing" });
+        onChanged?.();
         return;
       }
       if (result.outcome === "rejection-notification-pending" && state.status === "ready") {
@@ -313,6 +315,7 @@ export function ReviewRequest({ id }: { id?: string }) {
           },
         });
         setRejecting(false);
+        onChanged?.();
         return;
       }
       setErrors(
@@ -334,7 +337,10 @@ export function ReviewRequest({ id }: { id?: string }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ retry: true }),
       });
-      if (response.ok) setState({ status: "missing" });
+      if (response.ok) {
+        setState({ status: "missing" });
+        onChanged?.();
+      }
     } finally {
       setPending(false);
     }
@@ -342,23 +348,10 @@ export function ReviewRequest({ id }: { id?: string }) {
 
   return (
     <section className="min-h-0 p-4 lg:overflow-y-auto">
-      {id && (
-        <Button
-          className="mb-4 lg:hidden"
-          type="button"
-          variant="ghost"
-          render={<Link href="/review" />}
-        >
-          <ArrowLeftIcon /> Back to requests
-        </Button>
-      )}
       {state.status === "loading" && (
         <div className="flex items-center gap-2 text-muted-foreground">
           <Spinner /> Loading request
         </div>
-      )}
-      {state.status === "unselected" && (
-        <p className="text-muted-foreground">Select a signup request to review its details.</p>
       )}
       {state.status === "missing" && (
         <p className="text-muted-foreground">
@@ -619,12 +612,9 @@ export function ReviewRequest({ id }: { id?: string }) {
           )}
         </div>
       )}
-      {state.status !== "loading" &&
-        state.status !== "ready" &&
-        state.status !== "missing" &&
-        state.status !== "unselected" && (
-          <ReviewAccess outcome={state.status} retry={() => void retry()} />
-        )}
+      {state.status !== "loading" && state.status !== "ready" && state.status !== "missing" && (
+        <ReviewAccess outcome={state.status} retry={() => void retry()} />
+      )}
       {state.status === "ready" && planState.status === "ready" && (
         <AlertDialog onOpenChange={(open) => !pending && setAccepting(open)} open={accepting}>
           <AlertDialogContent>

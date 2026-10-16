@@ -47,8 +47,8 @@ test.describe("verified signup request review", () => {
     await page.getByRole("link", { name: "Verified Applicant" }).click();
     await expect(page.getByText("Community volunteer")).toBeVisible();
     await expect(page.getByText("+49 89 123")).toBeVisible();
-    await page.getByRole("link", { name: "Back to requests" }).click();
     await expect(page).toHaveURL(/\/review$/);
+    await page.getByRole("button", { name: "Close" }).click();
     await expect(page.getByRole("link", { name: "Verified Applicant" })).toBeVisible();
   });
   test("plans a Workspace email and initial group roles", async ({ page }) => {
