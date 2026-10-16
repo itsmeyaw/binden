@@ -1,0 +1,22 @@
+Write code in the git worktree /Users/itsmeyaw/projects/binden/.worktrees/fix-avatar (branch fix/avatar-sync is checked out; stay on it, do not switch branches). Work ONLY in that directory.
+
+Problem: the user's avatar (`auth_user.image`) is only written at sign-in, so it goes stale when the user changes their Google profile photo. `readWorkspaceProfile` in src/lib/workspace.ts already calls Google's OIDC userinfo endpoint on every access check (via `getReviewAccess` in src/lib/auth.ts, called by every /api/review route), and `identitySchema` already parses an optional `picture` claim. Reuse that to keep the image in sync.
+
+Make these minimal changes:
+1. src/lib/workspace.ts `readWorkspaceProfile`: change the final `return profile;` to `return { ...profile, picture: identity.picture ?? profile.thumbnailPhotoUrl };` (the Google photo URL to display).
+2. src/lib/auth.ts, getUserInfo: change `image: identity.picture ?? profile.thumbnailPhotoUrl,` to `image: profile.picture,`.
+3. src/lib/auth.ts, getReviewAccess: right after `const profile = await readWorkspaceProfile(token.accessToken, account.accountId, true);`, add:
+```ts
+    if ((profile.picture ?? null) !== session.user.image)
+      await db
+        .update(schema.user)
+        .set({ image: profile.picture ?? null, updatedAt: new Date() })
+        .where(eq(schema.user.id, session.user.id));
+```
+(`eq`, `db`, `schema` are already imported.) Do not change anything else.
+
+Then run in the worktree: `pnpm lint`, `pnpm format:check` (fix with `pnpm exec oxfmt --write <file>` only on files you touched), `pnpm exec tsc --noEmit` (if Next route types are missing run `pnpm exec next typegen` first), and `pnpm test`. Fix only issues caused by your change; check tests/workspace.ts for any assertion on readWorkspaceProfile's return value and update it if it breaks.
+
+Commit with message "Keep the avatar in sync with the Google profile photo" (no Co-Authored-By trailer). Do not push.
+
+Report: full diff and check results.
