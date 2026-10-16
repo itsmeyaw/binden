@@ -152,12 +152,11 @@ test.describe("verified signup request review", () => {
       await expect(steps).toContainText("Accepted");
       await expect(steps).toContainText("Provisioning");
       await expect(steps).toContainText("Complete");
-      await expect(steps).toContainText("Awaiting handover");
-      await expect(steps).toContainText("Send first-login instructions in the Admin console");
+      await expect(steps).toContainText("First-login email sent");
       await expect(page.getByRole("button", { name: "Accept request" })).toHaveCount(0);
 
       const saved = await row(id);
-      expect(saved.status).toBe("awaiting_handover");
+      expect(saved.status).toBe("handover_confirmed");
       expect(saved.account_create_state).toBe("created");
       expect(saved.approved_by_directory_id).toBeTruthy();
       const groups = await pool.query(
@@ -165,6 +164,7 @@ test.describe("verified signup request review", () => {
         [id],
       );
       expect(groups.rows).toEqual([{ group_id: "sim-events", role: "member", state: "added" }]);
+      expect(await mailTo(id)).toHaveLength(1);
     });
 
     test("repeated and concurrent acceptance yields one accepted outcome", async ({ page }) => {
@@ -177,9 +177,9 @@ test.describe("verified signup request review", () => {
       const responses = await Promise.all([accept(), accept(), accept()]);
       for (const response of responses) expect(response.ok()).toBe(true);
       const again = await accept();
-      expect((await again.json()).progress.status).toBe("awaiting_handover");
+      expect((await again.json()).progress.status).toBe("handover_confirmed");
       const saved = await row(id);
-      expect(saved.status).toBe("awaiting_handover");
+      expect(saved.status).toBe("handover_confirmed");
       expect(saved.google_user_id).toBeTruthy();
     });
 
@@ -189,7 +189,7 @@ test.describe("verified signup request review", () => {
       await page.getByRole("button", { name: "Accept request" }).click();
       await page.getByRole("button", { name: "Confirm acceptance" }).click();
       await expect(page.getByText("Account creation outcome unknown")).toBeVisible();
-      await expect(page.locator("ol")).not.toContainText("Awaiting handover");
+      await expect(page.locator("ol")).not.toContainText("First-login email sent");
 
       const again = await page.request.post(`/api/review/requests/${id}/acceptance`);
       expect((await again.json()).progress.accountCreateState).toBe("uncertain");
@@ -224,12 +224,12 @@ test.describe("verified signup request review", () => {
 
       await page.goto(`/review/${id}`);
       await expect(page.getByText("Needs attention")).toBeVisible();
-      await expect(page.locator("ol")).not.toContainText("Awaiting handover");
+      await expect(page.locator("ol")).not.toContainText("First-login email sent");
       await page.getByRole("button", { name: "Retry unfinished memberships" }).click();
 
-      await expect(page.locator("ol")).toContainText("Awaiting handover");
+      await expect(page.locator("ol")).toContainText("First-login email sent");
       expect(await groupStates(id)).toEqual({ "sim-events": "added", "sim-recovering": "added" });
-      expect((await row(id)).status).toBe("awaiting_handover");
+      expect((await row(id)).status).toBe("handover_confirmed");
     });
 
     test("replaces an unmanageable group with a recorded, confirmed revision", async ({ page }) => {
@@ -245,7 +245,7 @@ test.describe("verified signup request review", () => {
       await page.getByRole("option", { name: /Board/ }).click();
       await dialog.getByRole("button", { name: "Confirm revision" }).click();
 
-      await expect(page.locator("ol")).toContainText("Awaiting handover");
+      await expect(page.locator("ol")).toContainText("First-login email sent");
       expect(await groupStates(id)).toEqual({ "sim-events": "added", "sim-board": "added" });
       const revisions = await pool.query(
         "select removed_group_id, replacement_group_id, replacement_role from signup_request_revision where signup_request_id = $1",
@@ -272,7 +272,7 @@ test.describe("verified signup request review", () => {
       await page.goto(`/review/${id}`);
       await page.getByRole("button", { name: "Remove or replace" }).click();
       await page.getByRole("button", { name: "Confirm revision" }).click();
-      await expect(page.locator("ol")).toContainText("Awaiting handover");
+      await expect(page.locator("ol")).toContainText("First-login email sent");
       expect(await groupStates(id)).toEqual({});
     });
 
@@ -296,32 +296,29 @@ test.describe("verified signup request review", () => {
         )
       ).rows;
 
-    test("confirms handover once provisioning succeeded, recording only that instructions were sent", async ({
+    test("resends the first-login email from a request awaiting it, recording only that it was sent", async ({
       page,
     }) => {
       const group = process.env.E2E_REVIEWER_NOTIFICATION_GROUP;
       const id = await seed("Hand", "Over", `handover.${randomUUID().slice(0, 8)}@${domain}`);
+      // A request whose first-login email failed on accept: the account exists, nothing was sent.
       await pool.query(
-        "insert into signup_request_group (signup_request_id, group_id, group_email) values ($1, 'sim-events', 'events@' || $2)",
-        [id, domain],
+        "update signup_request set status = 'awaiting_handover', account_create_state = 'created', google_user_id = 'sim-user-' || workspace_email where id = $1",
+        [id],
       );
-      await page.request.post(`/api/review/requests/${id}/acceptance`);
       await page.goto(`/review/${id}`);
       const steps = page.locator("ol");
-      await expect(steps).toContainText("Reset password");
-      await expect(steps).toContainText("The application never sends or stores the password.");
-      await expect(page.getByRole("link", { name: /Admin console user page/ })).toBeVisible();
+      await expect(steps).toContainText("Email not sent");
+      await expect(steps).toContainText("could not be sent to the applicant's contact email");
 
-      await page.getByRole("button", { name: "Confirm instructions were sent" }).click();
+      await page.getByRole("button", { name: "Send first-login email" }).click();
       const dialog = page.getByRole("alertdialog");
       await expect(dialog).toContainText("does not show that the message was delivered");
-      await dialog.getByRole("button", { name: "Confirm handover" }).click();
+      await dialog.getByRole("button", { name: "Send email" }).click();
 
-      await expect(steps).toContainText("Handover confirmed");
-      await expect(steps).toContainText("that first-login instructions were sent");
-      await expect(
-        page.getByRole("button", { name: "Confirm instructions were sent" }),
-      ).toHaveCount(0);
+      await expect(steps).toContainText("First-login email sent");
+      await expect(steps).toContainText("with a temporary password was sent");
+      await expect(page.getByRole("button", { name: "Send first-login email" })).toHaveCount(0);
       const saved = (
         await pool.query(
           "select status, handover_confirmed_at, handover_confirmed_by_directory_id from signup_request where id = $1",
@@ -338,26 +335,26 @@ test.describe("verified signup request review", () => {
       const messages = await mailTo(id);
       expect(messages).toHaveLength(1);
       if (group) expect(messages[0].to).toBe(group);
-      expect(messages[0].text).not.toMatch(/Hand Over|password/i);
+      expect(messages[0].text).not.toMatch(/Hand Over/i);
 
       await page.goto("/review");
       await expect(page.getByRole("link", { name: /Hand Over/ })).toContainText(
-        "Handover confirmed",
+        "First-login email sent",
       );
     });
 
-    test("blocks handover confirmation until memberships have succeeded", async ({ page }) => {
+    test("blocks the first-login email until memberships have succeeded", async ({ page }) => {
       const id = await acceptWithGroups(page, "blocked", ["sim-events", "sim-flaky"]);
       const response = await page.request.post(`/api/review/requests/${id}/handover`);
       expect(response.status()).toBe(409);
       expect((await row(id)).status).toBe("provisioning");
       await page.goto(`/review/${id}`);
-      await expect(
-        page.getByRole("button", { name: "Confirm instructions were sent" }),
-      ).toHaveCount(0);
+      await expect(page.getByRole("button", { name: "Send first-login email" })).toHaveCount(0);
     });
 
-    test("a request that is not awaiting handover cannot be confirmed", async ({ page }) => {
+    test("a request that is not awaiting the first-login email cannot be sent", async ({
+      page,
+    }) => {
       const id = await seed("Not", "Ready", null);
       const response = await page.request.post(`/api/review/requests/${id}/handover`);
       expect(response.status()).toBe(409);

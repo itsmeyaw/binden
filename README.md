@@ -28,11 +28,11 @@ Set `BETTER_AUTH_URL`, `BETTER_AUTH_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_
 `GOOGLE_WORKSPACE_DOMAIN`, and `GOOGLE_REVIEWER_ROLE_ID`. Configure an internal Google OAuth web
 client with `<BETTER_AUTH_URL>/api/auth/callback/google`, enable Admin SDK, and grant the reviewer
 role to the administrators who may access `/review`. The app requests the Directory user and group scopes plus read-only
-role management, and stores OAuth credentials server-side. Administrators who signed in before the
+role management and Gmail send, and stores OAuth credentials server-side. Administrators who signed in before the
 scopes were widened see `Reconnect your Google account` and must sign in again. Directory reads use
 only the signed-in administrator's grant: an address is taken when a user, alias, or group holds
 it, and only groups that administrator can write to are offered. `GOOGLE_SIMULATION` now covers
-only account creation and group membership writes until they are integrated.
+only group membership writes until they are integrated.
 
 Run `pnpm exec drizzle-kit migrate` after setting `DATABASE_URL`.
 

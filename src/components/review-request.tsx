@@ -675,7 +675,7 @@ export function ReviewRequest({ id }: { id?: string }) {
               <AlertDialogTitle>Accept this signup request?</AlertDialogTitle>
               <AlertDialogDescription>
                 Acceptance authorizes provisioning of this Workspace account. It is not account
-                handover: first-login instructions are sent separately.
+                handover: the first-login email is sent once provisioning completes.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <dl className="flex flex-col gap-2 text-sm">

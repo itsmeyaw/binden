@@ -18,6 +18,8 @@ type Options = {
   pageSize?: number;
   // Fail every Directory call with this status.
   status?: number;
+  // Fail every Gmail call with this status.
+  mailStatus?: number;
 };
 
 export function fakeDirectory(options: Options = {}) {
@@ -28,9 +30,16 @@ export function fakeDirectory(options: Options = {}) {
     assignments = Object.keys(roles),
     pageSize = 2,
     status,
+    mailStatus,
   } = options;
   const original = globalThis.fetch;
   const calls: URL[] = [];
+  let mailFailure = mailStatus;
+  // Decoded RFC 5322 messages accepted by Gmail.
+  const messages: string[] = [];
+  // Directory writes, in order; bodies include passwords, so tests only.
+  const writes: { method: string; path: string; body: Record<string, unknown> }[] = [];
+  const known = new Set(users.map((email) => email.toLowerCase()));
   const page = <T>(all: T[], url: URL, key: string) => {
     const start = Number(url.searchParams.get("pageToken") ?? 0);
     const next = start + pageSize;
@@ -41,6 +50,17 @@ export function fakeDirectory(options: Options = {}) {
   };
   globalThis.fetch = async (input, init) => {
     const url = new URL(input instanceof Request ? input.url : String(input));
+    if (url.hostname === "gmail.googleapis.com") {
+      if (new Headers(init?.headers).get("Authorization") !== `Bearer ${actor.accessToken}`)
+        return Response.json({}, { status: 401 });
+      if (mailFailure)
+        return Response.json({ error: { message: "denied" } }, { status: mailFailure });
+      if (init?.method !== "POST" || url.pathname !== "/gmail/v1/users/me/messages/send")
+        return notFound();
+      const { raw } = JSON.parse(String(init.body));
+      messages.push(Buffer.from(raw, "base64url").toString("utf8"));
+      return Response.json({ id: "m1" });
+    }
     if (url.hostname !== "admin.googleapis.com") return original(input, init);
     calls.push(url);
     const headers = new Headers(init?.headers);
@@ -49,7 +69,22 @@ export function fakeDirectory(options: Options = {}) {
     if (status) return Response.json({ error: { message: "denied" } }, { status });
     const path = decodeURIComponent(url.pathname.replace("/admin/directory/v1/", ""));
     const [kind, key] = path.split("/");
-    if (kind === "users") return users.includes(key) ? Response.json({ id: "u" }) : notFound();
+    if (kind === "users" && !key && init?.method === "POST") {
+      const body = JSON.parse(String(init.body));
+      writes.push({ method: "POST", path, body });
+      const email = String(body.primaryEmail).toLowerCase();
+      if (known.has(email))
+        return Response.json({ error: { message: "Entity already exists" } }, { status: 409 });
+      known.add(email);
+      known.add(`new-${email}`);
+      return Response.json({ id: `new-${email}` });
+    }
+    if (kind === "users" && init?.method === "PATCH") {
+      writes.push({ method: "PATCH", path, body: JSON.parse(String(init.body)) });
+      return known.has(key.toLowerCase()) ? Response.json({ id: key }) : notFound();
+    }
+    if (kind === "users")
+      return known.has(key.toLowerCase()) ? Response.json({ id: "u" }) : notFound();
     if (path === "customer/my_customer/roleassignments") {
       if (url.searchParams.get("userKey") !== actor.profile.id) return notFound();
       return page(
@@ -72,6 +107,12 @@ export function fakeDirectory(options: Options = {}) {
   };
   return {
     calls,
+    messages,
+    writes,
+    // Fails Gmail calls with this status from now on; no argument restores delivery.
+    failMail(status?: number) {
+      mailFailure = status;
+    },
     restore() {
       globalThis.fetch = original;
     },

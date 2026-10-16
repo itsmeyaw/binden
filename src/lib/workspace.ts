@@ -54,6 +54,26 @@ export async function googleGet(url: string | URL, accessToken: string, allowMis
   return response.json();
 }
 
+export async function googleSend(
+  url: string | URL,
+  accessToken: string,
+  method: "POST" | "PATCH",
+  body: unknown,
+) {
+  const response = await fetch(url, {
+    method,
+    headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+    cache: "no-store",
+    signal: AbortSignal.timeout(10_000),
+  });
+  if (!response.ok) {
+    await logGoogleFailure(url, response);
+    throw new WorkspaceUnavailable(response.status === 401);
+  }
+  return response.json();
+}
+
 async function logGoogleFailure(url: string | URL, response: Response) {
   const parsed = z
     .object({

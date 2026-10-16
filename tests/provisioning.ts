@@ -54,7 +54,7 @@ async function main() {
   // Mirrors the route: accept, then provision; both are safe to repeat and to race.
   const accept = async (id: string) => {
     await acceptSignupRequest(id, "admin-1");
-    await provisionAcceptedRequest(id);
+    await provisionAcceptedRequest(id, actor);
   };
 
   try {
@@ -63,7 +63,7 @@ async function main() {
     await Promise.all([accept(ok), accept(ok), accept(ok)]);
     await accept(ok);
     let progress = await getProvisioningProgress(ok, actor);
-    assert.equal(progress?.status, "awaiting_handover");
+    assert.equal(progress?.status, "handover_confirmed");
     assert.equal(progress?.accountCreateState, "created");
     assert.ok(progress?.groups.every((group) => group.state === "added"));
     const [row] = await db.select().from(signupRequest).where(eq(signupRequest.id, ok));
@@ -91,9 +91,9 @@ async function main() {
     await accept(recover);
     progress = await getProvisioningProgress(recover, actor);
     assert.equal(progress?.status, "provisioning");
-    await Promise.all([retryProvisioning(recover), retryProvisioning(recover)]);
+    await Promise.all([retryProvisioning(recover, actor), retryProvisioning(recover, actor)]);
     progress = await getProvisioningProgress(recover, actor);
-    assert.equal(progress?.status, "awaiting_handover");
+    assert.equal(progress?.status, "handover_confirmed");
     assert.ok(progress?.groups.every((group) => group.state === "added"));
 
     // Revising an unfinished group keeps successful ones, records the change, then completes.
@@ -114,9 +114,9 @@ async function main() {
       ),
       true,
     );
-    assert.equal(await retryProvisioning(gone), "retried");
+    assert.equal(await retryProvisioning(gone, actor), "retried");
     progress = await getProvisioningProgress(gone, actor);
-    assert.equal(progress?.status, "awaiting_handover");
+    assert.equal(progress?.status, "handover_confirmed");
     assert.deepEqual(progress!.groups.map((group) => group.groupId).sort(), [
       "sim-board",
       "sim-events",
@@ -136,8 +136,8 @@ async function main() {
     const removeOnly = await seed("removeonly", ["sim-flaky"]);
     await accept(removeOnly);
     assert.equal(await reviseAssignment(removeOnly, { groupId: "sim-flaky" }, "admin-2"), true);
-    await retryProvisioning(removeOnly);
-    assert.equal((await getProvisioningProgress(removeOnly, actor))?.status, "awaiting_handover");
+    await retryProvisioning(removeOnly, actor);
+    assert.equal((await getProvisioningProgress(removeOnly, actor))?.status, "handover_confirmed");
 
     // An uncertain create is recorded and never repeated.
     const uncertain = await seed("uncertain.user", ["sim-events"]);
@@ -147,9 +147,26 @@ async function main() {
     assert.equal(progress?.status, "provisioning");
     assert.equal(progress?.accountCreateState, "uncertain");
     assert.equal(progress?.groups[0].state, "pending");
-    assert.equal(await retryProvisioning(uncertain), "uncertain");
+    assert.equal(await retryProvisioning(uncertain, actor), "uncertain");
     assert.equal((await getProvisioningProgress(uncertain, actor))?.groups[0].state, "pending");
-    assert.equal(await retryProvisioning(ok), "unavailable");
+    assert.equal(await retryProvisioning(ok, actor), "unavailable");
+
+    // Without simulation the account is created through the Directory with the seeded names.
+    const real = await seed("real", []);
+    delete env.GOOGLE_SIMULATION;
+    try {
+      await accept(real);
+    } finally {
+      env.GOOGLE_SIMULATION = "true";
+    }
+    const [created] = await db.select().from(signupRequest).where(eq(signupRequest.id, real));
+    assert.equal(created.googleUserId, `new-${created.workspaceEmail}`);
+    assert.equal(created.accountCreateState, "created");
+    assert.equal((await getProvisioningProgress(real, actor))?.status, "handover_confirmed");
+    const insert = directory.writes.find(
+      (write) => write.body.primaryEmail === created.workspaceEmail,
+    );
+    assert.deepEqual(insert?.body.name, { givenName: "Test", familyName: "Person" });
   } finally {
     directory.restore();
     for (const id of ids) await db.delete(signupRequest).where(eq(signupRequest.id, id));

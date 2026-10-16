@@ -1,8 +1,10 @@
 import "server-only";
 
+import { randomBytes } from "node:crypto";
+
 import { z } from "zod";
 
-import { googleGet, WorkspaceUnavailable } from "@/lib/workspace";
+import { googleGet, googleSend, WorkspaceUnavailable } from "@/lib/workspace";
 
 export type ManageableGroup = { id: string; email: string; name: string };
 
@@ -20,6 +22,7 @@ const roleSchema = z.object({
   isSuperAdminRole: z.boolean().optional(),
   rolePrivileges: z.array(z.object({ privilegeName: z.string() })).optional(),
 });
+const createdUserSchema = z.object({ id: z.string().min(1) });
 const groupsSchema = z.object({
   groups: z.array(z.object({ id: z.string(), email: z.string(), name: z.string() })).optional(),
   nextPageToken: z.string().optional(),
@@ -85,8 +88,8 @@ export async function listManageableGroups(actor: Actor): Promise<ManageableGrou
   return groups.sort((a, b) => a.name.localeCompare(b.name));
 }
 
-// ponytail: development-only simulation of provisioning writes until #12 replaces them;
-// without GOOGLE_SIMULATION they report the Workspace unavailable.
+// ponytail: group membership writes stay simulated until a later change; without GOOGLE_SIMULATION
+// they report the Workspace unavailable.
 function simulatedDomain() {
   const domain = process.env.GOOGLE_WORKSPACE_DOMAIN;
   if (process.env.GOOGLE_SIMULATION !== "true" || process.env.NODE_ENV === "production" || !domain)
@@ -102,10 +105,42 @@ export class AccountCreateUncertain extends Error {
 }
 
 // `uncertain.user*` simulates a timeout after the request was sent.
-export async function createWorkspaceUser(email: string): Promise<{ id: string }> {
-  simulatedDomain();
-  if (email.toLowerCase().startsWith("uncertain.user")) throw new AccountCreateUncertain();
-  return { id: `sim-user-${email.toLowerCase()}` };
+export async function createWorkspaceUser(
+  actor: Actor,
+  { email, givenName, familyName }: { email: string; givenName: string; familyName: string },
+): Promise<{ id: string }> {
+  if (process.env.GOOGLE_SIMULATION === "true") {
+    simulatedDomain();
+    if (email.toLowerCase().startsWith("uncertain.user")) throw new AccountCreateUncertain();
+    return { id: `sim-user-${email.toLowerCase()}` };
+  }
+  // The throwaway password is never stored or returned; the real first-login password is set
+  // at handover.
+  const created = createdUserSchema.parse(
+    await googleSend(`${directory}/users`, actor.accessToken, "POST", {
+      primaryEmail: email,
+      name: { givenName, familyName },
+      password: randomBytes(32).toString("base64url"),
+      changePasswordAtNextLogin: true,
+    }),
+  );
+  return { id: created.id };
+}
+
+// The temporary password is returned once to the caller and never logged or persisted here.
+export async function resetWorkspacePassword(actor: Actor, userKey: string): Promise<string> {
+  const password = randomBytes(12).toString("base64url");
+  if (process.env.GOOGLE_SIMULATION === "true") {
+    simulatedDomain();
+    return password;
+  }
+  await googleSend(
+    `${directory}/users/${encodeURIComponent(userKey)}`,
+    actor.accessToken,
+    "PATCH",
+    { password, changePasswordAtNextLogin: true },
+  );
+  return password;
 }
 
 const attempted = new Set<string>();

@@ -20,6 +20,8 @@ const requiredScopes = [
   "https://www.googleapis.com/auth/admin.directory.user",
   "https://www.googleapis.com/auth/admin.directory.group",
   "https://www.googleapis.com/auth/admin.directory.rolemanagement.readonly",
+  // The handover email is sent as the acting administrator.
+  "https://www.googleapis.com/auth/gmail.send",
 ] as const;
 const googleKeys = createRemoteJWKSet(new URL("https://www.googleapis.com/oauth2/v3/certs"));
 const config = z
