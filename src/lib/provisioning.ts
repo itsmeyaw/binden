@@ -313,7 +313,6 @@ export async function getProvisioningProgress(id: string, actor: Actor) {
       workspaceEmail: signupRequest.workspaceEmail,
       acceptedAt: signupRequest.acceptedAt,
       handoverConfirmedAt: signupRequest.handoverConfirmedAt,
-      googleUserId: signupRequest.googleUserId,
       accountCreateState: signupRequest.accountCreateState,
     })
     .from(signupRequest)

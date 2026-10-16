@@ -16,7 +16,6 @@ export type Progress = {
   workspaceEmail: string | null;
   acceptedAt: string | null;
   handoverConfirmedAt: string | null;
-  googleUserId: string | null;
   accountCreateState: "not_started" | "attempting" | "created" | "uncertain";
   groups: Array<{
     groupId: string;
