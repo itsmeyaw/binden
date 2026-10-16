@@ -1,0 +1,32 @@
+Write code in the git worktree /Users/itsmeyaw/projects/binden/.worktrees/ui-polish (branch ui/request-sheet, already checked out; do NOT switch branches, do NOT commit, do NOT push). Next.js 16 + React, shadcn style "base-nova" built on @base-ui/react (NOT radix): buttons rendering links need `render={<Link href=... />}` plus `nativeButton={false}`. Use only existing shadcn components in src/components/ui and Tailwind classes; no custom CSS, no new dependencies. Keep the diff minimal.
+
+Goal: admins review a signup request WITHOUT leaving /review, can quickly switch between requests, and the table is paginated. The API already returns requests newest first; keep that order (do not re-sort).
+
+1. src/components/review-request.tsx
+   - Remove the "Back to requests" Button/Link from ReviewRequest (around line 344-351) and the now-unused imports (ArrowLeftIcon, Link if unused).
+   - Add an optional prop `onChanged?: () => void`. Call it after each successful mutation: successful correct() (right after setEditing(false)), successful accept (response.ok branch and the 409 branch), successful reject (response.ok branch and the rejection-notification-pending branch), and retryNotification when response.ok.
+   - Signature becomes `export function ReviewRequest({ id, onChanged }: { id: string; onChanged?: () => void })`.
+
+2. src/app/review/[id]/page.tsx (the standalone deep-link page, keep it working)
+   - Render the "Back to requests" button there, above <ReviewRequest id={id} key={id} />, exactly as it was in ReviewRequest: `<Button className="mb-4" nativeButton={false} variant="ghost" render={<Link href="/review" />}><ArrowLeftIcon /> Back to requests</Button>`, inside a `p-4` wrapper so spacing matches what ReviewRequest had. Keep the `mx-auto w-full max-w-4xl` container.
+
+3. src/components/review-queue.tsx
+   - Pagination: const PAGE_SIZE = 10; `page` state (0-based). Reset page to 0 whenever search or status filter changes (do it in the onChange handlers and in reset(), not in an effect). Clamp: `const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE)); const currentPage = Math.min(page, pageCount - 1);` and render `filtered.slice(currentPage*PAGE_SIZE, (currentPage+1)*PAGE_SIZE)`. Below the table (only when pageCount > 1) render a row like the shadcn data-table demo: left side text-sm text-muted-foreground "Page {currentPage+1} of {pageCount}", right side two `variant="outline" size="icon-sm"` Buttons with ChevronLeftIcon/ChevronRightIcon, aria-label "Previous page"/"Next page", disabled at the ends. Keep the existing "Showing X of Y" text (Y = total, X = filtered count).
+   - Sheet: `selectedId` state (string | null). The applicant-name Link keeps `href={`/review/${request.id}`}` (cmd/ctrl/shift/middle-click must still open the standalone page) but add onClick: if `event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey` then event.preventDefault() and setSelectedId(request.id). Also mark the selected row with `data-state={request.id === selectedId ? "selected" : undefined}` (TableRow styles data-[state=selected]).
+   - Render a Sheet from "@/components/ui/sheet" (read that file for the exported parts): `open={selectedId !== null}` and `onOpenChange={(open) => { if (!open) setSelectedId(null); }}`. SheetContent side="right" with className that makes it wide and scrollable: `w-full gap-0 data-[side=right]:w-full data-[side=right]:sm:max-w-2xl` and an inner `<div className="min-h-0 flex-1 overflow-y-auto">` containing `<ReviewRequest id={selectedId} key={selectedId} onChanged={refresh} />`.
+   - SheetHeader (with `border-b pr-12` so it clears the built-in close button): SheetTitle = selected applicant's full name; SheetDescription = `Request {index+1} of {filtered.length}`; plus two `variant="outline" size="icon-sm"` Buttons ChevronUpIcon/ChevronDownIcon with aria-label "Previous request"/"Next request", disabled at the ends of `filtered`. Lay them out in a flex row with the title/description.
+   - Navigation helper `select(index)`: setSelectedId(filtered[index].id) and setPage(Math.floor(index / PAGE_SIZE)) so the table page follows the selection. index = filtered.findIndex(r => r.id === selectedId).
+   - Keyboard: while the sheet is open, "j" = next request, "k" = previous request. Add a keydown listener (useEffect on window, depending on what it needs) that ignores events when event.defaultPrevented, any modifier key is pressed, or the target is an input, textarea, select, or isContentEditable element. Mention the shortcut in the SheetDescription: e.g. `Request 2 of 6 · J/K to switch`. Put the shortcut hint in a `<span className="hidden sm:inline">` so mobile doesn't show it.
+   - If the selected request disappears from `filtered` (filter changed or refresh), close the sheet: derive `const selectedIndex = ...; const open = selectedIndex !== -1;` and use `open` instead of `selectedId !== null`.
+   - `refresh`: refetch the list WITHOUT showing the loading state (so the open sheet does not unmount): `async function refresh() { const next = await fetchRequests(); if (next.status === "ready") setState(next); }`. Because ReviewRequest sets itself to "missing" after a rejection, the request may leave the list on refresh; that is fine (the sheet closes per the rule above). Hmm — actually that would hide the "no longer available" message instantly; acceptable.
+   - Keep these accessible names intact (e2e tests use them): heading "Sign up requests" (in page.tsx), applicant full name as a link, "Workspace email" label, buttons "Correct details" and "Done".
+
+4. tests/review.spec.ts, first test ("shows only persisted verified requests..."): replace
+       await page.getByRole("link", { name: "Back to requests" }).click();
+       await expect(page).toHaveURL(/\/review$/);
+   with
+       await expect(page).toHaveURL(/\/review$/);
+       await page.getByRole("button", { name: "Close" }).click();
+   keep the final expect that the "Verified Applicant" link is visible.
+
+Verify from the worktree: `pnpm lint` (oxlint --deny-warnings), `pnpm format` (oxfmt; run it to format), `pnpm exec tsc --noEmit`, `pnpm exec tsx tests/review.ts`. All must pass. Report back: files changed, a brief summary, and the output status of each check. Do not start a dev server.
