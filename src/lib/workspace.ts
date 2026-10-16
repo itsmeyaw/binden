@@ -54,11 +54,13 @@ export async function googleGet(url: string | URL, accessToken: string, allowMis
   return response.json();
 }
 
+// With `allowConflict`, a 409 is an answer ("already there") rather than a failure.
 export async function googleSend(
   url: string | URL,
   accessToken: string,
   method: "POST" | "PATCH",
   body: unknown,
+  allowConflict = false,
 ) {
   const response = await fetch(url, {
     method,
@@ -67,6 +69,7 @@ export async function googleSend(
     cache: "no-store",
     signal: AbortSignal.timeout(10_000),
   });
+  if (allowConflict && response.status === 409) return null;
   if (!response.ok) {
     await logGoogleFailure(url, response);
     throw new WorkspaceUnavailable(response.status === 401);
