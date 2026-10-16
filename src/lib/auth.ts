@@ -65,7 +65,7 @@ export const auth = betterAuth({
             user: {
               name: profile.name?.fullName || identity.email,
               email: profile.primaryEmail,
-              image: profile.thumbnailPhotoUrl,
+              image: identity.picture ?? profile.thumbnailPhotoUrl,
               emailVerified: true,
             },
             data: { ...payload, ...identity } as GoogleProfile,

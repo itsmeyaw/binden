@@ -11,6 +11,7 @@ const identitySchema = z.object({
   hd: z.string().min(1),
   email: z.email(),
   email_verified: z.literal(true),
+  picture: z.url().optional(),
 });
 
 const profileSchema = z.object({
