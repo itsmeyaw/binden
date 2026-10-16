@@ -1,0 +1,47 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M53CST1J281W1585J56T79HK",
+  "session_id": "ses_eb94481e4ffeKfm7iVzlbne7WE",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-16T22:20:04.066207Z",
+  "branch": "issue-12/auto-handover",
+  "checkpoints_count": 1,
+  "save_step_count": 1,
+  "files_touched": [],
+  "agent": "OpenCode",
+  "model": "anthropic.claude-opus-5-5",
+  "turn_id": "b06332891848",
+  "checkpoint_transcript_start": 9,
+  "transcript_lines_at_start": 9,
+  "compact_transcript_start": 9,
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "session_metrics": {
+    "turn_count": 1
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 16,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        "src/lib/auth.ts": 12,
+        "test-results/.last-run.json": 4
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 16,
+      "agent_lines_removed": 0
+    }
+  ]
+}
