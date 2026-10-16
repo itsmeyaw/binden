@@ -16,7 +16,7 @@ export async function POST(
   if (!z.uuid().safeParse(id).success) return json({ error: "Request not found." }, 404);
 
   try {
-    const outcome = await retryProvisioning(id);
+    const outcome = await retryProvisioning(id, access);
     if (outcome === "unavailable")
       return json({ error: "This signup request has nothing to retry." }, 409);
     if (outcome === "uncertain")

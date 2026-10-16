@@ -8,8 +8,10 @@ import {
   type Actor,
   listManageableGroups,
   type ManageableGroup,
+  resetWorkspacePassword,
 } from "@/lib/directory";
 import { getDb } from "@/lib/db";
+import { sendMailAsActor } from "@/lib/gmail";
 import { captureReviewerMail } from "@/lib/review";
 import { signupRequest, signupRequestGroup, signupRequestRevision } from "@/lib/schema";
 
@@ -76,6 +78,7 @@ export async function provisionAcceptedRequest(id: string, actor: Actor) {
 
   await addUnfinishedMemberships(id, userId);
   await completeIfAllAdded(id);
+  await sendHandoverBestEffort(id, actor);
 }
 
 // Touches only `pending` and `failed` groups, so successful memberships are never re-sent.
@@ -140,6 +143,7 @@ async function completeIfAllAdded(id: string) {
 // Retries only unfinished memberships. An unknown account outcome is never repeated here.
 export async function retryProvisioning(
   id: string,
+  actor: Actor,
 ): Promise<"retried" | "uncertain" | "unavailable"> {
   const [request] = await getDb()
     .select({
@@ -153,6 +157,7 @@ export async function retryProvisioning(
   if (request.state !== "created" || !request.googleUserId) return "uncertain";
   await addUnfinishedMemberships(id, request.googleUserId);
   await completeIfAllAdded(id);
+  await sendHandoverBestEffort(id, actor);
   return "retried";
 }
 
@@ -202,51 +207,94 @@ export async function reviseAssignment(
   });
 }
 
-// Records that first-login instructions were sent (not delivered, not used). One conditional
-// statement, so it needs provisioning complete and every selected membership added, and only one
-// concurrent confirmation wins.
-export async function confirmHandover(
+// A failed reset or mail leaves the request awaiting handover, so an administrator can send again.
+// ponytail: no retry queue; the administrator resends from the request page.
+async function sendHandoverBestEffort(id: string, actor: Actor) {
+  try {
+    await sendHandover(id, actor);
+  } catch {
+    // The outcome is visible as awaiting_handover.
+  }
+}
+
+// Resets the account to a fresh temporary password and mails it to the applicant as the acting
+// administrator. Needs provisioning complete and every selected membership added. A throw rolls
+// back, so the request stays awaiting_handover and can be sent again. The password is never stored
+// or logged, and it is absent from mail_message (the reviewer notice carries no credentials).
+// ponytail: the row lock is held across the two Google calls so concurrent sends cannot mail two
+// different passwords; fine at this scale.
+export async function sendHandover(
   id: string,
-  adminDirectoryId: string,
-): Promise<"confirmed" | "already" | "blocked" | "unavailable"> {
+  actor: Actor,
+): Promise<"sent" | "already" | "blocked" | "unavailable"> {
   const db = getDb();
-  const [confirmed] = await db
-    .update(signupRequest)
-    .set({
-      status: "handover_confirmed",
-      handoverConfirmedAt: new Date(),
-      handoverConfirmedByDirectoryId: adminDirectoryId,
-    })
-    .where(
-      and(
-        eq(signupRequest.id, id),
-        eq(signupRequest.status, "awaiting_handover"),
-        eq(signupRequest.accountCreateState, "created"),
-        notExists(
-          db
-            .select({ one: sql`1` })
-            .from(signupRequestGroup)
-            .where(
-              and(
-                eq(signupRequestGroup.signupRequestId, id),
-                ne(signupRequestGroup.state, "added"),
+  const sent = await db.transaction(async (tx) => {
+    const [request] = await tx
+      .select({
+        givenName: signupRequest.givenName,
+        contactEmail: signupRequest.contactEmail,
+        workspaceEmail: signupRequest.workspaceEmail,
+        googleUserId: signupRequest.googleUserId,
+      })
+      .from(signupRequest)
+      .where(
+        and(
+          eq(signupRequest.id, id),
+          eq(signupRequest.status, "awaiting_handover"),
+          eq(signupRequest.accountCreateState, "created"),
+          notExists(
+            tx
+              .select({ one: sql`1` })
+              .from(signupRequestGroup)
+              .where(
+                and(
+                  eq(signupRequestGroup.signupRequestId, id),
+                  ne(signupRequestGroup.state, "added"),
+                ),
               ),
-            ),
+          ),
         ),
-      ),
-    )
-    .returning({ id: signupRequest.id });
-  if (confirmed) {
+      )
+      .for("update");
+    if (!request?.googleUserId || !request.workspaceEmail) return false;
+    const password = await resetWorkspacePassword(actor, request.googleUserId);
+    await sendMailAsActor(actor, {
+      to: request.contactEmail,
+      subject: "Your Workspace account is ready",
+      text: [
+        `Hello ${request.givenName},`,
+        "",
+        "Your Workspace account is ready. Use these details to sign in:",
+        "",
+        `Workspace email: ${request.workspaceEmail}`,
+        `Temporary password: ${password}`,
+        "",
+        "Sign in at https://accounts.google.com with your Workspace email and the temporary password. Google will require you to choose a new password at your first sign-in.",
+        "",
+        "This temporary password stops working if a new one is sent to you.",
+      ].join("\n"),
+    });
+    await tx
+      .update(signupRequest)
+      .set({
+        status: "handover_confirmed",
+        handoverConfirmedAt: new Date(),
+        handoverConfirmedByDirectoryId: actor.profile.id,
+      })
+      .where(eq(signupRequest.id, id));
+    return true;
+  });
+  if (sent) {
     try {
       await captureReviewerMail(
         id,
         "Workspace account handover confirmed",
-        "An administrator confirmed that first-login instructions were sent.",
+        "A first-login email with a temporary password was sent to the applicant.",
       );
     } catch {
-      // ponytail: the confirmation stands; this notice is not retried.
+      // ponytail: the send stands; this notice is not retried.
     }
-    return "confirmed";
+    return "sent";
   }
   const [request] = await db
     .select({ status: signupRequest.status })

@@ -34,6 +34,7 @@ export function fakeDirectory(options: Options = {}) {
   } = options;
   const original = globalThis.fetch;
   const calls: URL[] = [];
+  let mailFailure = mailStatus;
   // Decoded RFC 5322 messages accepted by Gmail.
   const messages: string[] = [];
   // Directory writes, in order; bodies include passwords, so tests only.
@@ -52,8 +53,8 @@ export function fakeDirectory(options: Options = {}) {
     if (url.hostname === "gmail.googleapis.com") {
       if (new Headers(init?.headers).get("Authorization") !== `Bearer ${actor.accessToken}`)
         return Response.json({}, { status: 401 });
-      if (mailStatus)
-        return Response.json({ error: { message: "denied" } }, { status: mailStatus });
+      if (mailFailure)
+        return Response.json({ error: { message: "denied" } }, { status: mailFailure });
       if (init?.method !== "POST" || url.pathname !== "/gmail/v1/users/me/messages/send")
         return notFound();
       const { raw } = JSON.parse(String(init.body));
@@ -108,6 +109,10 @@ export function fakeDirectory(options: Options = {}) {
     calls,
     messages,
     writes,
+    // Fails Gmail calls with this status from now on; no argument restores delivery.
+    failMail(status?: number) {
+      mailFailure = status;
+    },
     restore() {
       globalThis.fetch = original;
     },

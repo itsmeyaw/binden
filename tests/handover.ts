@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 
-import { actor } from "./fake-directory";
+import { actor, fakeDirectory } from "./fake-directory";
 
 try {
   process.loadEnvFile(".env.local");
@@ -20,9 +20,10 @@ async function main() {
   const { db } = await import("../src/lib/db");
   const { mailMessage, signupRequest, signupRequestGroup } = await import("../src/lib/schema");
   const { sendReviewerNotification } = await import("../src/lib/review");
-  const { acceptSignupRequest, confirmHandover, provisionAcceptedRequest } =
+  const { acceptSignupRequest, provisionAcceptedRequest, sendHandover } =
     await import("../src/lib/provisioning");
 
+  const fake = fakeDirectory();
   const ids: string[] = [];
   async function seed(status: string, groups: string[] = []) {
     const id = randomUUID();
@@ -52,6 +53,19 @@ async function main() {
     db.select().from(mailMessage).where(eq(mailMessage.signupRequestId, id));
   const row = async (id: string) =>
     (await db.select().from(signupRequest).where(eq(signupRequest.id, id)))[0];
+  // Temporary passwords sent to a user through the Directory, in order.
+  const resets = (userId: string | null) =>
+    fake.writes
+      .filter((write) => write.method === "PATCH" && write.path === `users/${userId}`)
+      .map((write) => String(write.body.password));
+  // Splits a Gmail message into its headers and decoded plain-text body.
+  const decode = (raw: string) => {
+    const [headers, body] = raw.split("\r\n\r\n");
+    return {
+      headers,
+      body: Buffer.from(body.replace(/\r\n/g, ""), "base64").toString("utf8"),
+    };
+  };
 
   try {
     // One minimal notice per verified request, however often or concurrently it is sent.
@@ -84,49 +98,109 @@ async function main() {
     // Only verified requests are notified.
     assert.equal(await sendReviewerNotification(await seed("pending_verification")), "skipped");
 
-    // Handover is blocked until provisioning has finished every selected membership.
+    // The first-login email is blocked until provisioning has finished every selected membership.
     const partial = await seed("verified", ["sim-events", "sim-flaky"]);
     await acceptSignupRequest(partial, "admin-1");
     await provisionAcceptedRequest(partial, actor);
     assert.equal((await row(partial)).status, "provisioning");
-    assert.equal(await confirmHandover(partial, "admin-2"), "blocked");
+    assert.equal(await sendHandover(partial, actor), "blocked");
     assert.equal((await row(partial)).handoverConfirmedAt, null);
-    assert.equal(await confirmHandover(await seed("verified"), "admin-2"), "unavailable");
+    assert.equal(await sendHandover(await seed("verified"), actor), "unavailable");
 
-    // Confirmation is recorded once; concurrent and repeated confirmations do not duplicate it.
+    // Accepting with every membership added sends the email at once; repeats do not resend it.
     const ok = await seed("verified", ["sim-events"]);
     await acceptSignupRequest(ok, "admin-1");
     await provisionAcceptedRequest(ok, actor);
-    assert.equal((await row(ok)).status, "awaiting_handover");
-    const results = await Promise.all([
-      confirmHandover(ok, "admin-2"),
-      confirmHandover(ok, "admin-3"),
-    ]);
-    assert.deepEqual(results.sort(), ["already", "confirmed"]);
-    assert.equal(await confirmHandover(ok, "admin-2"), "already");
     const saved = await row(ok);
     assert.equal(saved.status, "handover_confirmed");
     assert.ok(saved.handoverConfirmedAt);
-    assert.match(saved.handoverConfirmedByDirectoryId ?? "", /^admin-[23]$/);
+    assert.equal(saved.handoverConfirmedByDirectoryId, "admin-1");
     assert.equal(saved.approvedByDirectoryId, "admin-1");
+    assert.doesNotMatch(JSON.stringify(saved), /password/i);
+    assert.equal(await sendHandover(ok, actor), "already");
+    await provisionAcceptedRequest(ok, actor);
 
-    // The confirmation notice goes to the reviewer group without applicant data or credentials.
+    // Only one minimal notice goes to the reviewer group, without applicant data or credentials.
     const confirmation = await mail(ok);
     assert.equal(confirmation.length, 1);
     assert.equal(confirmation[0].to, "reviewers@example.org");
-    for (const personal of ["Secret", "Applicant", "password", saved.workspaceEmail ?? "?"])
+    for (const personal of ["Secret", "Applicant", saved.workspaceEmail ?? "?"])
       assert.ok(!confirmation[0].text.includes(personal));
 
-    // A membership that is no longer added blocks a not-yet-confirmed handover.
+    // A membership that is no longer added blocks a request still awaiting the email.
     const regress = await seed("verified", ["sim-events"]);
-    await acceptSignupRequest(regress, "admin-1");
-    await provisionAcceptedRequest(regress, actor);
+    await db
+      .update(signupRequest)
+      .set({
+        status: "awaiting_handover",
+        accountCreateState: "created",
+        googleUserId: `sim-user-${(await row(regress)).workspaceEmail}`,
+      })
+      .where(eq(signupRequest.id, regress));
     await db
       .update(signupRequestGroup)
       .set({ state: "failed" })
       .where(eq(signupRequestGroup.signupRequestId, regress));
-    assert.equal(await confirmHandover(regress, "admin-2"), "blocked");
+    assert.equal(await sendHandover(regress, actor), "blocked");
+    assert.equal((await row(regress)).status, "awaiting_handover");
+
+    // Without simulation the account is created, reset, and mailed through the Directory and Gmail.
+    delete env.GOOGLE_SIMULATION;
+    try {
+      const real = await seed("verified");
+      await acceptSignupRequest(real, "admin-1");
+      await provisionAcceptedRequest(real, actor);
+      const created = await row(real);
+      assert.equal(created.status, "handover_confirmed");
+      const [password] = resets(created.googleUserId);
+      assert.ok(password);
+      assert.equal(fake.messages.length, 1);
+      const sent = decode(fake.messages[0]);
+      assert.match(sent.headers, new RegExp(`To: ${created.contactEmail}`));
+      assert.ok(sent.body.includes(password));
+      assert.ok(sent.body.includes(created.workspaceEmail ?? "?"));
+      assert.ok(sent.body.includes("https://accounts.google.com"));
+      assert.ok(!JSON.stringify(created).includes(password));
+      assert.equal((await mail(real)).length, 1);
+      assert.ok(!(await mail(real))[0].text.includes(password));
+
+      // A failed mail rolls back: acceptance still succeeds and the request stays awaiting the email.
+      const flaky = await seed("verified");
+      fake.failMail(500);
+      await acceptSignupRequest(flaky, "admin-1");
+      await provisionAcceptedRequest(flaky, actor);
+      const stalled = await row(flaky);
+      assert.equal(stalled.status, "awaiting_handover");
+      assert.equal(stalled.handoverConfirmedAt, null);
+      assert.equal(fake.messages.length, 1);
+      assert.equal((await mail(flaky)).length, 0);
+
+      // Sending again with Gmail healthy resets the password, so the earlier one stops working.
+      fake.failMail();
+      assert.equal(await sendHandover(flaky, actor), "sent");
+      const [first, second] = resets(stalled.googleUserId);
+      assert.notEqual(first, second);
+      assert.equal(fake.messages.length, 2);
+      const resent = decode(fake.messages[1]);
+      assert.ok(resent.body.includes(second));
+      assert.ok(!resent.body.includes(first));
+      assert.equal((await row(flaky)).status, "handover_confirmed");
+
+      // Concurrent sends: one resets and mails, the other reports that it was already sent.
+      const racing = await seed("verified");
+      fake.failMail(500);
+      await acceptSignupRequest(racing, "admin-1");
+      await provisionAcceptedRequest(racing, actor);
+      fake.failMail();
+      const raced = await Promise.all([sendHandover(racing, actor), sendHandover(racing, actor)]);
+      assert.deepEqual(raced.sort(), ["already", "sent"]);
+      assert.equal(resets((await row(racing)).googleUserId).length, 2);
+      assert.equal(fake.messages.length, 3);
+    } finally {
+      env.GOOGLE_SIMULATION = "true";
+    }
   } finally {
+    fake.restore();
     for (const id of ids) await db.delete(signupRequest).where(eq(signupRequest.id, id));
     await db.$client.end();
   }
