@@ -3,10 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
-  ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  ChevronUpIcon,
   InboxIcon,
   SearchIcon,
   SearchXIcon,
@@ -378,37 +376,13 @@ export function ReviewQueue() {
           <Sheet onOpenChange={setSheetOpen} open={open}>
             <SheetContent className="w-full gap-0 data-[side=right]:w-full data-[side=right]:sm:max-w-2xl">
               <SheetHeader className="border-b pr-12">
-                <div className="flex items-center gap-2">
-                  <div className="min-w-0 flex-1">
-                    <SheetTitle>
-                      {selected && `${selected.givenName} ${selected.familyName}`}
-                    </SheetTitle>
-                    <SheetDescription>
-                      Request {selectedIndex + 1} of {filtered.length}
-                      <span className="hidden sm:inline"> · J/K to switch</span>
-                    </SheetDescription>
-                  </div>
-                  <Button
-                    aria-label="Previous request"
-                    disabled={selectedIndex <= 0}
-                    onClick={() => select(selectedIndex - 1)}
-                    size="icon-sm"
-                    type="button"
-                    variant="outline"
-                  >
-                    <ChevronUpIcon />
-                  </Button>
-                  <Button
-                    aria-label="Next request"
-                    disabled={selectedIndex === filtered.length - 1}
-                    onClick={() => select(selectedIndex + 1)}
-                    size="icon-sm"
-                    type="button"
-                    variant="outline"
-                  >
-                    <ChevronDownIcon />
-                  </Button>
-                </div>
+                <SheetTitle>
+                  {selected && `${selected.givenName} ${selected.familyName}`}
+                </SheetTitle>
+                <SheetDescription>
+                  Request {selectedIndex + 1} of {filtered.length}
+                  <span className="hidden sm:inline"> · J/K to switch</span>
+                </SheetDescription>
               </SheetHeader>
               <div className="min-h-0 flex-1 overflow-y-auto">
                 {selected && (
