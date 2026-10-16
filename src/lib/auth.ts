@@ -63,6 +63,18 @@ export const auth = betterAuth({
           });
           const identity = validateIdentity(payload);
           const profile = await readWorkspaceProfile(tokens.accessToken, identity.sub, true);
+          // Better Auth never rewrites `account.scope` on re-sign-in, so a grant made before the
+          // scopes were widened would stay "stale" and loop on reconnect. New accounts store it themselves.
+          if (tokens.scopes?.length)
+            await db
+              .update(schema.account)
+              .set({ scope: tokens.scopes.join(",") })
+              .where(
+                and(
+                  eq(schema.account.providerId, "google"),
+                  eq(schema.account.accountId, identity.sub),
+                ),
+              );
           return {
             user: {
               name: profile.name?.fullName || identity.email,
