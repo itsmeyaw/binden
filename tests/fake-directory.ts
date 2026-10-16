@@ -18,6 +18,8 @@ type Options = {
   pageSize?: number;
   // Fail every Directory call with this status.
   status?: number;
+  // Fail every Gmail call with this status.
+  mailStatus?: number;
 };
 
 export function fakeDirectory(options: Options = {}) {
@@ -28,9 +30,12 @@ export function fakeDirectory(options: Options = {}) {
     assignments = Object.keys(roles),
     pageSize = 2,
     status,
+    mailStatus,
   } = options;
   const original = globalThis.fetch;
   const calls: URL[] = [];
+  // Decoded RFC 5322 messages accepted by Gmail.
+  const messages: string[] = [];
   const page = <T>(all: T[], url: URL, key: string) => {
     const start = Number(url.searchParams.get("pageToken") ?? 0);
     const next = start + pageSize;
@@ -41,6 +46,17 @@ export function fakeDirectory(options: Options = {}) {
   };
   globalThis.fetch = async (input, init) => {
     const url = new URL(input instanceof Request ? input.url : String(input));
+    if (url.hostname === "gmail.googleapis.com") {
+      if (new Headers(init?.headers).get("Authorization") !== `Bearer ${actor.accessToken}`)
+        return Response.json({}, { status: 401 });
+      if (mailStatus)
+        return Response.json({ error: { message: "denied" } }, { status: mailStatus });
+      if (init?.method !== "POST" || url.pathname !== "/gmail/v1/users/me/messages/send")
+        return notFound();
+      const { raw } = JSON.parse(String(init.body));
+      messages.push(Buffer.from(raw, "base64url").toString("utf8"));
+      return Response.json({ id: "m1" });
+    }
     if (url.hostname !== "admin.googleapis.com") return original(input, init);
     calls.push(url);
     const headers = new Headers(init?.headers);
@@ -72,6 +88,7 @@ export function fakeDirectory(options: Options = {}) {
   };
   return {
     calls,
+    messages,
     restore() {
       globalThis.fetch = original;
     },
