@@ -11,8 +11,9 @@ export async function sendMailAsActor(
   actor: Actor,
   { to, subject, text }: { to: string; subject: string; text: string },
 ) {
-  // ponytail: development simulation, like the Directory writes; nothing is sent.
-  if (process.env.GOOGLE_SIMULATION === "true") return;
+  // ponytail: development simulation, like the Directory writes; nothing is sent. Never in
+  // production, where a skipped send would still be recorded as sent.
+  if (process.env.GOOGLE_SIMULATION === "true" && process.env.NODE_ENV !== "production") return;
   if (/[\r\n]/.test(to) || /[\r\n]/.test(subject)) throw new Error("Mail header rejected");
   // ponytail: one encoded word for the subject; a subject over ~45 bytes needs splitting (RFC 2047).
   const encodedSubject = `=?UTF-8?B?${Buffer.from(subject, "utf8").toString("base64")}?=`;
