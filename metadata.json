@@ -3,7 +3,7 @@
   "checkpoint_id": "01M53D6Y1AY1AF5QGTZA51VP8A",
   "strategy": "manual-commit",
   "branch": "fix/avatar-sync",
-  "checkpoints_count": 9,
+  "checkpoints_count": 10,
   "files_touched": [
     "src/lib/auth.ts"
   ],
@@ -49,6 +49,13 @@
       "compact_transcript": "/5/transcript.jsonl",
       "content_hash": "/5/content_hash.txt",
       "prompt": "/5/prompt.txt"
+    },
+    {
+      "metadata": "/6/metadata.json",
+      "transcript": "/6/full.jsonl",
+      "compact_transcript": "/6/transcript.jsonl",
+      "content_hash": "/6/content_hash.txt",
+      "prompt": "/6/prompt.txt"
     }
   ],
   "token_usage": {
