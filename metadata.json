@@ -3,7 +3,7 @@
   "checkpoint_id": "01M53FC5N1C980HD33ZNCZMVA3",
   "strategy": "manual-commit",
   "branch": "ui/auth-screens",
-  "checkpoints_count": 5,
+  "checkpoints_count": 6,
   "files_touched": [
     "src/app/sign-up/page.tsx",
     "src/components/signup-form.tsx"
@@ -42,6 +42,13 @@
       "transcript": "/4/full.jsonl",
       "compact_transcript": "/4/transcript.jsonl",
       "content_hash": "/4/content_hash.txt",
+      "prompt": ""
+    },
+    {
+      "metadata": "/5/metadata.json",
+      "transcript": "/5/full.jsonl",
+      "compact_transcript": "/5/transcript.jsonl",
+      "content_hash": "/5/content_hash.txt",
       "prompt": ""
     }
   ],
