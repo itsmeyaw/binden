@@ -3,7 +3,7 @@
   "checkpoint_id": "01M53F0B9G6932B2H3N59AJDPP",
   "strategy": "manual-commit",
   "branch": "auto-verify/reviewer-notice",
-  "checkpoints_count": 5,
+  "checkpoints_count": 6,
   "files_touched": [
     ".env.example",
     "src/app/api/review/requests/[id]/notification/route.ts",
@@ -40,6 +40,13 @@
       "transcript": "/3/full.jsonl",
       "compact_transcript": "/3/transcript.jsonl",
       "content_hash": "/3/content_hash.txt",
+      "prompt": ""
+    },
+    {
+      "metadata": "/4/metadata.json",
+      "transcript": "/4/full.jsonl",
+      "compact_transcript": "/4/transcript.jsonl",
+      "content_hash": "/4/content_hash.txt",
       "prompt": ""
     }
   ],
