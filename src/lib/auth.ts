@@ -65,7 +65,7 @@ export const auth = betterAuth({
             user: {
               name: profile.name?.fullName || identity.email,
               email: profile.primaryEmail,
-              image: identity.picture ?? profile.thumbnailPhotoUrl,
+              image: profile.picture,
               emailVerified: true,
             },
             data: { ...payload, ...identity } as GoogleProfile,
@@ -117,6 +117,11 @@ export async function getReviewAccess(headers: Headers) {
       throw new WorkspaceUnavailable(true);
     stage = "workspace-profile";
     const profile = await readWorkspaceProfile(token.accessToken, account.accountId, true);
+    if ((profile.picture ?? null) !== session.user.image)
+      await db
+        .update(schema.user)
+        .set({ image: profile.picture ?? null, updatedAt: new Date() })
+        .where(eq(schema.user.id, session.user.id));
     stage = "reviewer-role";
     if (!(await hasReviewerRole(token.accessToken, profile.id, config.GOOGLE_REVIEWER_ROLE_ID)))
       return { status: "denied" } as const;

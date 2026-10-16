@@ -117,7 +117,7 @@ export async function readWorkspaceProfile(
       .where(eq(workspaceIdentity.googleSubject, subject));
     if (saved?.directoryId !== profile.id) throw new WorkspaceUnavailable(true);
   }
-  return profile;
+  return { ...profile, picture: identity.picture ?? profile.thumbnailPhotoUrl };
 }
 
 export async function hasReviewerRole(accessToken: string, directoryId: string, roleId: string) {
