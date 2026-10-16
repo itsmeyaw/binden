@@ -3,7 +3,7 @@
   "checkpoint_id": "01M53D39GMP6RHB7Y7550R5QM5",
   "strategy": "manual-commit",
   "branch": "issue-12/auto-handover",
-  "checkpoints_count": 8,
+  "checkpoints_count": 9,
   "files_touched": null,
   "sessions": [
     {
@@ -47,6 +47,13 @@
       "compact_transcript": "/5/transcript.jsonl",
       "content_hash": "/5/content_hash.txt",
       "prompt": "/5/prompt.txt"
+    },
+    {
+      "metadata": "/6/metadata.json",
+      "transcript": "/6/full.jsonl",
+      "compact_transcript": "/6/transcript.jsonl",
+      "content_hash": "/6/content_hash.txt",
+      "prompt": "/6/prompt.txt"
     }
   ],
   "token_usage": {
