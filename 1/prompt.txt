@@ -1,0 +1,8 @@
+Review only, do not edit. In /Users/itsmeyaw/projects/binden/.worktrees/issue-12-handover, review `git diff origin/main...HEAD` (6 commits across two stacked branches: issue-12/workspace-writes = first 3, issue-12/auto-handover = last 3). Feature: accepting a signup creates a real Google Workspace user (Admin SDK users.insert with admin OAuth token), then once group memberships succeed, resets the password to a random temporary one with changePasswordAtNextLogin and emails it to the applicant's contact email via Gmail API as the acting admin (gmail.send scope added). Simulation mode (GOOGLE_SIMULATION=true) stubs Google writes for dev/e2e.
+
+Check, with file:line and severity (blocker / should-fix / nit):
+1. Correctness: transaction + `for update` in sendHandover actually serializes concurrent sends (drizzle/pg driver in use supports interactive transactions? check src/lib/db.ts — e.g. neon-http driver does NOT support transactions); password never persisted/logged (including logGoogleFailure logging request bodies or URLs); RFC 5322 message building and base64url; header injection guard; Gmail/Directory error handling; that accept/retry/revise paths all trigger handover; simulation guards can't silently no-op in production.
+2. Security: any leak of the temporary password (logs, DB, API responses, progress JSON, reviewer notice).
+3. Ponytail: unnecessary code, abstractions, dead code/props left behind (e.g. unused googleUserId in Progress type), over-long comments, duplicated helpers that could reuse existing ones.
+4. Tests meaningfully cover the above; UI uses existing shadcn components only, no manual CSS.
+Also run `pnpm lint && pnpm format:check && pnpm exec tsc --noEmit && pnpm test` and report results. Be concise; only real issues.
