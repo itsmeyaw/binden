@@ -1,0 +1,34 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M53EY9WC3RT25REBNQ52BM8A",
+  "strategy": "manual-commit",
+  "branch": "auto-verify/signup",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "CONTEXT.md",
+    "src/app/api/signup/route.ts",
+    "src/app/api/verify/resend/route.ts",
+    "src/app/api/verify/route.ts",
+    "src/app/verify/page.tsx",
+    "src/components/signup-form.tsx",
+    "src/components/verification-form.tsx",
+    "src/lib/verification.ts",
+    "tests/signup.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": "/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 26,
+    "cache_creation_tokens": 83068,
+    "cache_read_tokens": 794490,
+    "output_tokens": 2339,
+    "api_call_count": 11
+  }
+}

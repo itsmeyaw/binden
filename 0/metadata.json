@@ -1,0 +1,58 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M53EY9WC3RT25REBNQ52BM8A",
+  "session_id": "ses_eb91b1f09ffeNXAGiZYzcDZVKV",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-16T22:57:32.358508Z",
+  "branch": "auto-verify/signup",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "CONTEXT.md",
+    "src/app/api/signup/route.ts",
+    "src/app/api/verify/resend/route.ts",
+    "src/app/api/verify/route.ts",
+    "src/app/verify/page.tsx",
+    "src/components/signup-form.tsx",
+    "src/components/verification-form.tsx",
+    "src/lib/verification.ts",
+    "tests/signup.ts"
+  ],
+  "agent": "OpenCode",
+  "model": "anthropic.claude-sonnet-5-5",
+  "turn_id": "c6b45af6288c",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 26,
+    "cache_creation_tokens": 83068,
+    "cache_read_tokens": 794490,
+    "output_tokens": 2339,
+    "api_call_count": 11
+  },
+  "session_metrics": {
+    "turn_count": 2
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-10-16T22:57:32.351913Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 0,
+    "human_modified": 21,
+    "human_removed": 585,
+    "total_committed": 0,
+    "total_lines_changed": 606,
+    "agent_percentage": 0,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 4,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        "test-results/.last-run.json": 4
+      }
+    }
+  ]
+}
