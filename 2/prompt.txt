@@ -1,0 +1,16 @@
+Write code in the git worktree at /Users/itsmeyaw/projects/binden/.worktrees/fix-avatar (branch fix/avatar-photo, already checked out). Work ONLY in that directory; do not touch /Users/itsmeyaw/projects/binden itself.
+
+Bug: the sidebar user avatar (src/components/nav-user.tsx) shows initials fallback instead of the Google Workspace photo.
+
+Root cause (verified with curl): the stored `user.image` is a Google lh3 URL. Google's lh3 image host returns HTTP 429 (HTML) whenever the request carries a non-Google `Referer` header; without a Referer it returns the image. Also, the Directory API `thumbnailPhotoUrl` served anonymously is just Google's default silhouette, whereas the OIDC `picture` claim is the URL Google intends for third-party apps.
+
+Make exactly these minimal changes:
+1. src/components/nav-user.tsx: add `referrerPolicy="no-referrer"` to both `<AvatarImage ...>` elements.
+2. src/lib/workspace.ts: in `identitySchema`, add `picture: z.url().optional(),`.
+3. src/lib/auth.ts: in getUserInfo's returned user, change `image: profile.thumbnailPhotoUrl,` to `image: identity.picture ?? profile.thumbnailPhotoUrl,`. Do not change anything else in auth.ts.
+
+Then run in the worktree: `pnpm install --frozen-lockfile` if node_modules is missing, then the lint, format and typecheck scripts from package.json (check package.json for names, e.g. `pnpm lint`, `pnpm format`, `pnpm exec tsc --noEmit`). Fix only issues caused by your change.
+
+Commit with message: "Load the Google profile photo in the sidebar avatar" (no Co-Authored-By trailer). Do not push.
+
+Report back: the diff (`git show --stat` plus the full diff) and the lint/typecheck results.
