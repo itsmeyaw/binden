@@ -1,0 +1,122 @@
+{
+  "info": {
+    "id": "ses_eb934c497ffeKfZu0zsYe6WdBP",
+    "slug": "sunny-garden",
+    "projectID": "28efaf3c63c31d4caa53f01b1bf0333a974090a1",
+    "directory": "/Users/itsmeyaw/projects/binden",
+    "path": "",
+    "title": "Google Workspace profile image not loading in dashboard",
+    "agent": "build",
+    "model": {
+      "id": "anthropic.claude-opus-5-5",
+      "providerID": "amazon-bedrock",
+      "variant": "medium"
+    },
+    "version": "1.18.34",
+    "summary": {
+      "additions": 0,
+      "deletions": 0,
+      "files": 0
+    },
+    "cost": 0,
+    "tokens": {
+      "input": 0,
+      "output": 0,
+      "reasoning": 0,
+      "cache": {
+        "read": 0,
+        "write": 0
+      }
+    },
+    "time": {
+      "created": 1792189086568,
+      "updated": 1792189087010
+    }
+  },
+  "messages": [
+    {
+      "info": {
+        "role": "user",
+        "time": {
+          "created": 1792189086604
+        },
+        "agent": "build",
+        "model": {
+          "providerID": "amazon-bedrock",
+          "modelID": "anthropic.claude-opus-5-5",
+          "variant": "medium"
+        },
+        "summary": {
+          "diffs": []
+        },
+        "id": "msg_146cb3b8c001W3LXAL4JyttfnF",
+        "sessionID": "ses_eb934c497ffeKfZu0zsYe6WdBP"
+      },
+      "parts": [
+        {
+          "type": "text",
+          "text": "There is a bug, it seems taht the image from the google worrkspace account is not loaded into the UI dashboard. [Image 1] ",
+          "id": "prt_146cb3b8e001D6O450b10dAju7",
+          "sessionID": "ses_eb934c497ffeKfZu0zsYe6WdBP",
+          "messageID": "msg_146cb3b8c001W3LXAL4JyttfnF"
+        },
+        {
+          "type": "file",
+          "mime": "image/png",
+          "filename": "CleanShot 2026-10-17 at 00.18.01@2x.png",
+          "url": "data:image/png;base64,REDACTED/REDACTED/bh5vQF9o1e5nWv7f/REDACTED/0zH/REDACTED/1Jkr8Yc5A9oQh0iyY9kD/REDACTED/REDACTED/REDACTED/ADPZIlLcI4TUWFIA/IeIDyVA/P3krH+RD/REDACTED/REDACTED/REDACTED/CM0E54TLhB6CDcmSIoEg+LchzogPpBAzlL/REDACTED/REDACTED/REDACTED/XNEMsSA9I4/REDACTED/xhEu/UHN/8PALya+vv7j/REDACTED/REDACTED/REDACTED/oK7cUApoRpYyaYPcbE/REDACTED/Gl+Dr8V14LX4Gv4Y/wnvw7wQawYBgR/REDACTED/REDACTED/REDACTED/REDACTED/REDACTED/REDACTED/REDACTED/Pd4fucZcPKZO1hvfZz9BP7HfH76O/hP8v/REDACTED/REDACTED/dw33Fc+Xt4rXxffil/REDACTED/REDACTED/kzmwuNCmcV/REDACTED/2L01b2rbMddmm5cTlwuU3V/is2FWmXlZQ9mTluJW1qxirSla9Xz1l9YVy5/REDACTED//G/K1qh/REDACTED/5YGUAzcPhh1sPsQ8VHPY4vCGI/REDACTED/REDACTED/+7Xe3PvE+6XPFB7UP7Q4GHlHzZ/7Otw7Tj+KOBR6+PYx/REDACTED/dxX+q/7nhtfXrw3/5/tXaM76n8434Tf/bJe/03u187/y+uTeq9+GHnA9fP5Z80vu06zPz8/kviV+ef53WR+pb+83mW8P3sO/3+3P6+0UcMUe+FcBgQdPSAHi7EwBaEgD0K3D/REDACTED/mOJ8+lPcw2sgU3UGw+t/AR8vhY0+LfInAAAABGNJQ1AMDQABbgPj7wAAAIplWElmTU0AKgAAAAgABAEaAAUAAAABAAAAPgEbAAUAAAABAAAARgEoAAMAAAABAAIAAIdpAAQAAAABAAAATgAAAAAAAACQAAAAAQAAAJAAAAABAAOShgAHAAAAEgAAAHigAgAEAAAAAQAAAiqgAwAEAAAAAQAAAKYAAAAAQVNDSUkAAABTYwAAAAAAAAAAGjrO1AAAABxpRE9UAAAAAgAAAAAAAABTAAAAKAAAAFMAAABTAAAV8wXtnQIAABW/REDACTED/fJ22/IkCEVpyQCIiACIiACItArCFQqFWd/w4cPd8OGDXNDhw51/fv379b+Dx48OLQ/REDACTED/HcuhQ4eGZXrS6VW/fv3i3//REDACTED/+/bsVz+DBg0P7AwYMaGk/+g0ZMqTS0hp7YGX+GB1/REDACTED//gpWk7Qps5CMMMIIjj/EBwlLComLgEQd//zzT/REDACTED/REDACTED/VK6awPfff+/GGWecbNdGsQdff/21m3jiiYsfa/tfArn4YHl955133KeffuommmgiN9tss/XYmDP6ynU74YQT6joRgUBAQqWXXQh//PGH+/3330OvLWaku4Jcsa6kMTFjjDGGG3300bMS/REDACTED/REDACTED//REDACTED/REDACTED/REDACTED/REDACTED/V1yySXdOuusE6weWIg4L43SL7/REDACTED/7TTz/REDACTED/REDACTED/vvvl7534O559tlnOZ3BwrfLLruE9eI/REDACTED/REDACTED//REDACTED/REDACTED//vvb+M3pUPrkR4Dqww8/3Ibrxx9/REDACTED/REDACTED/REDACTED/REDACTED/uqXjrQPjzX96Kt1L0qj/REDACTED/REDACTED/REDACTED/J+8GpT3g/qFT/REDACTED/REDACTED/REDACTED/fpr60/REDACTED/REDACTED/sk7fu6f/REDACTED/REDACTED/REDACTED/y0/REDACTED/REDACTED/REDACTED/REDACTED/eg7FCaBkqjRt8Z4LEq4E/REDACTED/AlXpA+/REDACTED/dmpZVWiu/REDACTED/REDACTED/REDACTED/8h1x72lnjs7FzGLx2r1ZIUeb1ExK4S/REDACTED/REDACTED/REDACTED/REDACTED/REDACTED/REDACTED/MsrMXxBHgjHWF/REDACTED/REDACTED/tHVdaNhUq6Uyb9twfnG/REDACTED/REDACTED/REDACTED/EI1OR04TIZpA1C9jll1/uVl111bRIWE/REDACTED/REDACTED/GGjBurmFCv3jJw/8zKMwwJmY4/M0YWnARF+0guUUKvSRtw4zKBeTj/REDACTED/REDACTED/REDACTED/vnnO/+um/qF/wM5fU2o/B8AAP//REDACTED/Y+4859zn3vvc57nL85/P595zzpxZfzNn5jf/+c/MbP/4xz+K0GfG0hT++Mc/htlnnz1Mmzatz1LX3eQ888wz4T//+U+Yb775wpxzztndwCtCW3fddcO9994b35x//vnhbW97W4Wr56xOP/REDACTED//eZgyZUri87lb3OEes/fee4ejjjqqfPnJT34yHH300fH5gx/8YDjiiCPKd+nNu9/REDACTED/ej/b3i1/8Ihx//PHhnHPOKZ0+8MADYfHFFy+fX/jCF4ai+N+n9Nvf/rYyjwsttFD45z//Gf0Q5vOf//zSf/rul7/REDACTED/REDACTED/VvOF+9Rtis9dd91VltViiy0WHnroIQXf1vXrX/REDACTED/REDACTED/uNf//pXbFsWXHDBnub5Zz/7WYyf77SbZrZ+JCp//vOfw9/+9rfYQM4111wt5fc3v/lNeOqpp6Lb6dOnh5e85CUt+fv3v/8d6HQwz3ve88JKK61U6e+vf/1r2UHQ0a688sqV7tq1JJ9///vfA/REDACTED/+lN8X9e5/REDACTED/REDACTED/REDACTED/REDACTED///REDACTED/9bnjLW94S7SHhH/vYxwL1iraE76zKOFGpQuU5u5/REDACTED/REDACTED/+c2BTkZmIokKRJHO4le/+lWM/uKLLw4bbbSRkhKvv/vd7yKJJb9IQhgxp/VrxowZ4fe//REDACTED/REDACTED/REDACTED//REDACTED/REDACTED/REDACTED/3ryymNppG08PIPf/REDACTED/REDACTED/853vhJNPPjnWZwgwph2i8sMf/jAgFZEhPyussIIea6/pdNRBBx0UDjjggNJtq/REDACTED/REDACTED/vZA/cRA0tT+yT+DAr41GaaOmEJKDRJEyDWGb/Lyyy9PX/fl/REDACTED/MwbeZ9d9lll/DSl760NgzmqDXfj/5FOhJMPdFooquBYXoCMS3SHkZO3SAWf/REDACTED/REDACTED/fKd1OmbnXXWWeHDH/REDACTED/REDACTED/gK68Db/tlHX5jIuthvv/REDACTED/ZBN/Un/6NdySt5Ju/REDACTED/REDACTED/REDACTED///OdL96ZcWb4z8X9pj//REDACTED//M+aNav0h3/KWeG2k6/REDACTED/Zs8mESzDJO8mnWgarhHNBvem/REDACTED/scUnsc80AtNTQz/REDACTED/9Yoxm+G/NNmTEaDBBrD91RnqI/REDACTED/REDACTED/TDd0NUzJKC5ZZCURG2Whr2KKYzF8UyyLS/REDACTED/REDACTED/REDACTED/REDACTED/u3pbThp/REDACTED/REDACTED/REDACTED/CFL4wgK7T56Xk/REDACTED/REDACTED/REDACTED///eOZQ3l4+XMn5EZhoIyLBMlX/REDACTED/REDACTED/TRQYzVtEpU7r///REDACTED/wNmh3Lw9H9gfxpR1/REDACTED/REDACTED/REDACTED/REDACTED/REDACTED/K19dZbl9lyovI/REDACTED/REDACTED/REDACTED/OmG5DZ2beeectpwFS/REDACTED/l1FVMCKjhkdLOb/WzFIDKkL4Cd/REDACTED/REDACTED/zwaL/REDACTED/95e/REDACTED/+9lobx1aAea2jD3mF/833XRT6ZZyJu/WOTXEtfTSSxemq1O6S8OuuwcLwv/EJz4xwt/REDACTED/REDACTED/REDACTED/REDACTED/1OSgbTDSTuoKn/NiAodpYgBjbWNKAs7/yimg4bfFIzjfR1RsY31Ymdu8/REDACTED//REDACTED/REDACTED/+VSfzsP25f/u/REDACTED/REDACTED/REDACTED/REDACTED/REDACTED/iANEDDyI7cQGqQYSEvSb0/REDACTED/3hM0ytf+coCkp/REDACTED/REDACTED/REDACTED/REDACTED/ymt6/REDACTED/REDACTED/REDACTED/TXWWKMwRdoGP6n/REDACTED/YU0TeoA64gKHXTqPr0/+uijY5jpVBL1iXjoOKtIJ/4hObhBegAJUJjdzBeSQuJoNt1B/REDACTED/REDACTED/REDACTED/REDACTED/REDACTED/REDACTED/REDACTED/w6iZMwm/REDACTED/REDACTED//REDACTED/v2fVG/REDACTED/REDACTED/REDACTED/REDACTED/REDACTED/REDACTED/REDACTED/REDACTED//REDACTED/REDACTED/REDACTED/REDACTED/W6yk9XlRVh5KRNbkQq6lb9sGvuEv/REDACTED/REDACTED/REDACTED/REDACTED/REDACTED/mWA0whQsRY7dVsn5o0PL/vPomhDg2CREWkRGSF/REDACTED/REDACTED/REDACTED/pgRDw6oe6Y5LLlvnmoiAoIUGg2Co0/ChLDcdOQFX7tdLrRc/REDACTED/xELiAcGIGIP0YO/REDACTED/REDACTED/REDACTED/REDACTED/REDACTED/REDACTED/EXl/tFpcTlXYRc/REDACTED/kMgJSrcI03hx7lzw3iqtROV/REDACTED/REDACTED/wzTfipOVCZDjfY8OgKOgCPgCAwVAiIqXCEr/DT9g0Lt1KlThya/REDACTED/REDACTED/REDACTED//REDACTED/REDACTED/REDACTED/fEXAEHAFHwBHoUwRETpQ8PeuKfd29/REDACTED/REDACTED/ATjiqVqvi7c+AAAAAElFTkSuQmCC",
+          "source": {
+            "text": {
+              "value": "[Image 1]",
+              "start": 112,
+              "end": 121
+            },
+            "type": "file",
+            "path": "/Users/itsmeyaw/Library/Application Support/CleanShot/media/media_HlAim6hy2I/CleanShot 2026-10-17 at 00.18.01@2x.png"
+          },
+          "id": "prt_146cb3b8e002mfVx2k73pg30jr",
+          "sessionID": "ses_eb934c497ffeKfZu0zsYe6WdBP",
+          "messageID": "msg_146cb3b8c001W3LXAL4JyttfnF"
+        }
+      ]
+    },
+    {
+      "info": {
+        "parentID": "msg_146cb3b8c001W3LXAL4JyttfnF",
+        "role": "assistant",
+        "mode": "build",
+        "agent": "build",
+        "variant": "medium",
+        "path": {
+          "cwd": "/Users/itsmeyaw/projects/binden",
+          "root": "/Users/itsmeyaw/projects/binden"
+        },
+        "cost": 0,
+        "tokens": {
+          "input": 0,
+          "output": 0,
+          "reasoning": 0,
+          "cache": {
+            "read": 0,
+            "write": 0
+          }
+        },
+        "modelID": "anthropic.claude-opus-5-5",
+        "providerID": "amazon-bedrock",
+        "time": {
+          "created": 1792189086866,
+          "completed": 1792189090675
+        },
+        "error": {
+          "name": "MessageAbortedError",
+          "data": {
+            "message": "Aborted"
+          }
+        },
+        "id": "msg_146cb3c92001wrm1sBgv2IHpFQ",
+        "sessionID": "ses_eb934c497ffeKfZu0zsYe6WdBP"
+      },
+      "parts": []
+    }
+  ]
+}
