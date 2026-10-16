@@ -1,0 +1,1 @@
+There is a bug, it seems taht the image from the google worrkspace account is not loaded into the UI dashboard. [Image 1]
