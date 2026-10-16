@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ClipboardCheckIcon } from "lucide-react";
+import { ClipboardCheckIcon, UsersRoundIcon } from "lucide-react";
 
 import { NavUser } from "@/components/nav-user";
 import {
@@ -25,23 +25,33 @@ export function ReviewSidebar() {
   return (
     <Sidebar collapsible="icon" variant="inset">
       <SidebarHeader>
-        <span className="px-2 font-heading text-lg font-semibold group-data-[collapsible=icon]:hidden">
-          PM3 Muenchen
-        </span>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton size="lg" render={<Link href="/review" />}>
+              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                <UsersRoundIcon className="size-4" />
+              </div>
+              <div className="grid flex-1 text-left leading-tight">
+                <span className="truncate font-medium">PM3 Muenchen e.V.</span>
+                <span className="truncate text-xs">Workspace admin</span>
+              </div>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Workspace</SidebarGroupLabel>
+          <SidebarGroupLabel>Administration</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton
                   isActive={pathname.startsWith("/review")}
                   render={<Link href="/review" />}
-                  tooltip="Signup Review"
+                  tooltip="Signup requests"
                 >
                   <ClipboardCheckIcon />
-                  <span>Signup Review</span>
+                  <span>Signup requests</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
