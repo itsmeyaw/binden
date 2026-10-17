@@ -40,6 +40,19 @@ Run `pnpm exec drizzle-kit migrate` after setting `DATABASE_URL`.
 database as `TEST_DATABASE_URL`, and an uncommitted authenticated storage-state file at
 `E2E_GOOGLE_STORAGE_STATE`. See `docs/live-workspace-smoke-check.md` for live-tenant verification.
 
+## Deployment
+
+GitHub Actions deploys to Vercel (Vercel's Git integration is disabled via `vercel.json`).
+
+- Secrets: `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`, `NEON_API_KEY`, and `DATABASE_URL`
+  (production; the direct, unpooled Neon URL).
+- Variable: `NEON_PROJECT_ID`.
+- Pull request (same-repo): creates or reuses Neon branch `preview/pr-<number>`, runs migrations on it,
+  and deploys a preview with that branch's pooled URL as `DATABASE_URL`.
+- Push to `main`: runs migrations on `DATABASE_URL`, then deploys to production.
+- Pull request closed: deletes the `preview/pr-<number>` Neon branch.
+- Per-preview values such as `BETTER_AUTH_URL` come from the Vercel project's Preview environment.
+
 ## Code Quality
 
 ```bash
