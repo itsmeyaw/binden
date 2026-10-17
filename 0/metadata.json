@@ -1,0 +1,25 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M53KRFJEBTCN2S7TD39PMGR5",
+  "session_id": "ses_eb8e37bb1ffepYFAmc7qrq9dwz",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-17T00:21:47.673324Z",
+  "branch": "home-redirect/dashboard",
+  "checkpoints_count": 1,
+  "save_step_count": 1,
+  "files_touched": [],
+  "agent": "OpenCode",
+  "model": "anthropic.claude-haiku-5-5",
+  "turn_id": "d0b1ab20acc4",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 38,
+    "cache_creation_tokens": 146894,
+    "cache_read_tokens": 2217467,
+    "output_tokens": 16932,
+    "api_call_count": 18
+  },
+  "session_metrics": {
+    "turn_count": 1
+  }
+}

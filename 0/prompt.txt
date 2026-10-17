@@ -1,0 +1,23 @@
+Repo: /Users/itsmeyaw/projects/binden (Next.js, drizzle, pnpm). Write code. Follow ponytail mode: shortest correct diff, no new abstractions/deps, no manual CSS.
+
+## Bug
+When an administrator accepts a signup request (which creates the Google Workspace account), the selected initial group memberships are never added. Root cause: `addGroupMember` in `src/lib/directory.ts:146-157` is simulation-only. It calls `simulatedDomain()`, which throws `WorkspaceUnavailable` unless `GOOGLE_SIMULATION=true`. So in real use every group ends up `failed` (`src/lib/provisioning.ts:97-113`), the request stays in `provisioning`, and handover never happens. `createWorkspaceUser` and `resetWorkspacePassword` in the same file already show the right pattern: a simulation branch first, then a real `googleSend` call with `actor.accessToken`.
+
+## Required change
+1. `src/lib/directory.ts`: change the signature to `addGroupMember(actor: Actor, groupId: string, userId: string, role: string)`.
+   - If `process.env.GOOGLE_SIMULATION === "true"`, keep the existing simulated behaviour unchanged: `simulatedDomain()`, the `sim-flaky`/`sim-gone` failures, and `sim-recovering`.
+   - Otherwise, POST `https://admin.googleapis.com/admin/directory/v1/groups/{encodeURIComponent(groupId)}/members` with body `{ id: userId, role: role.toUpperCase() }`. Roles stored are "member"|"manager"|"owner"; Google wants MEMBER/MANAGER/OWNER.
+   - "Already a member" must count as success, because overlapping retries can re-send a membership (see the comment at `provisioning.ts:83-85`). Google answers that with HTTP 409 (reason `duplicate`, "Member already exists"). `googleSend` in `src/lib/workspace.ts:57-75` currently throws `WorkspaceUnavailable` on any non-ok status. Add the smallest change that lets this one caller treat 409 as success. For example, add an optional `allowConflict` flag mirroring `googleGet`'s `allowMissing`, which returns null on 409 without logging. Don't change behaviour for the existing callers.
+   - Update or remove the stale `ponytail:` comment above `simulatedDomain` (lines 91-92) so it no longer claims membership writes are simulated-only.
+2. `src/lib/provisioning.ts`: thread `actor` into `addUnfinishedMemberships(id, userId, actor)`. It's called at line 78 (`provisionAcceptedRequest` already has `actor`) and line 157 (`retryProvisioning` already has `actor`). Pass it to `addGroupMember(actor, ...)`. Also update the comment at lines 83-85 to say that the Directory call treats already-a-member as success.
+3. Grep for any other callers of `addGroupMember` and update them.
+4. Tests: `tests/provisioning.ts` around line 154 seeds the real (non-simulated) case with no groups: `seed("real", [])`. Give it one group so the real path is exercised, and assert that a POST to `/admin/directory/v1/groups/<id>/members` was recorded in `directory.writes` with the expected `{ id, role: "MEMBER" }` body, and that the group state is `added`. Read `tests/fake-directory.ts` first: it intercepts fetch and records writes. Extend it minimally to answer that members POST with a success. If cheap, also make it answer 409 for a repeat add of the same member, and assert that 409 is treated as success. Skip that extra if it takes more than a few lines.
+
+## Workflow (from AGENTS.md)
+- Load the `gh-stack` skill before using gh stack.
+- Create a git worktree at `.worktrees/fix-group-membership` from `main`, with a new branch such as `fix/group-membership`. Init a new gh stack there (`gh stack` CLI) with that branch as the first layer.
+- Run `pnpm install` in the worktree if needed (copy `.env.local` from the repo root into the worktree if it exists, so the DB-backed tests can run). Then run `pnpm lint`, `pnpm format`, `npx tsc --noEmit`, and `pnpm test`. If DATABASE_URL is missing the provisioning test prints a skip; report that.
+- Commit in small incremental commits with messages in the repo style (imperative sentence, e.g. "Add group members through the Directory"). No Co-Authored-By trailers. Don't push or submit. I will do that.
+
+## Report back
+Branch name, worktree path, commit hashes and messages, the final diff (`git diff main...HEAD`), and test, lint, and typecheck results.
