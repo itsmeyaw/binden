@@ -1,4 +1,6 @@
+import { headers } from "next/headers";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { AlertCircleIcon } from "lucide-react";
 
 import { AuthButton } from "@/components/auth-button";
@@ -6,9 +8,13 @@ import { AuthShell } from "@/components/auth-shell";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FieldDescription } from "@/components/ui/field";
+import { getReviewAccess } from "@/lib/auth";
 
 export default async function Home({ searchParams }: PageProps<"/">) {
   const { error } = await searchParams;
+  // Signed-in reviewers skip the login page; everyone else (denied, reconnect, ...) can sign in again.
+  if (!error && (await getReviewAccess(await headers())).status === "available")
+    redirect("/review");
 
   return (
     <AuthShell>
@@ -16,7 +22,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
         <CardHeader className="text-center">
           <CardTitle>Welcome back</CardTitle>
           <CardDescription>
-            Sign in with your PM3 Muenchen Google Workspace account to review signup requests.
+            Sign in with your PM3 Muenchen Google Workspace accountt.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
