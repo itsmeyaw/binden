@@ -1,0 +1,104 @@
+{
+  "info": {
+    "id": "ses_eb8bbe4fdffeDpdhVr04vql1Mw",
+    "slug": "gentle-comet",
+    "projectID": "28efaf3c63c31d4caa53f01b1bf0333a974090a1",
+    "directory": "/Users/itsmeyaw/projects/binden",
+    "path": "",
+    "title": "CI/CD pipeline for Vercel and Neon",
+    "agent": "build",
+    "model": {
+      "id": "anthropic.claude-opus-5-5",
+      "providerID": "amazon-bedrock",
+      "variant": "medium"
+    },
+    "version": "1.18.34",
+    "summary": {
+      "additions": 0,
+      "deletions": 0,
+      "files": 0
+    },
+    "cost": 0,
+    "tokens": {
+      "input": 0,
+      "output": 0,
+      "reasoning": 0,
+      "cache": {
+        "read": 0,
+        "write": 0
+      }
+    },
+    "time": {
+      "created": 1792197008131,
+      "updated": 1792197008665
+    }
+  },
+  "messages": [
+    {
+      "info": {
+        "role": "user",
+        "time": {
+          "created": 1792197008165
+        },
+        "agent": "build",
+        "model": {
+          "providerID": "amazon-bedrock",
+          "modelID": "anthropic.claude-opus-5-5",
+          "variant": "medium"
+        },
+        "summary": {
+          "diffs": []
+        },
+        "id": "msg_147441b25001naSirbmZuUo2hK",
+        "sessionID": "ses_eb8bbe4fdffeDpdhVr04vql1Mw"
+      },
+      "parts": [
+        {
+          "type": "text",
+          "text": "Create CI/CD deployment pipeline for the project in github actions to a vercel project and neon database. The CI should alsso include lint, format, and test. ",
+          "id": "prt_147441b26001HHdxlXctbz7q3e",
+          "sessionID": "ses_eb8bbe4fdffeDpdhVr04vql1Mw",
+          "messageID": "msg_147441b25001naSirbmZuUo2hK"
+        }
+      ]
+    },
+    {
+      "info": {
+        "parentID": "msg_147441b25001naSirbmZuUo2hK",
+        "role": "assistant",
+        "mode": "build",
+        "agent": "build",
+        "variant": "medium",
+        "path": {
+          "cwd": "/Users/itsmeyaw/projects/binden",
+          "root": "/Users/itsmeyaw/projects/binden"
+        },
+        "cost": 0,
+        "tokens": {
+          "input": 0,
+          "output": 0,
+          "reasoning": 0,
+          "cache": {
+            "read": 0,
+            "write": 0
+          }
+        },
+        "modelID": "anthropic.claude-opus-5-5",
+        "providerID": "amazon-bedrock",
+        "time": {
+          "created": 1792197008475,
+          "completed": 1792197011168
+        },
+        "error": {
+          "name": "MessageAbortedError",
+          "data": {
+            "message": "Aborted"
+          }
+        },
+        "id": "msg_147441c5b00190p2zbRFbNf6xA",
+        "sessionID": "ses_eb8bbe4fdffeDpdhVr04vql1Mw"
+      },
+      "parts": []
+    }
+  ]
+}
