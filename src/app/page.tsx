@@ -16,7 +16,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
         <CardHeader className="text-center">
           <CardTitle>Welcome back</CardTitle>
           <CardDescription>
-            Sign in with your PM3 Muenchen Google Workspace account to review signup requests.
+            Sign in with your PM3 Muenchen Google Workspace accountt.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
