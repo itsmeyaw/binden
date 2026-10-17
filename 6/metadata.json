@@ -1,0 +1,46 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M53JJC655JKPG9TE4Y0RG5VQ",
+  "session_id": "ses_eb90cdaf3ffeZ3bMXoLxh90wq5",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-17T00:01:04.080162Z",
+  "branch": "ui/sheet-no-arrows",
+  "checkpoints_count": 1,
+  "save_step_count": 1,
+  "files_touched": [],
+  "agent": "OpenCode",
+  "model": "anthropic.claude-opus-5-5",
+  "turn_id": "908df1a0464f",
+  "checkpoint_transcript_start": 68,
+  "transcript_lines_at_start": 68,
+  "compact_transcript_start": 68,
+  "token_usage": {
+    "input_tokens": 22,
+    "cache_creation_tokens": 85616,
+    "cache_read_tokens": 742766,
+    "output_tokens": 3668,
+    "api_call_count": 10
+  },
+  "session_metrics": {
+    "turn_count": 5
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 4,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        "test-results/.last-run.json": 4
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 4,
+      "agent_lines_removed": 0
+    }
+  ]
+}
