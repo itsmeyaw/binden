@@ -172,37 +172,6 @@ export function ReviewQueue() {
     setPage(0);
   }
 
-  function select(index: number) {
-    const request = filtered[index];
-    if (!request) return;
-    setSelectedId(request.id);
-    setPage(Math.floor(index / PAGE_SIZE));
-  }
-
-  useEffect(() => {
-    if (!open) return;
-    function onKeyDown(event: KeyboardEvent) {
-      if (
-        event.defaultPrevented ||
-        event.metaKey ||
-        event.ctrlKey ||
-        event.altKey ||
-        event.shiftKey
-      )
-        return;
-      const target = event.target;
-      if (
-        target instanceof HTMLElement &&
-        (target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName))
-      )
-        return;
-      if (event.key === "j") select(selectedIndex + 1);
-      else if (event.key === "k") select(selectedIndex - 1);
-    }
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  });
-
   return (
     <section className="flex min-h-0 flex-col gap-4">
       {state.status === "loading" && (
@@ -381,7 +350,6 @@ export function ReviewQueue() {
                 </SheetTitle>
                 <SheetDescription>
                   Request {selectedIndex + 1} of {filtered.length}
-                  <span className="hidden sm:inline"> · J/K to switch</span>
                 </SheetDescription>
               </SheetHeader>
               <div className="min-h-0 flex-1 overflow-y-auto">
