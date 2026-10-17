@@ -1,0 +1,1 @@
+Create CI/CD deployment pipeline for the project in github actions to a vercel project and neon database. The CI should alsso include lint, format, and test.
