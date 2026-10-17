@@ -1,0 +1,23 @@
+Write code. Work ONLY in the git worktree /Users/itsmeyaw/projects/binden/.worktrees/ci-cd (branch `ci/checks`, already checked out, part of a gh stack). Do NOT switch branches, do NOT push, do NOT run any `gh stack` commands. Do not add Co-Authored-By trailers. Be minimal (lazy senior dev style: shortest working diff, no speculative stuff).
+
+Task: create `.github/workflows/ci.yml` — a GitHub Actions workflow named `CI/CD` with a single job `check`. (A later layer will add deploy jobs to this SAME file, so keep it as one file.)
+
+Triggers: `pull_request` (types: opened, synchronize, reopened, closed — `closed` is included now for the later cleanup job), and `push` to `main`. Add top-level `permissions: contents: read` and `concurrency: { group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}, cancel-in-progress: ${{ github.event_name == 'pull_request' }} }`.
+
+Job `check`:
+- `if: github.event.action != 'closed'`
+- runs-on ubuntu-latest
+- `services.REDACTED`: image REDACTED:17, env POSTGRES_PASSWORD=REDACTED POSTGRES_DB=binden, port 5432:5432, health-check options (pg_isready).
+- job env: `DATABASE_URL: REDACTED`
+- steps: actions/checkout@v5, pnpm/action-setup@v4 (version comes from `packageManager` in package.json — pnpm@11.21.0 — so don't pass a version), actions/setup-node@v5 with node-version-file or node 24 and `cache: pnpm`, `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm format:check`, `pnpm exec tsc --noEmit`, `pnpm exec drizzle-kit migrate`, `pnpm test`.
+  Check the latest major versions of those actions with `gh release list -R <owner/repo> -L 1` and use the current major tag.
+
+Context: package.json scripts: lint=`oxlint --deny-warnings .`, format:check=`oxfmt --check .`, test runs several tsx scripts in tests/; tests/handover.ts and tests/provisioning.ts skip unless DATABASE_URL is set, so the REDACTED service makes them actually run. drizzle.config.ts reads DATABASE_URL, migrations in ./drizzle. src/lib/db.ts uses node-REDACTED (`pg`). Look at tests/handover.ts and tests/provisioning.ts to confirm they work against a fresh migrated DB with no other env (check what other env vars they need, e.g. via `src/lib/env` — if they need extra env, add sane dummy values at job env level, e.g. from .env.example like GOOGLE_SIMULATION=true, MAIL_CAPTURE=true, BETTER_AUTH_SECRET dummy).
+
+Verify locally:
+1. `pnpm install --frozen-lockfile` in the worktree.
+2. Run `pnpm lint`, `pnpm format:check`, `pnpm exec tsc --noEmit` — all must pass. If tsc fails on pre-existing code, report it rather than doing big fixes (small fixes fine; tell me). Make sure the new yml file passes `pnpm format:check` (oxfmt may format yaml) — run `pnpm format` if needed.
+3. If docker is available (`docker info`), start `docker run -d --rm -e POSTGRES_PASSWORD=REDACTED -e POSTGRES_DB=binden -p 55432:5432 REDACTED:17`, then run `DATABASE_URL=REDACTED pnpm exec drizzle-kit migrate` and the test command with the same env to confirm the DB-backed tests pass (not skip). Stop the container afterwards. If docker is not available, say so.
+4. If `actionlint` is available run it; otherwise skip.
+
+Commit with message `Add CI workflow: lint, format, typecheck, test`. Report back: the final file contents, verification results (each command pass/fail, whether DB tests ran), and any env vars you had to add and why.
