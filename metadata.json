@@ -3,8 +3,10 @@
   "checkpoint_id": "01M53MDNZ7Y2V2NEQE3AM4VWZM",
   "strategy": "manual-commit",
   "branch": "ci/checks",
-  "checkpoints_count": 3,
-  "files_touched": null,
+  "checkpoints_count": 4,
+  "files_touched": [
+    ".github/workflows/ci.yml"
+  ],
   "sessions": [
     {
       "metadata": "/0/metadata.json",
@@ -18,6 +20,13 @@
       "transcript": "/1/full.jsonl",
       "compact_transcript": "/1/transcript.jsonl",
       "content_hash": "/1/content_hash.txt",
+      "prompt": ""
+    },
+    {
+      "metadata": "/2/metadata.json",
+      "transcript": "/2/full.jsonl",
+      "compact_transcript": "/2/transcript.jsonl",
+      "content_hash": "/2/content_hash.txt",
       "prompt": ""
     }
   ],
