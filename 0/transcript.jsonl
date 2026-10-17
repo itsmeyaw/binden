@@ -1,0 +1,2 @@
+{"v":1,"agent":"opencode","cli_version":"0.11.4","type":"user","ts":"2026-10-17T00:30:08.165Z","content":[{"id":"prt_147441b26001HHdxlXctbz7q3e","text":"Create CI/CD deployment pipeline for the project in github actions to a vercel project and neon database. The CI should alsso include lint, format, and test."}]}
+{"v":1,"agent":"opencode","cli_version":"0.11.4","type":"assistant","ts":"2026-10-17T00:30:08.475Z","id":"msg_147441c5b00190p2zbRFbNf6xA","content":[]}
