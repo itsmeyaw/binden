@@ -3,7 +3,7 @@
   "checkpoint_id": "01M53MHSRV0GS7SK4K26QF5HPB",
   "strategy": "manual-commit",
   "branch": "ci/deploy",
-  "checkpoints_count": 11,
+  "checkpoints_count": 12,
   "files_touched": [
     ".github/workflows/ci.yml"
   ],
@@ -76,6 +76,13 @@
       "transcript": "/9/full.jsonl",
       "compact_transcript": "/9/transcript.jsonl",
       "content_hash": "/9/content_hash.txt",
+      "prompt": ""
+    },
+    {
+      "metadata": "/10/metadata.json",
+      "transcript": "/10/full.jsonl",
+      "compact_transcript": "/10/transcript.jsonl",
+      "content_hash": "/10/content_hash.txt",
       "prompt": ""
     }
   ],
